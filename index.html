@@ -375,6 +375,19 @@
     align-items:center;
     gap:6px;
   }
+  .filter-step-title .facet-actions{
+    margin-left:auto;
+    display:flex;
+    gap:10px;
+  }
+  /* El .mini-btn base es blanco (pensado para fondo oscuro) y el cuerpo del
+     modal es blanco, así que acá va en azul, igual que en .dropdown-actions. */
+  .filter-step-title .facet-actions .mini-btn{
+    color:var(--byd-blue);
+    text-decoration:underline;
+    font-weight:600;
+  }
+  .filter-step-title .facet-actions .mini-btn:hover{color:var(--byd-blue-dark);}
   .filter-step-title .hint{
     font-weight:400;
     font-size:.68rem;
@@ -683,19 +696,19 @@
 
       <div id="advancedFilters" style="display:none;">
         <div class="filter-step">
-          <div class="filter-step-title">Segmento</div>
+          <div class="filter-step-title">Segmento<span class="facet-actions"><button class="mini-btn" id="segmentAllBtn" type="button">Todos</button><button class="mini-btn" id="segmentNoneBtn" type="button">Ninguno</button></span></div>
           <div class="preset-row" id="segmentRow"></div>
         </div>
         <div class="filter-step">
-          <div class="filter-step-title">Carrocería</div>
+          <div class="filter-step-title">Carrocería<span class="facet-actions"><button class="mini-btn" id="bodyAllBtn" type="button">Todas</button><button class="mini-btn" id="bodyNoneBtn" type="button">Ninguna</button></span></div>
           <div class="preset-row" id="bodyRow"></div>
         </div>
         <div class="filter-step">
-          <div class="filter-step-title">Propulsión</div>
+          <div class="filter-step-title">Propulsión<span class="facet-actions"><button class="mini-btn" id="propAllBtn" type="button">Todas</button><button class="mini-btn" id="propNoneBtn" type="button">Ninguna</button></span></div>
           <div class="preset-row" id="propRow"></div>
         </div>
         <div class="filter-step">
-          <div class="filter-step-title">Asientos</div>
+          <div class="filter-step-title">Asientos<span class="facet-actions"><button class="mini-btn" id="seatsAllBtn" type="button">Todos</button><button class="mini-btn" id="seatsNoneBtn" type="button">Ninguno</button></span></div>
           <div class="preset-row" id="seatsRow"></div>
         </div>
       </div>
@@ -1135,6 +1148,14 @@ function buildFacetRow(container, options, selectedSet, labelFn, onChange){
     if(e.target.checked) selectedSet.add(v); else selectedSet.delete(v);
     onChange();
   };
+  // Marca o desmarca todas las opciones de la fila de una sola vez.
+  // Muta el mismo Set en vez de reasignarlo, porque el onchange de arriba lo tiene capturado.
+  return function setAll(on){
+    selectedSet.clear();
+    if(on) options.forEach(o=>selectedSet.add(String(o)));
+    container.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = on; });
+    onChange();
+  };
 }
 
 function updateCompareCount(){
@@ -1254,10 +1275,17 @@ document.getElementById('modelNoneBtn').addEventListener('click', ()=>{
 });
 
 // ---- Filtros avanzados (segmento, carrocería, propulsión, asientos): siguen como listas de checks ----
-buildFacetRow(document.getElementById('segmentRow'), SEGMENTS, selectedSegments, s=>s, onFacetChange);
-buildFacetRow(document.getElementById('bodyRow'), BODIES, selectedBodies, b=>b, onFacetChange);
-buildFacetRow(document.getElementById('propRow'), PROPS, selectedProps, p=>PROP_LABELS[p]||p, onFacetChange);
-buildFacetRow(document.getElementById('seatsRow'), SEATS, selectedSeats, s=> s==='s/d' ? 'Sin dato' : (s+(s==='1'?' asiento':' asientos')), onFacetChange);
+const setAllSegments = buildFacetRow(document.getElementById('segmentRow'), SEGMENTS, selectedSegments, s=>s, onFacetChange);
+const setAllBodies = buildFacetRow(document.getElementById('bodyRow'), BODIES, selectedBodies, b=>b, onFacetChange);
+const setAllProps = buildFacetRow(document.getElementById('propRow'), PROPS, selectedProps, p=>PROP_LABELS[p]||p, onFacetChange);
+const setAllSeats = buildFacetRow(document.getElementById('seatsRow'), SEATS, selectedSeats, s=> s==='s/d' ? 'Sin dato' : (s+(s==='1'?' asiento':' asientos')), onFacetChange);
+
+// Botones "todos / ninguno" de cada fila de Más filtros
+[['segment',setAllSegments],['body',setAllBodies],['prop',setAllProps],['seats',setAllSeats]]
+  .forEach(([id,setAll])=>{
+    document.getElementById(id+'AllBtn').addEventListener('click', ()=>setAll(true));
+    document.getElementById(id+'NoneBtn').addEventListener('click', ()=>setAll(false));
+  });
 
 renderModelList();
 
