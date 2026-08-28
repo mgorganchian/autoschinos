@@ -98,9 +98,9 @@
   /* Silueta por tipo de carrocería en el encabezado de cada columna.
      Es un sprite SVG inline: no agrega peso apreciable ni depende de archivos externos,
      coherente con que el comparativo sea un HTML autocontenido. */
-  .car-icon{display:block;width:40px;height:auto;margin:0 auto 2px;
+  .car-icon{display:block;width:calc(var(--w,38) * 1px);height:auto;margin:0 auto 2px;
     fill:currentColor;opacity:.5}
-  @media (orientation:portrait){ .car-icon{width:34px} }
+  @media (orientation:portrait){ .car-icon{width:calc(var(--w,38) * .85px)} }
   @media (orientation:landscape) and (max-height:500px){ .car-icon{display:none} }
   .thead-wrap{
     position:sticky;
@@ -746,53 +746,53 @@
 <thead>
 <tr>
   <th class="feat-col">Característica</th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC BJ60<small>5040mm · Mild-Hybrid</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Crossover"><use href="#b-crossover"/></svg>BYD Sealion 7<small>4830mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Lynk & Co 08<small>4820mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Sedán"><use href="#b-sedan"/></svg>Arcfox S5<small>4820mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC BJ40 Pro<small>4790mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Sedán"><use href="#b-sedan"/></svg>Seal 5 DM-i<small>4780mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Seal U DM-i<small>4775mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC X55 Plus<small>4740mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Song Pro<small>4738mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Arcfox T5<small>4690mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Sedán"><use href="#b-sedan"/></svg>BAIC EU5<small>4670mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Sedán"><use href="#b-sedan"/></svg>BAIC U5 Plus<small>4660mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC BJ40 Plus<small>~4630mm (est.) · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC X55 II<small>4620mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC X55 II Hybrid<small>~4620mm (est.) · Híbrido</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Honda CR-V 2010<small>4575mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Lynk & Co 01<small>4550mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Minivan"><use href="#b-minivan"/></svg>Arcfox Koala S<small>4500mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC BJ30 4x2<small>~4500mm (est.) · Híbrido</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC BJ30 4x4<small>~4500mm (est.) · Híbrido</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Crossover"><use href="#b-crossover"/></svg>Corolla Cross HEV<small>4460mm · HEV (no enchufable)</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Lynk & Co 06<small>4350mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Crossover"><use href="#b-crossover"/></svg>Arcfox T1<small>4337mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Atto 2 DM-i<small>4330mm · PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>BAIC X35<small>4325mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Crossover"><use href="#b-crossover"/></svg>Yuan Pro<small>4310mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Hatchback"><use href="#b-hatchback"/></svg>Toyota Yaris S<small>4145mm · Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Hatchback"><use href="#b-hatchback"/></svg>Dolphin Mini<small>3990mm · 100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Chery Tiggo 8 Pro<small>Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Haval H6 HEV<small>HEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Pickup"><use href="#b-pickup"/></svg>Poer 4WD<small>Diésel (pickup)</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Tank 300<small>Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Hatchback"><use href="#b-hatchback"/></svg>Ora 03<small>100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>MG ZS HEV<small>HEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Changan CS55 Plus<small>PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Geely EX5<small>100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Pickup"><use href="#b-pickup"/></svg>JAC T9<small>Diésel (pickup)</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Jetour T2<small>Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Sedán"><use href="#b-sedan"/></svg>GAC S7<small>PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Kaiyi X7<small>Naftero</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Forthing U-Tour<small>HEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Skywell BE11<small>100% eléctrico</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>DFSK E5<small>PHEV</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Pickup"><use href="#b-pickup"/></svg>Foton Tunland V9<small>5617mm · Naftero (pickup)</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Pickup"><use href="#b-pickup"/></svg>Maxus eTerron<small>100% eléctrico (pickup)</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="Crossover"><use href="#b-crossover"/></svg>Omoda C5<small>Aún no disponible</small></th>
-  <th><svg class="car-icon" viewBox="0 0 64 30" role="img" aria-label="SUV"><use href="#b-suv"/></svg>Jaecoo 7<small>Aún no disponible</small></th>
+  <th><svg class="car-icon" style="--w:39" viewBox="0 0 64 30" role="img" aria-label="SUV, 5040 mm"><use href="#b-suv"/></svg>BAIC BJ60<small>5040mm · Mild-Hybrid</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="Crossover, 4830 mm"><use href="#b-crossover"/></svg>BYD Sealion 7<small>4830mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4820 mm"><use href="#b-suv"/></svg>Lynk & Co 08<small>4820mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="Sedán, 4820 mm"><use href="#b-sedan"/></svg>Arcfox S5<small>4820mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4790 mm"><use href="#b-suv"/></svg>BAIC BJ40 Pro<small>4790mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="Sedán, 4780 mm"><use href="#b-sedan"/></svg>Seal 5 DM-i<small>4780mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4775 mm"><use href="#b-suv"/></svg>Seal U DM-i<small>4775mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4745 mm"><use href="#b-suv"/></svg>BAIC X55 Plus<small>4740mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4738 mm"><use href="#b-suv"/></svg>Song Pro<small>4738mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4690 mm"><use href="#b-suv"/></svg>Arcfox T5<small>4690mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="Sedán, 4650 mm"><use href="#b-sedan"/></svg>BAIC EU5<small>4670mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="Sedán, 4660 mm"><use href="#b-sedan"/></svg>BAIC U5 Plus<small>4660mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4630 mm"><use href="#b-suv"/></svg>BAIC BJ40 Plus<small>~4630mm (est.) · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4620 mm"><use href="#b-suv"/></svg>BAIC X55 II<small>4620mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4620 mm"><use href="#b-suv"/></svg>BAIC X55 II Hybrid<small>~4620mm (est.) · Híbrido</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4575 mm"><use href="#b-suv"/></svg>Honda CR-V 2010<small>4575mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4545 mm"><use href="#b-suv"/></svg>Lynk & Co 01<small>4550mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:34" viewBox="0 0 64 30" role="img" aria-label="Minivan, 4500 mm"><use href="#b-minivan"/></svg>Arcfox Koala S<small>4500mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4730 mm"><use href="#b-suv"/></svg>BAIC BJ30 4x2<small>~4500mm (est.) · Híbrido</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4730 mm"><use href="#b-suv"/></svg>BAIC BJ30 4x4<small>~4500mm (est.) · Híbrido</small></th>
+  <th><svg class="car-icon" style="--w:34" viewBox="0 0 64 30" role="img" aria-label="Crossover, 4460 mm"><use href="#b-crossover"/></svg>Corolla Cross HEV<small>4460mm · HEV (no enchufable)</small></th>
+  <th><svg class="car-icon" style="--w:33" viewBox="0 0 64 30" role="img" aria-label="SUV, 4350 mm"><use href="#b-suv"/></svg>Lynk & Co 06<small>4350mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:33" viewBox="0 0 64 30" role="img" aria-label="Crossover, 4337 mm"><use href="#b-crossover"/></svg>Arcfox T1<small>4337mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:33" viewBox="0 0 64 30" role="img" aria-label="SUV, 4330 mm"><use href="#b-suv"/></svg>Atto 2 DM-i<small>4330mm · PHEV</small></th>
+  <th><svg class="car-icon" style="--w:33" viewBox="0 0 64 30" role="img" aria-label="SUV, 4325 mm"><use href="#b-suv"/></svg>BAIC X35<small>4325mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:33" viewBox="0 0 64 30" role="img" aria-label="Crossover, 4310 mm"><use href="#b-crossover"/></svg>Yuan Pro<small>4310mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:31" viewBox="0 0 64 30" role="img" aria-label="Hatchback, 4145 mm"><use href="#b-hatchback"/></svg>Toyota Yaris S<small>4145mm · Naftero</small></th>
+  <th><svg class="car-icon" style="--w:30" viewBox="0 0 64 30" role="img" aria-label="Hatchback, 3990 mm"><use href="#b-hatchback"/></svg>Dolphin Mini<small>3990mm · 100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4722 mm"><use href="#b-suv"/></svg>Chery Tiggo 8 Pro<small>Naftero</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4683 mm"><use href="#b-suv"/></svg>Haval H6 HEV<small>HEV</small></th>
+  <th><svg class="car-icon" style="--w:42" viewBox="0 0 64 30" role="img" aria-label="Pickup, 5410 mm"><use href="#b-pickup"/></svg>Poer 4WD<small>Diésel (pickup)</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4760 mm"><use href="#b-suv"/></svg>Tank 300<small>Naftero</small></th>
+  <th><svg class="car-icon" style="--w:32" viewBox="0 0 64 30" role="img" aria-label="Hatchback, 4235 mm"><use href="#b-hatchback"/></svg>Ora 03<small>100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:34" viewBox="0 0 64 30" role="img" aria-label="SUV, 4430 mm"><use href="#b-suv"/></svg>MG ZS HEV<small>HEV</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4539 mm"><use href="#b-suv"/></svg>Changan CS55 Plus<small>PHEV</small></th>
+  <th><svg class="car-icon" style="--w:35" viewBox="0 0 64 30" role="img" aria-label="SUV, 4615 mm"><use href="#b-suv"/></svg>Geely EX5<small>100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:42" viewBox="0 0 64 30" role="img" aria-label="Pickup, 5330 mm"><use href="#b-pickup"/></svg>JAC T9<small>Diésel (pickup)</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4785 mm"><use href="#b-suv"/></svg>Jetour T2<small>Naftero</small></th>
+  <th><svg class="car-icon" style="--w:38" viewBox="0 0 64 30" role="img" aria-label="Sedán, 4900 mm"><use href="#b-sedan"/></svg>GAC S7<small>PHEV</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4710 mm"><use href="#b-suv"/></svg>Kaiyi X7<small>Naftero</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4850 mm"><use href="#b-suv"/></svg>Forthing U-Tour<small>HEV</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, 4700 mm"><use href="#b-suv"/></svg>Skywell BE11<small>100% eléctrico</small></th>
+  <th><svg class="car-icon" style="--w:37" viewBox="0 0 64 30" role="img" aria-label="SUV, 4760 mm"><use href="#b-suv"/></svg>DFSK E5<small>PHEV</small></th>
+  <th><svg class="car-icon" style="--w:44" viewBox="0 0 64 30" role="img" aria-label="Pickup, 5617 mm"><use href="#b-pickup"/></svg>Foton Tunland V9<small>5617mm · Naftero (pickup)</small></th>
+  <th><svg class="car-icon" style="--w:43" viewBox="0 0 64 30" role="img" aria-label="Pickup, 5500 mm"><use href="#b-pickup"/></svg>Maxus eTerron<small>100% eléctrico (pickup)</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="Crossover, largo sin dato"><use href="#b-crossover"/></svg>Omoda C5<small>Aún no disponible</small></th>
+  <th><svg class="car-icon" style="--w:36" viewBox="0 0 64 30" role="img" aria-label="SUV, largo sin dato"><use href="#b-suv"/></svg>Jaecoo 7<small>Aún no disponible</small></th>
 </tr>
 </thead>
 </table>
