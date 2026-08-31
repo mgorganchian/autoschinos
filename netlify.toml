@@ -1,0 +1,43 @@
+# Configuración de Netlify para autoschinos.
+#
+# Este sitio NO tiene build: es un único index.html autocontenido servido desde
+# la raíz. El comando de build y el publish directory siguen viniendo del panel
+# de Netlify — acá no se declaran a propósito, para no arriesgar sobrescribir
+# una configuración que ya funciona.
+#
+# Lo único que se configura acá es cuándo NO gastar un deploy de producción.
+
+[build]
+  # Netlify corre este comando antes de cada build:
+  #   exit 0  → saltea el build (no consume el deploy de producción)
+  #   exit ≠0 → lo corre
+  #
+  # Solo nos interesa deployar cuando cambia algo que el sitio realmente sirve.
+  # Un commit que toca únicamente documentación (CLAUDE.md, el contexto,
+  # .gitignore) o que está vacío no cambia nada de lo que ve el visitante, así
+  # que no tiene sentido gastar un deploy en él.
+  #
+  # Si $CACHED_COMMIT_REF viene vacío (primer deploy del sitio), git sale con
+  # 128 y el build CORRE. Falla hacia el lado seguro a propósito: ante la duda,
+  # deployar.
+  #
+  # ⚠️ Si algún día el sitio deja de actualizarse después de un cambio real,
+  # esta regla es el primer sospechoso. Para descartarla, comentar la línea
+  # `ignore` y volver a pushear. Y si en el futuro se agregan archivos que el
+  # sitio sirva (imágenes, otro HTML, un CSS), hay que sumarlos a la lista de
+  # paths o esta regla los va a dejar sin publicar.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- index.html netlify.toml"
+
+# Los headers no cuestan deploys ni créditos: se aplican en el edge.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# La documentación del repo se sirve como texto plano si alguien la abre,
+# en vez de descargarse.
+[[headers]]
+  for = "/*.md"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
