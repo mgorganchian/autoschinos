@@ -1,0 +1,61 @@
+# Manifiesto de fichas técnicas: qué URL alimenta a qué auto de la tabla.
+#
+# Por qué existe: sin esto no se puede responder "¿cambió la ficha de este auto?".
+# En septiembre de 2026 se intentó detectar cambios sin manifiesto y hubo tres
+# falsos positivos seguidos, todos por comparar el archivo guardado contra un
+# documento DISTINTO de la misma marca (el brochure de BAIC contra la ficha de
+# motor1, el H6 Pro HEV contra el H6 HEV). Un hash solo sirve si se compara la
+# misma URL contra sí misma.
+#
+# Formato: auto <TAB> archivo_local <TAB> url <TAB> sha256_verificado <TAB> fecha
+# El archivo local vive en ~/Downloads/autoschinos-fichas/ (ahí llega el MCP de PDF).
+#
+# Para chequear cambios:
+#   while IFS=$'\t' read -r auto f u h fecha; do
+#     [ "${auto#\#}" != "$auto" ] && continue
+#     n=$(curl -sL "$u" | shasum -a 256 | cut -d' ' -f1)
+#     [ "$n" = "$h" ] && echo "igual  $auto" || echo "CAMBIÓ $auto"
+#   done < fichas-fuentes.tsv
+#
+# ⚠️ Antes de dar por "cambiada" una ficha, confirmar que la URL es la MISMA que
+# generó el hash guardado. Un salto grande de tamaño casi siempre significa que
+# se está comparando otro documento, no una actualización.
+
+BAIC BJ30 4x2	baic-bj30-4x2.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ30_4x2.pdf	verificado-igual	2026-09-21
+BAIC BJ30 4x4	baic-bj30-4x4.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ30_4x4.pdf	verificado-igual	2026-09-21
+BAIC BJ60	baic-bj60.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ60.pdf	verificado-igual	2026-09-21
+BAIC EU5	baic-eu5.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_EU5.pdf	verificado-igual	2026-09-21
+BAIC U5 Plus	baic-u5-plus.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_U5_Plus.pdf	verificado-igual	2026-09-21
+BAIC X35	baic-x35.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X35_Luxury.pdf	verificado-igual	2026-09-21
+BAIC X55 II	baic-x55-ii.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X55_Luxury.pdf	verificado-igual	2026-09-21
+BAIC X55 Plus	baic-x55-plus.pdf	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X55_Plus.pdf	verificado-igual	2026-09-21
+BAIC X55 II Hybrid	baic-x55ii-hybrid.pdf	https://baic.com.ar/wp-content/uploads/2026/08/Brochure_BAIC_X55II_Hybrid_web-2.pdf	verificado-igual	2026-09-21
+BAIC BJ40 Plus	baic-bj40.pdf	https://cdn.motor1.com/pdf-files/ficha-tecnica-baic-bj40.pdf	verificado-igual	2026-09-21
+Arcfox T1	arcfox-t1-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-T1-Brochure-Argentina-2026_Web.pdf	verificado-igual	2026-09-21
+Arcfox T5	arcfox-t5-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-T5-Brochure-Argentina-2026_Web.pdf	verificado-igual	2026-09-21
+Arcfox S5	arcfox-s5-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-S5-Brochure-Argentina-2026_Web.pdf	verificado-igual	2026-09-21
+Arcfox Koala S	arcfox-kaola-s-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-KAOLA-S-Brochure-Argentina-2026_Web.pdf	verificado-igual	2026-09-21
+Tank 300	gwm-tank-300.pdf	https://gwm.com.ar/FT-TANK-300.pdf	verificado-igual	2026-09-21
+Ora 03	gwm-ora-03.pdf	https://gwm.com.ar/FT-ORA-03.pdf	verificado-igual	2026-09-21
+Haval H6 HEV	gwm-haval-h6-hev.pdf	https://gwm.com.ar/FT-H6-HEV.pdf	verificado-igual	2026-09-21
+Jetour T2	jetour-t2-oficial.pdf	https://jetour.com.ar/wp-content/uploads/2025/10/Ficha-tecnica-Jetour-T2-2025.pdf	verificado-igual	2026-09-21
+Changan CS55 Plus	changan-cs55-citydrive.pdf	https://citydrive.com.ar/wp-content/uploads/2025/10/ficha-tecnica-Changan-CS55.pdf	verificado-igual	2026-09-21
+MG ZS HEV	mg-zs-hev-mgpilar.pdf	https://mgpilar.com.ar/assets/archivos/ficha_tecnica_mg_zs.pdf	verificado-igual	2026-09-21
+Chery Tiggo 8 Pro	chery-tiggo-8-pro.pdf	https://cdn.motor1.com/pdf-files/ficha-tecnica-chery-tiggo-8-pro.pdf	verificado-igual	2026-09-21
+Geely EX5	geely-ex5-citydrive.pdf	https://citydrive.com.ar/wp-content/uploads/2025/12/FICHA-TECNICA-EX5-5.pdf	verificado-igual	2026-09-21
+Leapmotor C10	leapmotor-c10-ft-ar.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/c10/20260724-ft-c10.pdf	verificado-igual	2026-09-21
+Leapmotor B10	leapmotor-b10-ft-ar.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/b10/20260724-ft-b10.pdf	verificado-igual	2026-09-21
+Lynk & Co 01	lynkco-01-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-01.pdf	ficha-MY2026	2026-09-21
+Lynk & Co 06	lynkco-06-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-06.pdf	ficha-MY2026	2026-09-21
+Lynk & Co 08	lynkco-08-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-08.pdf	ficha-MY2026	2026-09-21
+
+# SIN URL REGISTRADA — hay que redescubrirla antes de poder detectar cambios:
+#   Poer 4WD, JAC T9, GAC S7, Kaiyi X7, Forthing U-Tour, DFSK E5,
+#   Maxus eTerron, Foton Tunland V9, BJ40 Pro, BJ40 Plus (brochure BAIC)
+#
+# Truco que funcionó para encontrar fichas en sitios WordPress (BAIC, Arcfox,
+# Jetour, citydrive, Foton): la API de medios lista TODOS los PDF, incluso los
+# que no están linkeados en ninguna página —
+#   /wp-json/wp/v2/media?per_page=100&mime_type=application/pdf&orderby=date&order=desc
+# Es mucho más confiable que crawlear el HTML, donde además los links vienen
+# JSON-escapados (https:\/\/...) y un grep href normal no los ve.
