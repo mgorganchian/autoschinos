@@ -101,3 +101,40 @@ Yuan Pro	https://www.byd.com/material/byd-site/ar/yuan-pro/Navigation_bar.png
 #     (4OK.jpg, 7-2.png, lateral-para-web.png) y no permiten atribuir el modelo
 #   Tank 300, Poer 4WD y Ora 03 — gwm.com.ar ya no los lista en /modelos,
 #     solo quedan h6, h6-pro-hev, h6-gt, jolion-pro-hev y ora-5
+
+
+# ---------------------------------------------------------------------------
+# FOTOS DE WIKIMEDIA COMMONS (tercera tanda, fuentes NO argentinas).
+# Se usó Commons y no los sitios globales de marca por dos razones: los archivos
+# nombran el modelo exacto —lo que permite verificar identidad, que es donde
+# fallaban los sitios de marca— y tienen licencia libre, a diferencia de las
+# fotos de prensa de las dos tandas anteriores, que no tienen licencia explícita.
+#
+# Las CC BY y CC BY-SA EXIGEN ATRIBUCIÓN: va en el panel de la foto ampliada,
+# vía el atributo data-credito de cada <img>. Las CC0 no la requieren.
+#
+# Descartadas por no coincidir el nombre exacto del modelo:
+#   Poer 4WD       — en Commons solo hay 'GWM Poer Plus Turbo', otra versión
+#   Forthing U-Tour— solo hay 'U-Tour V9 PHEV' y la tabla tiene el U-Tour HEV
+#   Geely EX5      — la búsqueda devuelve 'Geely Galaxy E5', que es otro nombre
+#   Honda CR-V     — los resultados son de 2002, no del 2010 de la tabla
+#   Toyota Yaris S — el 'Yaris sedan' de Commons es el de EE.UU., otro auto
+#   BAIC X55 II / BJ40 Plus — ambiguos entre las versiones que ya están en la tabla
+# Sin resultados: Kaiyi X7, Skywell BE11, DFSK E5, Foton Tunland V9, Omoda C5, GAC S7
+# auto <TAB> archivo en Commons <TAB> licencia <TAB> autor <TAB> página
+
+BAIC EU5	BAIC EU5.jpg	CC BY-SA 3.0	최병찬루카스	https://commons.wikimedia.org/wiki/File:BAIC_EU5.jpg
+BAIC X35	BAIC X35 102705.jpg	CC BY 4.0	Trop86	https://commons.wikimedia.org/wiki/File:BAIC_X35_102705.jpg
+BYD Sealion 7	2024 BYD Sealion 7 Performance AWD (Thailand) front view.png	CC BY 3.0	iMoD Official	https://commons.wikimedia.org/wiki/File:2024_BYD_Sealion_7_Performance_AWD_(Thailand)_front_view.png
+Changan CS55 Plus	Changan CS55 Plus 001.jpg	CC BY-SA 4.0	Jengtingchen	https://commons.wikimedia.org/wiki/File:Changan_CS55_Plus_001.jpg
+Chery Tiggo 8 Pro	Chery Tiggo 8 Pro 005.jpg	CC0	JustAnotherCarDesigner	https://commons.wikimedia.org/wiki/File:Chery_Tiggo_8_Pro_005.jpg
+Corolla Cross HEV	23 Toyota Corolla Cross Hybrid SE.jpg	CC0	HJUdall	https://commons.wikimedia.org/wiki/File:23_Toyota_Corolla_Cross_Hybrid_SE.jpg
+JAC T9	2025 JAC T9 silver front.jpg	CC0	Throwawayacc222	https://commons.wikimedia.org/wiki/File:2025_JAC_T9_silver_front.jpg
+Jaecoo 7	Jaecoo 7 front view 01.png	CC BY 3.0	Autosdeprimera	https://commons.wikimedia.org/wiki/File:Jaecoo_7_front_view_01.png
+Leapmotor C10	Leapmotor C10 011.jpg	CC0	KitsuneDP	https://commons.wikimedia.org/wiki/File:Leapmotor_C10_011.jpg
+Lynk & Co 06	Lynk & Co 06 006.jpg	CC BY-SA 4.0	Jengtingchen	https://commons.wikimedia.org/wiki/File:Lynk_&_Co_06_006.jpg
+Lynk & Co 08	Lynk & Co 08 004.jpg	CC0	JustAnotherCarDesigner	https://commons.wikimedia.org/wiki/File:Lynk_&_Co_08_004.jpg
+MG ZS HEV	MG ZS Hybrid+ (2025) (54857666431).jpg	CC0	Charles from Port Chester, New York	https://commons.wikimedia.org/wiki/File:MG_ZS_Hybrid+_(2025)_(54857666431).jpg
+Maxus eTerron	Maxus eTerron 9 Auto Zuerich 2024 DSC 6159 (cropped).jpg	CC BY-SA 4.0	Alexander-93	https://commons.wikimedia.org/wiki/File:Maxus_eTerron_9_Auto_Zuerich_2024_DSC_6159_(cropped).jpg
+Ora 03	GWM Ora 03 165559.jpg	CC0	Trop86	https://commons.wikimedia.org/wiki/File:GWM_Ora_03_165559.jpg
+Tank 300	GWM Tank 300 HEV Ultra Crystal Black 01.jpg	CC BY-SA 4.0	Ethan Llamas	https://commons.wikimedia.org/wiki/File:GWM_Tank_300_HEV_Ultra_Crystal_Black_01.jpg
