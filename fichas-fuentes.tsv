@@ -83,3 +83,21 @@ BAIC BJ60	https://baic.com.ar/wp-content/uploads/2026/03/BAIC_BJ60_Slide_Home_Fe
 BAIC X55 Plus	https://baic.com.ar/wp-content/uploads/2025/09/Foto-X55-Plus-Exterior-24-WEB.jpg
 Jetour T2	https://jetour.com.ar/wp-content/uploads/2026/04/Mobile-Datos-T2-i-DM.jpg
 Lynk & Co 01	https://citydrive.com.ar/wp-content/uploads/2026/05/axo_lynk_01_GRIS_OSCURO.webp
+
+# segunda tanda de fotos (BYD, GWM, Leapmotor)
+Atto 2 DM-i	https://www.byd.com/material/byd-site/ar/atto-2-dmi/homepage/atto2-dm-ibanner-PC.png
+Dolphin Mini	https://www.byd.com/material/byd-site/ar/dolphin-mini-argentina/test-drive/Dolphin_mini.webp
+Haval H6 HEV	https://gwm.com.ar/h6-blanco.png
+Leapmotor B10	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/gamas/b10/andando-frente-dk.png
+Seal 5 DM-i	https://www.byd.com/material/__CN/byd-site/ar/seal5dmi/testdrive/Test-drive-page.png
+Seal U DM-i	https://www.byd.com/material/byd-site/ar/sealudmi/time-grey-header41.png
+Song Pro	https://www.byd.com/material/byd-site/ar/song-pro/song-pro-blue.png
+Yuan Pro	https://www.byd.com/material/byd-site/ar/yuan-pro/Navigation_bar.png
+
+# Descartadas en esta tanda y por qué:
+#   Leapmotor C10 — en el sitio solo hay tomas traseras del auto
+#   Foton Tunland V9 — la unica foto es vertical, con la pickup chica en un paisaje
+#   Chery, Changan, Geely, MG, Maxus — los nombres de archivo son genericos
+#     (4OK.jpg, 7-2.png, lateral-para-web.png) y no permiten atribuir el modelo
+#   Tank 300, Poer 4WD y Ora 03 — gwm.com.ar ya no los lista en /modelos,
+#     solo quedan h6, h6-pro-hev, h6-gt, jolion-pro-hev y ora-5
