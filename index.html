@@ -686,6 +686,12 @@
   }
   .modal-body .advanced-toggle:hover{background:#e2e6ee;}
   body.modal-open{overflow:hidden;}
+  /* Indicador de percentiles: cuatro cuadraditos que ubican al auto contra
+     los demás EN ESA MISMA FILA. Solo aparece en las filas donde "mejor"
+     tiene una dirección objetiva — ver PCTL_DIR en el script. */
+  .pct{display:inline-flex;gap:1px;vertical-align:middle;margin-left:5px;flex-shrink:0}
+  .pct i{width:4px;height:9px;border-radius:1px;background:#dbe0e6}
+  .pct i.on{background:#1f9d55}
 </style>
 </head>
 <body>
@@ -727,6 +733,7 @@
   <span><span class="dot" style="background:var(--nd)"></span> Sin dato en la ficha</span>
   <span><span class="dot" style="background:var(--ext-bg);border:1px solid var(--ext-text)"></span> Dato de otra fuente (no oficial AR)</span>
   <span><span class="dot" style="background:var(--note-bg);border:1px solid var(--note-text)"></span> Aclaración / no comparable 1 a 1</span>
+  <span><span class="pct" style="margin-left:0"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> Cómo queda contra los demás autos en esa fila (4 = mejor 20%). Solo en las filas donde "mejor" tiene una dirección clara.</span>
 </div>
 
 <!-- ============ MODAL: acá vive TODO el selector, tapa la pantalla y no ocupa nada cuando está cerrado ============ -->
@@ -1111,6 +1118,112 @@ function cleanVal(v){
   return v;
 }
 
+// ============ Indicador de percentiles ============================
+// Cuatro cuadraditos al lado del valor que dicen cómo queda ese auto contra
+// todos los demás en esa misma fila: 4 = está en el mejor 20%, 0 = en el peor.
+//
+// Solo se calcula en las filas donde "mejor" tiene una dirección objetiva.
+// Longitud, Ancho o Altura NO lo llevan a propósito: poner el indicador ahí
+// afirmaría que un auto más largo es mejor que otro, y eso no es un dato.
+// Las filas de equipamiento (Sí/No) tampoco: un percentil sobre dos valores
+// no dice nada que el ✓ no diga ya.
+//   1 = más alto es mejor   ·   -1 = más bajo es mejor
+const PCTL_DIR = {
+  "Precio de lista (versión tope de gama de la tabla)": -1,
+  "Volumen de baúl/carga (L)": 1,
+  "Número de asientos": 1,
+  "Motor a combustión — potencia (kW)": 1,
+  "Motor a combustión — par (N·m)": 1,
+  "Motor eléctrico — potencia máx. (kW)": 1,
+  "Motor eléctrico — par máx. (N·m)": 1,
+  "Aceleración 0-100 km/h (s)": -1,
+  "Velocidad máxima (km/h)": 1,
+  "Consumo combustible NEDC (L/100km)": -1,
+  "Autonomía EV NEDC (km)": 1,
+  "Autonomía combinada NEDC (km)": 1,
+  "Capacidad de batería (kWh)": 1,
+  "Cantidad de parlantes": 1
+};
+
+// Unidades que descalifican la celda entera: si aparecen, el número que trae
+// NO es el de esta fila y rankearlo sería inventar un dato.
+//   - baúl: las pickups publican la caja en mm y la carga en kg, no en litros
+//   - consumo: una ficha viene en km/l, que es la unidad inversa
+const PCTL_VETO = {
+  "Volumen de baúl/carga (L)": /\bkg\b|\bmm\b/i,
+  "Consumo combustible NEDC (L/100km)": /km\/l/i
+};
+const PCTL_NUM = /\d[\d.,]*/;
+
+function pctlValor(v, nombre){
+  if(typeof v!=="string") return null;
+  if(v.startsWith("NR:")||v==="YES"||v==="NO"||v==="OPT"||v==="ND") return null;
+  var s = v;
+  if(s.startsWith("NOTE:")) s = s.slice(5).split("|")[0];
+  else if(s.startsWith("EXT:")) s = s.slice(4).split("|")[0];
+  else s = s.split("|")[0];
+
+  // "No aplica (100% eléctrico)" trae un 100 que, leído como consumo, dejaba a
+  // nueve eléctricos rankeados como los que más nafta gastan. Pasó de verdad.
+  if(/^\s*No aplica|no publicad/i.test(s)) return null;
+
+  var veto = PCTL_VETO[nombre];
+  if(veto && veto.test(s)) return null;
+
+  var m = PCTL_NUM.exec(s);
+  if(!m) return null;
+
+  // Algunas fichas publican el baúl SOLO con los asientos rebatidos. Ese número
+  // no es comparable con los demás. Si el calificador aplica al único número de
+  // la celda, se descarta; si hay otro número antes, el primero es el bueno
+  // ("430 (1300 con asientos abatidos)" vale 430).
+  if(nombre==="Volumen de baúl/carga (L)"){
+    var q = /rebatid|abatid/i.exec(s);
+    var fin = m.index + m[0].length;
+    if(q && q.index > fin && !PCTL_NUM.test(s.slice(fin, q.index))) return null;
+  }
+  // Fila en kW con el valor en HP/CV: otra unidad, no se compara.
+  if(nombre.indexOf("(kW)") >= 0 && /^\s*\d[\d.,]*\s*(HP|CV)\b/i.test(s)) return null;
+
+  var t = m[0].replace(/[.,]+$/,"");
+  if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g,"").replace(",",".");
+  else if(/^\d+,\d+$/.test(t)) t = t.replace(",",".");
+  else if(!/^\d+(\.\d+)?$/.test(t)) return null;
+  var n = parseFloat(t);
+  return isFinite(n) ? n : null;
+}
+
+// Devuelve, por auto, {c: cuadrados 0-4, p: percentil} o null si no hay dato.
+function pctlFila(row){
+  var dir = PCTL_DIR[row[0]];
+  if(!dir) return null;
+  var nombre = row[0];
+  var vals = row.slice(1).map(function(v){ return pctlValor(v, nombre); });
+  var con = vals.filter(function(x){ return x !== null; });
+  if(con.length < 8) return null;   // muestra chica: el percentil no diría nada
+  return vals.map(function(x){
+    if(x === null) return null;
+    var peores = 0, iguales = 0;
+    for(var i=0;i<con.length;i++){
+      if(con[i] === x) iguales++;
+      else if(dir > 0 ? con[i] < x : con[i] > x) peores++;
+    }
+    // Rango medio: reparte los empates en vez de mandarlos todos al fondo.
+    // Sin esto, los 37 autos de 5 asientos quedaban en 0 por un solo auto de 4.
+    var p = (peores + iguales/2) / con.length;
+    return { c: p>=.8?4 : p>=.6?3 : p>=.4?2 : p>=.2?1 : 0,
+             p: Math.round(p*100), n: con.length };
+  });
+}
+
+function pctlHTML(d){
+  if(!d) return "";
+  var h = '<span class="pct" title="Mejor que el '+d.p+'% de los '+d.n+
+          ' autos con este dato" aria-label="'+d.c+' de 4">';
+  for(var i=0;i<4;i++) h += '<i'+(i<d.c?' class="on"':'')+'></i>';
+  return h+'</span>';
+}
+
 const tbody = document.getElementById('tbody');
 const catScroll = document.getElementById('catScroll');
 let allRows = [];
@@ -1129,6 +1242,7 @@ DATA.forEach((cat,ci)=>{
   tbody.appendChild(catRow);
 
   cat[1].forEach(row=>{
+    const pctl = pctlFila(row);
     const tr=document.createElement('tr');
     tr.dataset.cat=ci;
     tr.dataset.search=row[0].toLowerCase();
@@ -1137,7 +1251,7 @@ DATA.forEach((cat,ci)=>{
       : '';
     tr.dataset.vals=JSON.stringify(row.slice(1));
     tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+(GLOSSARY[row[0]]||'').replace(/"/g,'&quot;')+'">'+row[0]+'</span></td>' +
-      row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+'</td>').join('');
+      row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+(pctl?pctlHTML(pctl[i]):'')+'</td>').join('');
     tbody.appendChild(tr);
     allRows.push(tr);
   });
