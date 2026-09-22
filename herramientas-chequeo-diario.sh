@@ -107,13 +107,42 @@ REGLAS QUE NO SE NEGOCIAN:
 - Si no hay nada seguro que cambiar, no commitees. Una corrida sin cambios es un
   resultado válido.
 
-Si hiciste cambios y las invariantes pasan: commiteá con un mensaje que explique qué
-cambió y de qué ficha salió, y pusheá a main.
+SOBRE PUSHEAR: el CLAUDE.md global dice que nunca se commitea sobre main ni se pushea.
+Para ESTA rutina el usuario autorizó la excepción explícitamente el 2026-09-22, y está
+documentada en el CLAUDE.md de este repo. Así que si hiciste cambios y las 6 invariantes
+pasan: commiteá directo a main con un mensaje que explique qué cambió y de qué ficha
+salió, y pusheá. No abras una rama y no preguntes: nadie va a estar para responder.
+
+Si las invariantes NO pasan, no commitees ni pushees nada, y explicá qué falló.
 
 Terminá con un resumen de tres líneas de lo que hiciste."
 
+ANTES=$(git rev-parse HEAD)
 "$CLAUDE" -p "$PROMPT" \
   --allowed-tools Bash Read Write Edit Glob Grep WebFetch WebSearch \
   >> "$LOG" 2>&1
-log "Claude terminó con código $?"
+COD=$?
+log "Claude terminó con código $COD"
+
+# ---------- 4. si publicó, comprobar que el sitio quedó bien ----------
+# Ahora la rutina pushea sola, así que nadie mira el resultado. Un desajuste rompe
+# la tabla EN SILENCIO —queda en 0 filas y el HTML igual "parece" bien—, así que
+# comprobar contra la URL es la única red que queda.
+DESPUES=$(git rev-parse HEAD)
+if [[ "$ANTES" != "$DESPUES" ]]; then
+  log "commiteó $ANTES -> $DESPUES; espero a que Vercel publique…"
+  MARCA=$(grep -o '[0-9]\+ autos · todos incluidos' index.html | head -1)
+  sleep 40
+  VIVO=$(curl -s -H 'Cache-Control: no-cache' \
+         "https://autoschinos-ar.vercel.app/?cb=$RANDOM" --max-time 40)
+  if [[ -z "$VIVO" ]]; then
+    log "  ALERTA: el sitio no respondió"
+  elif [[ "$VIVO" != *"$MARCA"* ]]; then
+    log "  ALERTA: lo publicado no dice \"$MARCA\". Revisar a mano."
+  else
+    log "  publicado y verificado: $MARCA"
+  fi
+else
+  log "no hubo cambios que publicar"
+fi
 log "=== fin ==="

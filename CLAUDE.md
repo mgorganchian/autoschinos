@@ -161,15 +161,33 @@ suspensión, multimedia, luces y climatización, que las notas nunca publican.
 
 ## Deploy
 
-Netlify (`https://autoschinos.netlify.app/`) redeploya solo con cada push a `main`.
+El sitio vive en **Vercel**: `https://autoschinos-ar.vercel.app/`, y publica solo con
+cada push a `main`, en segundos. Netlify quedó atrás — el `netlify.toml` sigue en el
+repo pero no cumple ninguna función.
 
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
-URL. El sitio en vivo pesa **exactamente 536 bytes más** que el `index.html` del repo
-(Netlify inyecta un comentario y dos `<meta>`), así que se puede identificar qué commit
-está publicado comparando tamaños, o mejor con un `grep` de algún marcador del cambio.
+URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
+tal cual (a diferencia de Netlify, que inyectaba 536 bytes), así que lo servido y el repo
+difieren a lo sumo en el salto de línea final.
 
-El deploy **se puede trabar sin ningún aviso**: pasó el 2026-08-30 y un commit vacío para
-re-disparar el webhook **no lo destrabó**. Si no propaga: confirmar `origin/main`,
-descartar caché (`Cache-Control: no-cache`), y mirar el panel de Netlify (builds
-trabados, *Failed*, "Deploys stopped", o un *Published* viejo → botón **Publish deploy**).
-No insistir con commits vacíos.
+---
+
+## Push automático: la excepción de la rutina
+
+El `CLAUDE.md` global del usuario dice que en un repo con remoto **nunca** se commitea
+sobre `main` ni se pushea, "ni siquiera si te pedí commitear".
+
+**Para la rutina automática de este repo, y solo para ella, el usuario autorizó
+explícitamente la excepción** (2026-09-22): `herramientas-chequeo-diario.sh` puede
+commitear a `main` y pushear sin preguntar.
+
+La excepción es angosta y no se extiende:
+
+- vale **solo** para la corrida no interactiva que lanza ese script
+- vale **solo** para este repo
+- vale **solo si las 6 invariantes pasan**. Si alguna falla, no se commitea nada.
+- en una sesión interactiva la regla global sigue vigente: preguntar antes de pushear
+
+Como cada push publica en el acto y nadie revisa, la prudencia reemplaza a la
+supervisión: ante la duda sobre un dato, no cargarlo. Una corrida sin cambios es un
+resultado válido.
