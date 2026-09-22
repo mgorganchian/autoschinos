@@ -126,7 +126,7 @@ idx = content.find('];', start)
 data = json.loads(content[start+len('const DATA = '):idx+1])
 # ... modificar `data` ...
 new = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
-content = content[:start] + "const DATA = " + new + content[idx:]
+content = content[:start] + "const DATA = " + new + content[idx+1:]   # idx+1: json.dumps ya cierra el ]
 open('index.html', 'w').write(content)
 ```
 

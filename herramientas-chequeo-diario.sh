@@ -24,7 +24,32 @@ CLAUDE="$(command -v claude || echo /Users/mgorganchian/.nvm/versions/node/v24.1
 log(){ print -r -- "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"; }
 
 cd "$REPO" || { log "FATAL: no pude entrar a $REPO"; exit 1; }
+
+# Candado: una sola corrida a la vez. mkdir es atómico, así que sirve de lock sin
+# depender de flock, que en macOS no viene. Hizo falta de verdad: en la prueba del
+# 2026-09-22 dos corridas se solaparon y leyeron versiones distintas del script.
+LOCK="$REPO/.chequeo.lock"
+if ! mkdir "$LOCK" 2>/dev/null; then
+  log "ya hay una corrida en curso ($(cat "$LOCK/pid" 2>/dev/null || echo '?')), salgo"
+  exit 0
+fi
+print -r -- "$$" > "$LOCK/pid"
+trap 'rmdir "$LOCK/pid" 2>/dev/null; rm -f "$LOCK/pid" 2>/dev/null; rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+
 log "=== arranca el chequeo ==="
+
+# Volver a main antes de empezar. Hace falta porque la propia rutina deja el repo
+# parado en la rama que crea, y sin esto la corrida siguiente muere en el git pull
+# (una rama sin upstream) y la rutina se autobloquea después de su primer trabajo útil.
+# Solo si el árbol está limpio: si hay cambios sin commitear son de alguien más.
+if [[ -n "$(git status --porcelain)" ]]; then
+  log "AVISO: hay cambios sin commitear. Salgo sin tocar nada."
+  exit 0
+fi
+if [[ "$(git branch --show-current)" != "main" ]]; then
+  log "estaba en $(git branch --show-current), vuelvo a main"
+  git checkout --quiet main 2>>"$LOG" || { log "FATAL: no pude volver a main"; exit 1; }
+fi
 
 # Traer lo que haya en remoto antes de tocar nada, para no divergir.
 if ! git pull --ff-only --quiet 2>>"$LOG"; then
