@@ -138,3 +138,16 @@ MG ZS HEV	MG ZS Hybrid+ (2025) (54857666431).jpg	CC0	Charles from Port Chester, 
 Maxus eTerron	Maxus eTerron 9 Auto Zuerich 2024 DSC 6159 (cropped).jpg	CC BY-SA 4.0	Alexander-93	https://commons.wikimedia.org/wiki/File:Maxus_eTerron_9_Auto_Zuerich_2024_DSC_6159_(cropped).jpg
 Ora 03	GWM Ora 03 165559.jpg	CC0	Trop86	https://commons.wikimedia.org/wiki/File:GWM_Ora_03_165559.jpg
 Tank 300	GWM Tank 300 HEV Ultra Crystal Black 01.jpg	CC BY-SA 4.0	Ethan Llamas	https://commons.wikimedia.org/wiki/File:GWM_Tank_300_HEV_Ultra_Crystal_Black_01.jpg
+
+# ---------------------------------------------------------------------------
+# PROCESADO DE LAS FOTOS (2026-09-22)
+# Todas pasan por herramientas-recortar-fotos.swift, que usa el subject lifting
+# de Vision (macOS 14+) para recortar el auto del fondo, lo encuadra a su bounding
+# box y lo compone sobre blanco. Después se reescalan a 300px con calidad 0,50.
+#
+# Resuelve tres problemas de una: saca los fondos dispares (calles, vidrieras,
+# bambú, paisajes), hace que el auto ocupe todo el cuadro en vez de quedar chico
+# dentro de una escena, y deja las 34 con el mismo aspecto.
+#
+# Para reprocesar:  swiftc -O -o recortar herramientas-recortar-fotos.swift
+#                   ./recortar <entrada> <salida.jpg> 300
