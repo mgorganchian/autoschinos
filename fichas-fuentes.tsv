@@ -161,3 +161,31 @@ Tank 300	GWM Tank 300 HEV Ultra Crystal Black 01.jpg	CC BY-SA 4.0	Ethan Llamas	h
 #
 # Para reprocesar:  swiftc -O -o recortar herramientas-recortar-fotos.swift
 #                   ./recortar <entrada> <salida.jpg> 300 160 0.52 0.09
+
+# ---------------------------------------------------------------------------
+# FOTOS SACADAS DE LA TAPA DE LA PROPIA FICHA (2026-09-22)
+# Para los autos que ninguna marca publica como foto de producto, la tapa de su
+# ficha técnica ya trae una. Se rasteriza la página 1 con sips y se pasa por
+# herramientas-recortar-fotos.swift, igual que el resto.
+#
+# Ventaja sobre buscar en la web: la foto sale del MISMO documento del que salen
+# los datos, así que la atribución al modelo y a la versión es directa — no hay
+# que adivinar si la imagen corresponde al auto de la tabla.
+#
+# auto <TAB> ficha de la que se extrajo
+BAIC U5 Plus	tapa de baic-u5-plus.pdf
+BAIC BJ40 Plus	tapa de baic-bj40-plus-brochure.pdf
+BAIC X55 II	tapa de baic-x55-ii.pdf
+BAIC X55 II Hybrid	tapa de baic-x55ii-hybrid.pdf
+Poer 4WD	tapa de gwm-poer-luxury.pdf
+Geely EX5	tapa de geely-ex5-citydrive.pdf
+GAC S7	tapa de gac-s7.pdf
+Kaiyi X7	tapa de kaiyi-x7.pdf
+Forthing U-Tour	tapa de forthing-u-tour-hev.pdf
+DFSK E5	tapa de dfsk-e5.pdf
+Foton Tunland V9	tapa de foton-tunland-v9-naftera-v3.pdf
+
+# SIN FOTO, y por qué:
+#   Skywell BE11 — la única ficha que publica la marca en Argentina es del ET5,
+#     que es otro modelo. Usar su tapa sería poner el auto equivocado.
+#   Omoda C5 — no se vende en Argentina y no hay ficha local de la que sacarla.
