@@ -1,0 +1,30 @@
+# Hash SHA-256 de cada ficha oficial, para detectar cambios.
+# Lo genera y compara herramientas-chequeo-diario.sh. auto <TAB> url <TAB> sha256 <TAB> fecha
+
+BAIC BJ30 4x2	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ30_4x2.pdf	028a8723fa33b2974a12fc26e9a5f02f472bf62a834a63a24a129f37a6fd16b6	2026-09-22
+BAIC BJ30 4x4	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ30_4x4.pdf	e5e948631fe3098281d871e4185b7dd3eb02d04d5a1df5def46bfef7f24a7efe	2026-09-22
+BAIC BJ60	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_BJ60.pdf	724c048974ae62425d57d7087607d444fb138fa968271fc4962917f6a718ff6c	2026-09-22
+BAIC EU5	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_EU5.pdf	4b7bbe10cc4cc8f016d41dfffa1c4adafe707120c44c0891f0ad233eee2e1d3d	2026-09-22
+BAIC U5 Plus	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_U5_Plus.pdf	d5b21dd0d62e7ab139c6c15b516d059b6a38e659520cf496827420012926bfff	2026-09-22
+BAIC X35	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X35_Luxury.pdf	4b32faa65dadb723e75248af4f60db4136e9515095b0382112589ddbc849a4c0	2026-09-22
+BAIC X55 II	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X55_Luxury.pdf	7aa0fafaf3e60992ea013dddc10de557d76e927c1decfba27600f609922473e6	2026-09-22
+BAIC X55 Plus	https://baic.com.ar/wp-content/uploads/2025/07/Brochure__BAIC_X55_Plus.pdf	2948301fdca5b4c7990ad375bf8146875814a776288b54f8f4c4fd3f1eb767a3	2026-09-22
+BAIC X55 II Hybrid	https://baic.com.ar/wp-content/uploads/2026/08/Brochure_BAIC_X55II_Hybrid_web-2.pdf	1e5fac7580e4558813f1ccf46242b5f902e63f3b7a98e04050c3079df12d2332	2026-09-22
+BAIC BJ40 Plus	https://cdn.motor1.com/pdf-files/ficha-tecnica-baic-bj40.pdf	147b2005feba0d8616470cda9a5a5a562a06fd5460b1fb86795e2a3d84a4410b	2026-09-22
+Arcfox T1	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-T1-Brochure-Argentina-2026_Web.pdf	787f05114a1c5c85cc37352749187cd0277582c9cf958e6aba839aa542967855	2026-09-22
+Arcfox T5	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-T5-Brochure-Argentina-2026_Web.pdf	06a8daefa80ae4a41941fb5d378f920786b23e1c32c361813505966e806dd058	2026-09-22
+Arcfox S5	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-S5-Brochure-Argentina-2026_Web.pdf	74a135428339de4583eaddbda0b774ae509b2d33f2662eda531ac582ddf73bba	2026-09-22
+Arcfox Koala S	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-KAOLA-S-Brochure-Argentina-2026_Web.pdf	6676c180912d0686d9a507fe83c1592deac1e53647c987ea0cd88d87053ab7ad	2026-09-22
+Tank 300	https://gwm.com.ar/FT-TANK-300.pdf	d6f9b11a7f93fbda98fa4d6d33bf2ef6ddfed7c3180663c97c075afe4256d36b	2026-09-22
+Ora 03	https://gwm.com.ar/FT-ORA-03.pdf	8d04d7d2954bdc88ef97765d88b41f8e1a4a63fdaab3f21fc5fb6c0246fc0005	2026-09-22
+Haval H6 HEV	https://gwm.com.ar/FT-H6-HEV.pdf	962295a9b360931f32a28453d9a1b678db39f5306a6d6e6c15056998b05a196d	2026-09-22
+Jetour T2	https://jetour.com.ar/wp-content/uploads/2025/10/Ficha-tecnica-Jetour-T2-2025.pdf	08232495eb4029498c703a9cb7dd7f5674e7bece0ecf732a3bcd628f02d97fbf	2026-09-22
+Changan CS55 Plus	https://citydrive.com.ar/wp-content/uploads/2025/10/ficha-tecnica-Changan-CS55.pdf	27a62ecb5eca9208243c040248a0fe30fb7b43b82e926f784778b47f79144936	2026-09-22
+MG ZS HEV	https://mgpilar.com.ar/assets/archivos/ficha_tecnica_mg_zs.pdf	da920c6e70e0f94f279d789df7a148fe2994a2fb89e4af8dab17330b1484aa91	2026-09-22
+Chery Tiggo 8 Pro	https://cdn.motor1.com/pdf-files/ficha-tecnica-chery-tiggo-8-pro.pdf	738d9a1a4dc3cfc0c1ee33f03e4d791703b2954caad9699f1426d396c77be714	2026-09-22
+Geely EX5	https://citydrive.com.ar/wp-content/uploads/2025/12/FICHA-TECNICA-EX5-5.pdf	c5330eb1a4b9ab9c25321966dcb4992e93332e478f9b94bc2140222cd064a8d6	2026-09-22
+Leapmotor C10	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/c10/20260724-ft-c10.pdf	b7ef14880740b7cea7f7c103e0dc758132ef6a9c2dbd6b019bfce74985e40694	2026-09-22
+Leapmotor B10	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/b10/20260724-ft-b10.pdf	76e6b871009676e2588576ff5b15389129182c245c09554f8f3aac4f5a67d0ef	2026-09-22
+Lynk & Co 01	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-01.pdf	d31de0eb671e62ac76d468855123de61b34e7da32cea1bdeac9eea4434759eb4	2026-09-22
+Lynk & Co 06	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-06.pdf	c6524620c253223ff6ea4782f99aa647c5b0286ddf65e56c2d92702e05d4a8ce	2026-09-22
+Lynk & Co 08	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-08.pdf	1002bea263015333053e8fae5bffee47b27041cfddc0e32c3419114acb2ae943	2026-09-22

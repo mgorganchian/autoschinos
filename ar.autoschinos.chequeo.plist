@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>ar.autoschinos.chequeo</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>/Users/mgorganchian/Projects/autoschinos/herramientas-chequeo-diario.sh</string>
+  </array>
+  <!-- Todos los días a las 09:15 hora local. RunAtLoad en false para que no
+       dispare al instalarlo. -->
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>15</integer></dict>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>/Users/mgorganchian/Projects/autoschinos/.chequeo-salida.log</string>
+  <key>StandardErrorPath</key><string>/Users/mgorganchian/Projects/autoschinos/.chequeo-error.log</string>
+</dict>
+</plist>
