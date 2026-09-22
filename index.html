@@ -686,6 +686,12 @@
   }
   .modal-body .advanced-toggle:hover{background:#e2e6ee;}
   body.modal-open{overflow:hidden;}
+  /* Indicador de percentiles: cuatro cuadraditos que ubican al auto contra
+     los demás EN ESA MISMA FILA. Solo aparece en las filas donde "mejor"
+     tiene una dirección objetiva — ver PCTL_DIR en el script. */
+  .pct{display:inline-flex;gap:1px;vertical-align:middle;margin-left:5px;flex-shrink:0}
+  .pct i{width:4px;height:9px;border-radius:1px;background:#dbe0e6}
+  .pct i.on{background:#1f9d55}
 </style>
 </head>
 <body>
@@ -727,6 +733,7 @@
   <span><span class="dot" style="background:var(--nd)"></span> Sin dato en la ficha</span>
   <span><span class="dot" style="background:var(--ext-bg);border:1px solid var(--ext-text)"></span> Dato de otra fuente (no oficial AR)</span>
   <span><span class="dot" style="background:var(--note-bg);border:1px solid var(--note-text)"></span> Aclaración / no comparable 1 a 1</span>
+  <span><span class="pct" style="margin-left:0"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> Cómo queda contra los demás autos en esa fila (4 = mejor 20%). Solo en las filas donde "mejor" tiene una dirección clara.</span>
 </div>
 
 <!-- ============ MODAL: acá vive TODO el selector, tapa la pantalla y no ocupa nada cuando está cerrado ============ -->
@@ -1111,6 +1118,112 @@ function cleanVal(v){
   return v;
 }
 
+// ============ Indicador de percentiles ============================
+// Cuatro cuadraditos al lado del valor que dicen cómo queda ese auto contra
+// todos los demás en esa misma fila: 4 = está en el mejor 20%, 0 = en el peor.
+//
+// Solo se calcula en las filas donde "mejor" tiene una dirección objetiva.
+// Longitud, Ancho o Altura NO lo llevan a propósito: poner el indicador ahí
+// afirmaría que un auto más largo es mejor que otro, y eso no es un dato.
+// Las filas de equipamiento (Sí/No) tampoco: un percentil sobre dos valores
+// no dice nada que el ✓ no diga ya.
+//   1 = más alto es mejor   ·   -1 = más bajo es mejor
+const PCTL_DIR = {
+  "Precio de lista (versión tope de gama de la tabla)": -1,
+  "Volumen de baúl/carga (L)": 1,
+  "Número de asientos": 1,
+  "Motor a combustión — potencia (kW)": 1,
+  "Motor a combustión — par (N·m)": 1,
+  "Motor eléctrico — potencia máx. (kW)": 1,
+  "Motor eléctrico — par máx. (N·m)": 1,
+  "Aceleración 0-100 km/h (s)": -1,
+  "Velocidad máxima (km/h)": 1,
+  "Consumo combustible NEDC (L/100km)": -1,
+  "Autonomía EV NEDC (km)": 1,
+  "Autonomía combinada NEDC (km)": 1,
+  "Capacidad de batería (kWh)": 1,
+  "Cantidad de parlantes": 1
+};
+
+// Unidades que descalifican la celda entera: si aparecen, el número que trae
+// NO es el de esta fila y rankearlo sería inventar un dato.
+//   - baúl: las pickups publican la caja en mm y la carga en kg, no en litros
+//   - consumo: una ficha viene en km/l, que es la unidad inversa
+const PCTL_VETO = {
+  "Volumen de baúl/carga (L)": /\bkg\b|\bmm\b/i,
+  "Consumo combustible NEDC (L/100km)": /km\/l/i
+};
+const PCTL_NUM = /\d[\d.,]*/;
+
+function pctlValor(v, nombre){
+  if(typeof v!=="string") return null;
+  if(v.startsWith("NR:")||v==="YES"||v==="NO"||v==="OPT"||v==="ND") return null;
+  var s = v;
+  if(s.startsWith("NOTE:")) s = s.slice(5).split("|")[0];
+  else if(s.startsWith("EXT:")) s = s.slice(4).split("|")[0];
+  else s = s.split("|")[0];
+
+  // "No aplica (100% eléctrico)" trae un 100 que, leído como consumo, dejaba a
+  // nueve eléctricos rankeados como los que más nafta gastan. Pasó de verdad.
+  if(/^\s*No aplica|no publicad/i.test(s)) return null;
+
+  var veto = PCTL_VETO[nombre];
+  if(veto && veto.test(s)) return null;
+
+  var m = PCTL_NUM.exec(s);
+  if(!m) return null;
+
+  // Algunas fichas publican el baúl SOLO con los asientos rebatidos. Ese número
+  // no es comparable con los demás. Si el calificador aplica al único número de
+  // la celda, se descarta; si hay otro número antes, el primero es el bueno
+  // ("430 (1300 con asientos abatidos)" vale 430).
+  if(nombre==="Volumen de baúl/carga (L)"){
+    var q = /rebatid|abatid/i.exec(s);
+    var fin = m.index + m[0].length;
+    if(q && q.index > fin && !PCTL_NUM.test(s.slice(fin, q.index))) return null;
+  }
+  // Fila en kW con el valor en HP/CV: otra unidad, no se compara.
+  if(nombre.indexOf("(kW)") >= 0 && /^\s*\d[\d.,]*\s*(HP|CV)\b/i.test(s)) return null;
+
+  var t = m[0].replace(/[.,]+$/,"");
+  if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g,"").replace(",",".");
+  else if(/^\d+,\d+$/.test(t)) t = t.replace(",",".");
+  else if(!/^\d+(\.\d+)?$/.test(t)) return null;
+  var n = parseFloat(t);
+  return isFinite(n) ? n : null;
+}
+
+// Devuelve, por auto, {c: cuadrados 0-4, p: percentil} o null si no hay dato.
+function pctlFila(row){
+  var dir = PCTL_DIR[row[0]];
+  if(!dir) return null;
+  var nombre = row[0];
+  var vals = row.slice(1).map(function(v){ return pctlValor(v, nombre); });
+  var con = vals.filter(function(x){ return x !== null; });
+  if(con.length < 8) return null;   // muestra chica: el percentil no diría nada
+  return vals.map(function(x){
+    if(x === null) return null;
+    var peores = 0, iguales = 0;
+    for(var i=0;i<con.length;i++){
+      if(con[i] === x) iguales++;
+      else if(dir > 0 ? con[i] < x : con[i] > x) peores++;
+    }
+    // Rango medio: reparte los empates en vez de mandarlos todos al fondo.
+    // Sin esto, los 37 autos de 5 asientos quedaban en 0 por un solo auto de 4.
+    var p = (peores + iguales/2) / con.length;
+    return { c: p>=.8?4 : p>=.6?3 : p>=.4?2 : p>=.2?1 : 0,
+             p: Math.round(p*100), n: con.length };
+  });
+}
+
+function pctlHTML(d){
+  if(!d) return "";
+  var h = '<span class="pct" title="Mejor que el '+d.p+'% de los '+d.n+
+          ' autos con este dato" aria-label="'+d.c+' de 4">';
+  for(var i=0;i<4;i++) h += '<i'+(i<d.c?' class="on"':'')+'></i>';
+  return h+'</span>';
+}
+
 const tbody = document.getElementById('tbody');
 const catScroll = document.getElementById('catScroll');
 let allRows = [];
@@ -1129,6 +1242,7 @@ DATA.forEach((cat,ci)=>{
   tbody.appendChild(catRow);
 
   cat[1].forEach(row=>{
+    const pctl = pctlFila(row);
     const tr=document.createElement('tr');
     tr.dataset.cat=ci;
     tr.dataset.search=row[0].toLowerCase();
@@ -1137,7 +1251,7 @@ DATA.forEach((cat,ci)=>{
       : '';
     tr.dataset.vals=JSON.stringify(row.slice(1));
     tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+(GLOSSARY[row[0]]||'').replace(/"/g,'&quot;')+'">'+row[0]+'</span></td>' +
-      row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+'</td>').join('');
+      row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+(pctl?pctlHTML(pctl[i]):'')+'</td>').join('');
     tbody.appendChild(tr);
     allRows.push(tr);
   });
@@ -1436,8 +1550,14 @@ document.getElementById('compareBtn').addEventListener('click', ()=>{
   window.scrollTo({top: 0, behavior:'smooth'});
 });
 
-const FOTOS_POR_AUTO = {"baic-bj60":1,"byd-sealion-7":1,"lynk-co-08":1,"arcfox-s5":1,"baic-bj40-pro":1,"seal-5-dm-i":1,"seal-u-dm-i":1,"baic-x55-plus":1,"song-pro":1,"arcfox-t5":1,"baic-eu5":1,"baic-u5-plus":1,"baic-bj40-plus":1,"baic-x55-ii":1,"baic-x55-ii-hybrid":1,"lynk-co-01":1,"arcfox-koala-s":1,"baic-bj30-4x2":1,"baic-bj30-4x4":1,"lynk-co-06":1,"arcfox-t1":1,"atto-2-dm-i":1,"baic-x35":1,"yuan-pro":1,"dolphin-mini":1,"chery-tiggo-8-pro":1,"haval-h6-hev":1,"poer-4wd":1,"tank-300":1,"ora-03":1,"mg-zs-hev":1,"changan-cs55-plus":1,"geely-ex5":1,"jac-t9":1,"jetour-t2":1,"gac-s7":1,"kaiyi-x7":1,"forthing-u-tour":1,"skywell-be11":1,"dfsk-e5":1,"foton-tunland-v9":1,"maxus-eterron":1,"omoda-c5":1,"jaecoo-7":1,"leapmotor-c10":1,"leapmotor-b10":1};
+const FOTOS_POR_AUTO = {"arcfox-koala-s":1,"arcfox-s5":4,"arcfox-t1":3,"arcfox-t5":3,"atto-2-dm-i":4,"baic-bj30-4x2":1,"baic-bj30-4x4":1,"baic-bj40-plus":5,"baic-bj40-pro":1,"baic-bj60":3,"baic-eu5":3,"baic-u5-plus":4,"baic-x35":4,"baic-x55-ii":1,"baic-x55-ii-hybrid":1,"baic-x55-plus":3,"byd-sealion-7":6,"changan-cs55-plus":6,"chery-tiggo-8-pro":5,"dfsk-e5":3,"dolphin-mini":2,"forthing-u-tour":2,"foton-tunland-v9":1,"gac-s7":1,"geely-ex5":6,"haval-h6-hev":5,"jac-t9":6,"jaecoo-7":4,"jetour-t2":6,"kaiyi-x7":1,"leapmotor-b10":1,"leapmotor-c10":3,"lynk-co-01":6,"lynk-co-06":5,"lynk-co-08":3,"maxus-eterron":3,"mg-zs-hev":1,"omoda-c5":6,"ora-03":3,"poer-4wd":3,"seal-5-dm-i":5,"seal-u-dm-i":3,"skywell-be11":5,"song-pro":5,"tank-300":4,"yuan-pro":3};
 window.FOTOS_POR_AUTO = FOTOS_POR_AUTO;
+// Crédito de CADA foto del carrusel, en orden. El índice 0 es la foto de
+// portada, que sigue viniendo de data-credito porque en la mayoría de los
+// autos es una foto de prensa argentina, no de Commons.
+const CREDITOS_POR_FOTO = {"arcfox-s5":["","Foto: LKS1990 · CC0 · Wikimedia Commons","Foto: LKS1990 · CC0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"arcfox-t1":["","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"arcfox-t5":["","Foto: Tim Wu · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"atto-2-dm-i":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"baic-bj40-plus":["","Foto: M Raisfath · CC BY 4.0 · Wikimedia Commons","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons","Foto: Just a Man · CC BY 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-bj60":["","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-eu5":["","Foto: RL GNZLZ · CC BY-SA 4.0 · Wikimedia Commons","Foto: 최병찬루카스 · CC BY-SA 3.0 · Wikimedia Commons"],"baic-u5-plus":["","Foto: Just a Man · CC BY 4.0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons"],"baic-x35":["","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons","Foto: JLaw45 · CC BY 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-x55-plus":["","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons"],"byd-sealion-7":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kazyakuruma · CC0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kazyakuruma · CC0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"changan-cs55-plus":["","Foto: Peżot · CC BY-SA 4.0 · Wikimedia Commons","Foto: RL GNZLZ · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons","Foto: Peżot · CC BY-SA 4.0 · Wikimedia Commons","Foto: Throwawayacc222 · CC0 · Wikimedia Commons"],"chery-tiggo-8-pro":["","Foto: Anhuicarspotter · CC BY-SA 4.0 · Wikimedia Commons","Foto: Anhuicarspotter · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons"],"dfsk-e5":["","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"dolphin-mini":["","Foto: Mateusmatsuda · CC BY 4.0 · Wikimedia Commons"],"forthing-u-tour":["","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"geely-ex5":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons"],"haval-h6-hev":["","Foto: MoCars · CC0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons"],"jac-t9":["","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Throwawayacc222 · CC0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons"],"jaecoo-7":["","Foto: Autosdeprimera · CC BY 3.0 · Wikimedia Commons","Foto: Harvey Bold · CC0 · Wikimedia Commons","Foto: Autosdeprimera · CC BY 3.0 · Wikimedia Commons"],"jetour-t2":["","Foto: Milhouse35 · CC BY-SA 4.0 · Wikimedia Commons","Foto: M Raisfath · CC BY 4.0 · Wikimedia Commons","Foto: Husskeyy · CC BY-SA 4.0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"leapmotor-c10":["","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-01":["","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-06":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-08":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons"],"maxus-eterron":["","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons"],"omoda-c5":["","Foto: Andra Febrian · CC BY-SA 4.0 · Wikimedia Commons","Foto: Automachi · CC BY 3.0 · Wikimedia Commons","Foto: RichardSummersault · CC0 · Wikimedia Commons","Foto: Calreyn88 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Calreyn88 · CC BY-SA 4.0 · Wikimedia Commons"],"ora-03":["","Foto: Ethan Llamas · CC0 · Wikimedia Commons","Foto: Ethan Llamas · CC0 · Wikimedia Commons"],"poer-4wd":["","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons"],"seal-5-dm-i":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons"],"seal-u-dm-i":["","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons"],"skywell-be11":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC BY-SA 4.0 · Wikimedia Commons"],"song-pro":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons"],"tank-300":["","Foto: MRWikiTankenTai · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"yuan-pro":["","Foto: Anonymousfox36 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Anonymousfox36 · CC BY-SA 4.0 · Wikimedia Commons"]};
+window.CREDITOS_POR_FOTO = CREDITOS_POR_FOTO;
+
 // Zoom de la foto del encabezado, con carrusel.
 //
 // Las fotos grandes NO van embebidas: viven en /fotos/<slug>-N.jpg y se bajan solo
@@ -1460,7 +1580,7 @@ document.body.appendChild(fotoZoom);
 const zImg    = fotoZoom.querySelector('img');
 const zPuntos = fotoZoom.querySelector('.puntos');
 const zCred   = fotoZoom.querySelector('.credito');
-let zoomActivo = null, zFotos = [], zIdx = 0;
+let zoomActivo = null, zFotos = [], zIdx = 0, zSlug = '', zCredFallback = '';
 
 // Cuántas fotos tiene cada auto. Lo llena FOTOS_POR_AUTO, que se genera junto con
 // los archivos; si un slug no está, se asume una sola.
@@ -1468,8 +1588,19 @@ function listaDeFotos(slug){
   const n = (window.FOTOS_POR_AUTO && window.FOTOS_POR_AUTO[slug]) || 1;
   return Array.from({length:n}, (_,k)=> 'fotos/' + slug + '-' + (k+1) + '.jpg');
 }
+// El crédito es POR FOTO, no por auto: antes se fijaba al abrir el zoom y no
+// cambiaba al pasar de foto, así que las fotos 2 a 6 quedaban firmadas por el
+// autor de la primera. Con CC BY eso es atribuir la obra a quien no la hizo.
+function creditoDe(slug, k){
+  const m = window.CREDITOS_POR_FOTO && window.CREDITOS_POR_FOTO[slug];
+  if (m && m[k]) return m[k];
+  return k === 0 ? zCredFallback : '';
+}
 function mostrar(k){
   zIdx = (k + zFotos.length) % zFotos.length;
+  const cred = creditoDe(zSlug, zIdx);
+  zCred.textContent = cred;
+  zCred.style.display = cred ? 'block' : 'none';
   zImg.classList.add('cargando');
   const url = zFotos[zIdx];
   const previa = new Image();
@@ -1486,8 +1617,8 @@ function abrirZoom(img){
   zFotos = listaDeFotos(slug);
   fotoZoom.classList.toggle('multi', zFotos.length > 1);
   zPuntos.innerHTML = zFotos.length > 1 ? zFotos.map(()=> '<i></i>').join('') : '';
-  zCred.textContent = img.dataset.credito || '';
-  zCred.style.display = img.dataset.credito ? 'block' : 'none';
+  zSlug = slug;
+  zCredFallback = img.dataset.credito || '';
   zImg.src = img.src;                     // arranca con la miniatura ya cargada
   fotoZoom.style.display = 'block';
   const ancho = Math.min(560, window.innerWidth - 24);
