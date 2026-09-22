@@ -142,12 +142,16 @@ Tank 300	GWM Tank 300 HEV Ultra Crystal Black 01.jpg	CC BY-SA 4.0	Ethan Llamas	h
 # ---------------------------------------------------------------------------
 # PROCESADO DE LAS FOTOS (2026-09-22)
 # Todas pasan por herramientas-recortar-fotos.swift, que usa el subject lifting
-# de Vision (macOS 14+) para recortar el auto del fondo, lo encuadra a su bounding
-# box y lo compone sobre blanco. Después se reescalan a 300px con calidad 0,50.
+# de Vision (macOS 14+) para recortar el auto del fondo y lo centra en un lienzo
+# blanco de 300x160 SIEMPRE IGUAL, con 9% de margen para que no toque los bordes.
+#
+# El lienzo fijo es lo que hace que todas las tarjetas midan lo mismo. Sin eso el
+# recorte sigue la forma de cada auto: las proporciones iban de 1,34 (un frente)
+# a 2,58 (un perfil), y las tarjetas quedaban de alturas distintas.
 #
 # Resuelve tres problemas de una: saca los fondos dispares (calles, vidrieras,
 # bambú, paisajes), hace que el auto ocupe todo el cuadro en vez de quedar chico
 # dentro de una escena, y deja las 34 con el mismo aspecto.
 #
 # Para reprocesar:  swiftc -O -o recortar herramientas-recortar-fotos.swift
-#                   ./recortar <entrada> <salida.jpg> 300
+#                   ./recortar <entrada> <salida.jpg> 300 160 0.52 0.09
