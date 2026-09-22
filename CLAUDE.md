@@ -150,6 +150,27 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 
 ---
 
+## Fotos
+
+Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura base64
+embebida en el `<th>`) y, si hay material, hasta 4 más en un carrusel.
+`FOTOS_POR_AUTO` dice cuántas tiene cada uno; los archivos van numerados **sin
+huecos** desde 1.
+
+- **El crédito es por foto, no por auto** (`CREDITOS_POR_FOTO`). El `data-credito`
+  del `<th>` es solo el de la portada. Antes el crédito se fijaba al abrir el zoom
+  y no cambiaba al pasar de foto: con CC BY eso atribuye la obra al autor
+  equivocado. **No volver a colgarlo del `<th>`.**
+- `fotos-fuentes.tsv` registra archivo, vista, archivo de Commons, licencia, autor
+  y página de **cada** foto. Si se agrega una foto sin anotarla ahí, la atribución
+  queda sin respaldo.
+- ⚠️ **La herramienta de Vision (`herramientas-recortar-fotos.swift`) no va en
+  interiores**: recorta por sujeto y deja el volante flotando en blanco, sin el
+  tablero. Los interiores se escalan con `sips` y se dejan con su fondo.
+- Al bajar de Commons hay que **mirar el resultado uno por uno**: de 117 procesadas
+  hubo que descartar 8 (volantes sueltos, un techo de vidrio con reflejo, un
+  prototipo camuflado). El tamaño del archivo no delata ninguno de esos casos.
+
 ## Fuentes de datos
 
 **Las fichas técnicas en PDF de importadores y concesionarias argentinas rinden mucho

@@ -1550,8 +1550,14 @@ document.getElementById('compareBtn').addEventListener('click', ()=>{
   window.scrollTo({top: 0, behavior:'smooth'});
 });
 
-const FOTOS_POR_AUTO = {"byd-sealion-7":6,"maxus-eterron":5,"kaiyi-x7":1,"seal-5-dm-i":1,"atto-2-dm-i":1,"seal-u-dm-i":1,"baic-u5-plus":1,"baic-bj40-pro":1,"baic-bj30-4x2":1,"yuan-pro":1,"arcfox-s5":1,"jaecoo-7":1,"jetour-t2":1,"baic-bj30-4x4":1,"lynk-co-08":5,"chery-tiggo-8-pro":5,"mg-zs-hev":5,"baic-bj40-plus":5,"changan-cs55-plus":5,"baic-x55-plus":1,"forthing-u-tour":1,"baic-bj60":1,"geely-ex5":1,"leapmotor-c10":5,"ora-03":5,"baic-eu5":1,"lynk-co-06":5,"haval-h6-hev":1,"leapmotor-b10":1,"dolphin-mini":1,"baic-x35":1,"song-pro":1,"arcfox-koala-s":1,"foton-tunland-v9":1,"skywell-be11":5,"jac-t9":5,"tank-300":5,"dfsk-e5":1,"omoda-c5":5,"baic-x55-ii":5,"lynk-co-01":1,"arcfox-t1":1,"arcfox-t5":1,"baic-x55-ii-hybrid":1,"gac-s7":1,"poer-4wd":1};
+const FOTOS_POR_AUTO = {"arcfox-koala-s":1,"arcfox-s5":4,"arcfox-t1":3,"arcfox-t5":3,"atto-2-dm-i":4,"baic-bj30-4x2":1,"baic-bj30-4x4":1,"baic-bj40-plus":5,"baic-bj40-pro":1,"baic-bj60":3,"baic-eu5":3,"baic-u5-plus":4,"baic-x35":4,"baic-x55-ii":1,"baic-x55-ii-hybrid":1,"baic-x55-plus":3,"byd-sealion-7":6,"changan-cs55-plus":6,"chery-tiggo-8-pro":5,"dfsk-e5":3,"dolphin-mini":2,"forthing-u-tour":2,"foton-tunland-v9":1,"gac-s7":1,"geely-ex5":6,"haval-h6-hev":5,"jac-t9":6,"jaecoo-7":4,"jetour-t2":6,"kaiyi-x7":1,"leapmotor-b10":1,"leapmotor-c10":3,"lynk-co-01":6,"lynk-co-06":5,"lynk-co-08":3,"maxus-eterron":3,"mg-zs-hev":1,"omoda-c5":6,"ora-03":3,"poer-4wd":3,"seal-5-dm-i":5,"seal-u-dm-i":3,"skywell-be11":5,"song-pro":5,"tank-300":4,"yuan-pro":3};
 window.FOTOS_POR_AUTO = FOTOS_POR_AUTO;
+// Crédito de CADA foto del carrusel, en orden. El índice 0 es la foto de
+// portada, que sigue viniendo de data-credito porque en la mayoría de los
+// autos es una foto de prensa argentina, no de Commons.
+const CREDITOS_POR_FOTO = {"arcfox-s5":["","Foto: LKS1990 · CC0 · Wikimedia Commons","Foto: LKS1990 · CC0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"arcfox-t1":["","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"arcfox-t5":["","Foto: Tim Wu · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons"],"atto-2-dm-i":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"baic-bj40-plus":["","Foto: M Raisfath · CC BY 4.0 · Wikimedia Commons","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons","Foto: Just a Man · CC BY 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-bj60":["","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-eu5":["","Foto: RL GNZLZ · CC BY-SA 4.0 · Wikimedia Commons","Foto: 최병찬루카스 · CC BY-SA 3.0 · Wikimedia Commons"],"baic-u5-plus":["","Foto: Just a Man · CC BY 4.0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons"],"baic-x35":["","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons","Foto: JLaw45 · CC BY 4.0 · Wikimedia Commons","Foto: Kevauto · CC BY-SA 4.0 · Wikimedia Commons"],"baic-x55-plus":["","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons","Foto: RL GNZLZ from Chile · CC BY-SA 2.0 · Wikimedia Commons"],"byd-sealion-7":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kazyakuruma · CC0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Kazyakuruma · CC0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"changan-cs55-plus":["","Foto: Peżot · CC BY-SA 4.0 · Wikimedia Commons","Foto: RL GNZLZ · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC0 · Wikimedia Commons","Foto: Peżot · CC BY-SA 4.0 · Wikimedia Commons","Foto: Throwawayacc222 · CC0 · Wikimedia Commons"],"chery-tiggo-8-pro":["","Foto: Anhuicarspotter · CC BY-SA 4.0 · Wikimedia Commons","Foto: Anhuicarspotter · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons"],"dfsk-e5":["","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"dolphin-mini":["","Foto: Mateusmatsuda · CC BY 4.0 · Wikimedia Commons"],"forthing-u-tour":["","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"geely-ex5":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons"],"haval-h6-hev":["","Foto: MoCars · CC0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons"],"jac-t9":["","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Throwawayacc222 · CC0 · Wikimedia Commons","Foto: LuvsMG481 · CC BY-SA 4.0 · Wikimedia Commons"],"jaecoo-7":["","Foto: Autosdeprimera · CC BY 3.0 · Wikimedia Commons","Foto: Harvey Bold · CC0 · Wikimedia Commons","Foto: Autosdeprimera · CC BY 3.0 · Wikimedia Commons"],"jetour-t2":["","Foto: Milhouse35 · CC BY-SA 4.0 · Wikimedia Commons","Foto: M Raisfath · CC BY 4.0 · Wikimedia Commons","Foto: Husskeyy · CC BY-SA 4.0 · Wikimedia Commons","Foto: Retired electrician · CC0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"leapmotor-c10":["","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander-93 · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-01":["","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Alexander Migl · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-06":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons"],"lynk-co-08":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons"],"maxus-eterron":["","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons","Foto: MarcelX42 · CC BY-SA 4.0 · Wikimedia Commons"],"omoda-c5":["","Foto: Andra Febrian · CC BY-SA 4.0 · Wikimedia Commons","Foto: Automachi · CC BY 3.0 · Wikimedia Commons","Foto: RichardSummersault · CC0 · Wikimedia Commons","Foto: Calreyn88 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Calreyn88 · CC BY-SA 4.0 · Wikimedia Commons"],"ora-03":["","Foto: Ethan Llamas · CC0 · Wikimedia Commons","Foto: Ethan Llamas · CC0 · Wikimedia Commons"],"poer-4wd":["","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons","Foto: Chanokchon · CC BY-SA 4.0 · Wikimedia Commons"],"seal-5-dm-i":["","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Captainmorlypogi1959 · CC BY-SA 4.0 · Wikimedia Commons"],"seal-u-dm-i":["","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons","Foto: Charles from Port Chester, New York · CC BY 2.0 · Wikimedia Commons"],"skywell-be11":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC BY-SA 4.0 · Wikimedia Commons","Foto: JustAnotherCarDesigner · CC BY-SA 4.0 · Wikimedia Commons"],"song-pro":["","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: Jengtingchen · CC BY-SA 4.0 · Wikimedia Commons","Foto: User3204 · CC BY-SA 4.0 · Wikimedia Commons"],"tank-300":["","Foto: MRWikiTankenTai · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons","Foto: Ethan Llamas · CC BY-SA 4.0 · Wikimedia Commons"],"yuan-pro":["","Foto: Anonymousfox36 · CC BY-SA 4.0 · Wikimedia Commons","Foto: Anonymousfox36 · CC BY-SA 4.0 · Wikimedia Commons"]};
+window.CREDITOS_POR_FOTO = CREDITOS_POR_FOTO;
+
 // Zoom de la foto del encabezado, con carrusel.
 //
 // Las fotos grandes NO van embebidas: viven en /fotos/<slug>-N.jpg y se bajan solo
@@ -1574,7 +1580,7 @@ document.body.appendChild(fotoZoom);
 const zImg    = fotoZoom.querySelector('img');
 const zPuntos = fotoZoom.querySelector('.puntos');
 const zCred   = fotoZoom.querySelector('.credito');
-let zoomActivo = null, zFotos = [], zIdx = 0;
+let zoomActivo = null, zFotos = [], zIdx = 0, zSlug = '', zCredFallback = '';
 
 // Cuántas fotos tiene cada auto. Lo llena FOTOS_POR_AUTO, que se genera junto con
 // los archivos; si un slug no está, se asume una sola.
@@ -1582,8 +1588,19 @@ function listaDeFotos(slug){
   const n = (window.FOTOS_POR_AUTO && window.FOTOS_POR_AUTO[slug]) || 1;
   return Array.from({length:n}, (_,k)=> 'fotos/' + slug + '-' + (k+1) + '.jpg');
 }
+// El crédito es POR FOTO, no por auto: antes se fijaba al abrir el zoom y no
+// cambiaba al pasar de foto, así que las fotos 2 a 6 quedaban firmadas por el
+// autor de la primera. Con CC BY eso es atribuir la obra a quien no la hizo.
+function creditoDe(slug, k){
+  const m = window.CREDITOS_POR_FOTO && window.CREDITOS_POR_FOTO[slug];
+  if (m && m[k]) return m[k];
+  return k === 0 ? zCredFallback : '';
+}
 function mostrar(k){
   zIdx = (k + zFotos.length) % zFotos.length;
+  const cred = creditoDe(zSlug, zIdx);
+  zCred.textContent = cred;
+  zCred.style.display = cred ? 'block' : 'none';
   zImg.classList.add('cargando');
   const url = zFotos[zIdx];
   const previa = new Image();
@@ -1600,8 +1617,8 @@ function abrirZoom(img){
   zFotos = listaDeFotos(slug);
   fotoZoom.classList.toggle('multi', zFotos.length > 1);
   zPuntos.innerHTML = zFotos.length > 1 ? zFotos.map(()=> '<i></i>').join('') : '';
-  zCred.textContent = img.dataset.credito || '';
-  zCred.style.display = img.dataset.credito ? 'block' : 'none';
+  zSlug = slug;
+  zCredFallback = img.dataset.credito || '';
   zImg.src = img.src;                     // arranca con la miniatura ya cargada
   fotoZoom.style.display = 'block';
   const ancho = Math.min(560, window.innerWidth - 24);
