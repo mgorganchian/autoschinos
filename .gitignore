@@ -6,5 +6,8 @@ CONTEXTO_LOCAL_PRIVADO.md
 .chequeo-diario.log
 .chequeo-salida.log
 .chequeo-error.log
+# El candado, que si no aparece como archivo sin trackear y la propia rutina
+# lo confunde con trabajo sin commitear y se niega a arrancar.
+.chequeo.lock/
 
 .DS_Store
