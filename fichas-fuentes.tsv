@@ -48,10 +48,16 @@ Leapmotor B10	leapmotor-b10-ft-ar.pdf	https://www.leapmotor.com.ar/content/dam/l
 Lynk & Co 01	lynkco-01-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-01.pdf	ficha-MY2026	2026-09-21
 Lynk & Co 06	lynkco-06-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-06.pdf	ficha-MY2026	2026-09-21
 Lynk & Co 08	lynkco-08-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-08.pdf	ficha-MY2026	2026-09-21
+Forthing U-Tour	forthing-u-tour-hev.pdf	https://forthing.com.ar/wp-content/uploads/2026/06/Ficha-tecnica-U-TOUR-HEV.pdf	ficha-U-Tour-HEV-Exclusive-04-26	2026-09-22
+Foton Tunland V9	foton-tunland-v9-naftera-v3.pdf	https://foton.com.ar/wp-content/uploads/2026/03/FTN-005-Ficha-Tecnica-TUNLAND-V9-NAFTERA-v3.pdf	ficha-4x4-AT-Pro-Sport-TUV9N-DIC25-002	2026-09-22
 
 # SIN URL REGISTRADA — hay que redescubrirla antes de poder detectar cambios:
-#   Poer 4WD, JAC T9, GAC S7, Kaiyi X7, Forthing U-Tour, DFSK E5,
-#   Maxus eTerron, Foton Tunland V9, BJ40 Pro, BJ40 Plus (brochure BAIC)
+#   Poer 4WD, JAC T9, GAC S7, Kaiyi X7, DFSK E5, Maxus eTerron,
+#   BJ40 Pro, BJ40 Plus (brochure BAIC)
+#
+# Skywell BE11: skywell.com.ar publica UNA sola ficha y es del ET5 de 72 kWh
+# (411 km, 150 kW). La columna de la tabla es la de 86 kWh tomada del mercado
+# español, así que la ficha AR es de OTRA versión y no se cargó nada de ahí.
 #
 # Truco que funcionó para encontrar fichas en sitios WordPress (BAIC, Arcfox,
 # Jetour, citydrive, Foton): la API de medios lista TODOS los PDF, incluso los
