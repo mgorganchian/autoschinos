@@ -59,3 +59,27 @@ Lynk & Co 08	lynkco-08-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content
 #   /wp-json/wp/v2/media?per_page=100&mime_type=application/pdf&orderby=date&order=desc
 # Es mucho más confiable que crawlear el HTML, donde además los links vienen
 # JSON-escapados (https:\/\/...) y un grep href normal no los ve.
+
+
+# ---------------------------------------------------------------------------
+# FOTOS del encabezado. Son fotos de prensa de cada marca, embebidas en
+# index.html en base64 (JPEG 220px, compuesto sobre blanco, calidad 0,62).
+# Se eligieron MIRÁNDOLAS una por una: el matching por nombre de archivo trae
+# logos, interiores y paisajes, y una vez casi mete fotos de BJ40 en la fila
+# del Lynk 01 porque el '01' matcheaba el mes de la ruta (/2026/01/).
+# Descartadas a propósito: BAIC X55 II (el archivo se llama 'X55IIPlus' y no
+# se puede decidir si es el X55 II o el X55 Plus) y BAIC X35 y U5 Plus (solo
+# hay banners con texto, sin foto de producto).
+# auto <TAB> url_de_la_foto
+
+Arcfox Koala S	https://arcfox.com.ar/wp-content/uploads/2026/02/Arcfox_KaolaS-11.jpg
+Arcfox S5	https://arcfox.com.ar/wp-content/uploads/2026/02/Arcfox_S5-1.jpg
+Arcfox T1	https://arcfox.com.ar/wp-content/uploads/2026/02/Arcfox_KaolaT1-1.png
+Arcfox T5	https://arcfox.com.ar/wp-content/uploads/2026/03/Arcfox_Argentina_Menu_Miniatura_T5_web.webp
+BAIC BJ30 4x2	https://baic.com.ar/wp-content/uploads/2025/01/BJ30_BAIC-Argentina-26.png
+BAIC BJ30 4x4	https://baic.com.ar/wp-content/uploads/2025/01/BJ30_BAIC-Argentina-26.png
+BAIC BJ40 Pro	https://baic.com.ar/wp-content/uploads/2026/03/BJ40_Pro_Miniatura_Menu.png
+BAIC BJ60	https://baic.com.ar/wp-content/uploads/2026/03/BAIC_BJ60_Slide_Home_Feb26.jpg
+BAIC X55 Plus	https://baic.com.ar/wp-content/uploads/2025/09/Foto-X55-Plus-Exterior-24-WEB.jpg
+Jetour T2	https://jetour.com.ar/wp-content/uploads/2026/04/Mobile-Datos-T2-i-DM.jpg
+Lynk & Co 01	https://citydrive.com.ar/wp-content/uploads/2026/05/axo_lynk_01_GRIS_OSCURO.webp
