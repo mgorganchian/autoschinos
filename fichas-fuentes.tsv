@@ -189,3 +189,11 @@ Foton Tunland V9	tapa de foton-tunland-v9-naftera-v3.pdf
 #   Skywell BE11 — la única ficha que publica la marca en Argentina es del ET5,
 #     que es otro modelo. Usar su tapa sería poner el auto equivocado.
 #   Omoda C5 — no se vende en Argentina y no hay ficha local de la que sacarla.
+
+# Las dos últimas, con nombre de otro mercado (verificado que sean el mismo auto):
+#   Skywell BE11 = Skyworth EV6 — misma unidad con distinta marca segun mercado
+#     (tambien Skywell ET5 en Polonia/Rumania, Elaris Beo en Alemania)
+Skywell BE11	Skyworth EV6 005.jpg	CC0	JustAnotherCarDesign	https://commons.wikimedia.org/wiki/File:Skyworth_EV6_005.jpg
+#   Omoda C5 = Omoda 5 — Wikipedia: "The Omoda C5 (also known as Omoda 5)"
+#     OJO: el Omoda E5 es la version electrica, otro modelo. Descartadas sus fotos.
+Omoda C5	Chery Omoda 5 008.jpg	CC0	JustAnotherCarDesign	https://commons.wikimedia.org/wiki/File:Chery_Omoda_5_008.jpg
