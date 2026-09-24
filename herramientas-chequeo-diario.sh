@@ -14,8 +14,16 @@
 #
 # Instalación:  launchctl load ~/Library/LaunchAgents/ar.autoschinos.chequeo.plist
 # Prueba:       ./herramientas-chequeo-diario.sh --ahora
+#               (fuerza la pasada de completar datos aunque no sea lunes; publica
+#               igual que una corrida real)
 
 set -u
+AHORA=0
+case "${1:-}" in
+  "")      ;;
+  --ahora) AHORA=1 ;;
+  *)       print -u2 "uso: $0 [--ahora]"; exit 2 ;;
+esac
 REPO="/Users/mgorganchian/Projects/autoschinos"
 LOG="$REPO/.chequeo-diario.log"
 UA='autoschinos-comparativo/1.0 (https://github.com/mgorganchian/autoschinos)'
@@ -37,6 +45,7 @@ print -r -- "$$" > "$LOCK/pid"
 trap 'rmdir "$LOCK/pid" 2>/dev/null; rm -f "$LOCK/pid" 2>/dev/null; rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
 
 log "=== arranca el chequeo ==="
+(( AHORA )) && log "corrida forzada con --ahora"
 
 # Volver a main antes de empezar. Hace falta porque la propia rutina deja el repo
 # parado en la rama que crea, y sin esto la corrida siguiente muere en el git pull
@@ -71,7 +80,8 @@ while IFS=$'\t' read -r auto url hash fecha; do
 done < fichas-hashes.tsv
 
 # ---------- 2. ¿qué le pedimos a Claude? ----------
-# Los lunes, aunque no haya cambios, se usa la corrida para completar faltantes.
+# Los lunes (o con --ahora), aunque no haya cambios, se usa la corrida para
+# completar faltantes.
 DIA=$(date +%u)
 if [[ -n "$CAMBIOS" ]]; then
   TAREA="Cambiaron estas fichas técnicas oficiales desde la última revisión:
@@ -79,7 +89,7 @@ if [[ -n "$CAMBIOS" ]]; then
 $CAMBIOS
 Para cada una: descargala, leela, y comparala contra lo que hoy tiene la tabla para ese auto.
 Corregí SOLO los valores que la ficha nueva contradice, y actualizá su hash en fichas-hashes.tsv."
-elif [[ "$DIA" == "1" ]]; then
+elif [[ "$DIA" == "1" ]] || (( AHORA )); then
   TAREA="Ninguna ficha cambió. Usá esta corrida para completar datos faltantes:
 buscá fichas o fuentes oficiales argentinas para los autos con más celdas en NR, y cargá
 lo que encuentres. Si no encontrás nada confiable, no cargues nada y decilo en el resumen."
