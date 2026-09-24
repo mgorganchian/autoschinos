@@ -50,10 +50,24 @@ Lynk & Co 06	lynkco-06-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content
 Lynk & Co 08	lynkco-08-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-08.pdf	ficha-MY2026	2026-09-21
 Forthing U-Tour	forthing-u-tour-hev.pdf	https://forthing.com.ar/wp-content/uploads/2026/06/Ficha-tecnica-U-TOUR-HEV.pdf	ficha-U-Tour-HEV-Exclusive-04-26	2026-09-22
 Foton Tunland V9	foton-tunland-v9-naftera-v3.pdf	https://foton.com.ar/wp-content/uploads/2026/03/FTN-005-Ficha-Tecnica-TUNLAND-V9-NAFTERA-v3.pdf	ficha-4x4-AT-Pro-Sport-TUV9N-DIC25-002	2026-09-22
+DFSK E5 Plus	dfsk-e5.pdf	https://dfsk.ar/wp-content/uploads/2026/06/DFSK-Plus-ficha.pdf	4372c1f341d2af92cfd3f0f918754efe4bf78e982c5fab301099bdc52dad7fcb	2026-09-24
+DFSK E5 (base)	dfsk-e5-phev-2025.pdf	https://dfsk.ar/wp-content/uploads/2025/12/DFSK-E5_v2-1.pdf	97ed587a8cf974d5031882f42d63c695fcc2503eeae6a67c7774c137ab7c947c	2026-09-24
+Maxus eTerron	maxus-eterron9.pdf	https://maxus.com.ar/documents/Maxus_FT_eTerron9_OCT25.pdf	556e2c85bb6419c917c4deb7db6513fe289908278495df03ffc9e68b9d94cb55	2026-09-24
 
 # SIN URL REGISTRADA — hay que redescubrirla antes de poder detectar cambios:
-#   Poer 4WD, JAC T9, GAC S7, Kaiyi X7, DFSK E5, Maxus eTerron,
-#   BJ40 Pro, BJ40 Plus (brochure BAIC)
+#   Poer 4WD, JAC T9, GAC S7, BJ40 Pro, BJ40 Plus (brochure BAIC)
+#
+# ⚠️ DFSK publica DOS fichas y la columna de la tabla se armó con la del E5 Plus:
+# el archivo guardado como dfsk-e5.pdf es en realidad la ficha del E5 Plus
+# (jun-2026, pantalla 15,6", 6 airbags, BSD/LCA/DOW/RCW/RCTA). La ficha del E5
+# base (dic-2025) es otra: 12,3", 4 airbags y sin esas ayudas. En la corrida del
+# 2026-09-24 solo se cargaron datos en los que LAS DOS coinciden, para no mezclar
+# versiones. Queda pendiente decidir cuál de las dos es la columna.
+#
+# ⚠️ Kaiyi X7: el PDF que kaiyiauto.com.ar publica como ficha del X7 naftero
+# (assets/img/x7/FICHA_TECNICA_KAIYI_X7.pdf) es la ficha CHILENA de Andes Motor
+# (kaiyi.cl, junio 2025), la misma que ya está citada como EXT en la tabla.
+# No es una fuente argentina, aunque esté alojada en el sitio argentino.
 #
 # Skywell BE11: skywell.com.ar publica UNA sola ficha y es del ET5 de 72 kWh
 # (411 km, 150 kW). La columna de la tabla es la de 86 kWh tomada del mercado
