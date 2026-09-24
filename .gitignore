@@ -11,3 +11,8 @@ CONTEXTO_LOCAL_PRIVADO.md
 .chequeo.lock/
 
 .DS_Store
+
+# Tests e2e (tests/e2e): dependencias y resultados, se regeneran.
+tests/e2e/node_modules/
+tests/e2e/test-results/
+tests/e2e/playwright-report/

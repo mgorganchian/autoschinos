@@ -1,0 +1,12 @@
+{
+  "name": "autoschinos-e2e",
+  "private": true,
+  "description": "Tests e2e del comparativo: las 6 invariantes, el render y las interacciones de index.html",
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
