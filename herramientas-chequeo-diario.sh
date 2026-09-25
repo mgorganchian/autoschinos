@@ -13,9 +13,10 @@
 #   3. Claude valida las 6 invariantes ANTES de commitear; si fallan, no commitea
 #
 # Instalación:  launchctl load ~/Library/LaunchAgents/ar.autoschinos.chequeo.plist
-# Prueba:       ./herramientas-chequeo-diario.sh --ahora
-#               (fuerza la pasada de completar datos aunque no sea lunes; publica
-#               igual que una corrida real)
+# A mano:       ./herramientas-chequeo-diario.sh --ahora
+#               Fuerza la pasada de completar datos aunque no sea lunes. NO es una
+#               prueba: commitea a main y publica igual que una corrida real. Si
+#               además cambió alguna ficha, gana esa tarea (corregir la ficha).
 
 set -u
 AHORA=0

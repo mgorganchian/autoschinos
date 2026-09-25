@@ -1,6 +1,6 @@
 # autoschinos — reglas del proyecto
 
-Comparativo de **49 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
+Comparativo de **46 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
 Todo vive en un único `index.html` autocontenido de ~600 KB: sin CSS, JS ni imágenes
 externas. Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.**
@@ -77,6 +77,16 @@ cuenta las 2 definiciones del `<style>`.
 cero errores de consola. Con el script roto la tabla queda en **0 filas** y el archivo
 igual "parece" bien.
 
+Las dos cosas las corre la suite de Playwright en `tests/e2e` (invariantes, render y
+las interacciones de la página). Correrla antes de commitear:
+
+```bash
+cd tests/e2e && npm ci && npm test
+```
+
+Después borrar `tests/e2e/node_modules` y `tests/e2e/test-results` si vas a cambiar a
+una rama que no los ignore: la rutina no arranca si ve archivos sin trackear.
+
 ---
 
 ## Convención de celdas
@@ -91,9 +101,11 @@ igual "parece" bien.
 **Centinelas exactos** (el valor es *exactamente* eso): `"YES"` → ✓ · `"NO"` → – ·
 `"OPT"` → ○ Opcional · `"ND"` → s/d.
 
-**Los valores con texto van en castellano: `Sí (…)` y `No (…)`, nunca `YES (…)`.**
-Escribir `YES (…)` hace que la celda muestre literalmente "YES". Los centinelas exactos
-sí quedan en inglés, porque no muestran la palabra.
+**Los valores con texto van en castellano: `Sí (…)`, `No (…)`, `Opcional (…)` y
+`s/d (…)`, nunca `YES (…)`, `NO (…)`, `OPT (…)` ni `ND (…)`.** Un centinela con texto al
+lado hace que la celda muestre la palabra cruda ("YES", "OPT"). Los centinelas exactos
+sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos veces y con
+`OPT`/`ND` una (Sealion 7 y Dolphin Mini, corregidos el 2026-09-24).
 
 ---
 
