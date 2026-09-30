@@ -16,3 +16,7 @@ CONTEXTO_LOCAL_PRIVADO.md
 tests/e2e/node_modules/
 tests/e2e/test-results/
 tests/e2e/playwright-report/
+
+# Candidatas de herramientas-fotos.py, antes de revisarlas. Si no se ignora, la
+# rutina la ve como trabajo sin commitear y no arranca.
+.fotos-candidatas/

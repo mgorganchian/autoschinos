@@ -165,9 +165,16 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 ## Fotos
 
 Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura base64
-embebida en el `<th>`) y, si hay material, hasta 4 más en un carrusel.
-`FOTOS_POR_AUTO` dice cuántas tiene cada uno; los archivos van numerados **sin
-huecos** desde 1.
+embebida en el `<th>`) y, si hay material, hasta 6 más en un carrusel (tope 7, de las
+cuales 2 interiores como mucho). `FOTOS_POR_AUTO` dice cuántas tiene cada uno; los
+archivos van numerados **sin huecos** desde 1.
+
+**Las fotos se agregan con `herramientas-fotos.py`, nunca a mano**: `buscar` baja y
+procesa candidatas de Commons a `.fotos-candidatas/`, `instalar ID…` agrega las
+aprobadas y escribe juntos `FOTOS_POR_AUTO`, `CREDITOS_POR_FOTO` y `fotos-fuentes.tsv`,
+y `descartar ID "motivo"` anota el rechazo en `fotos-descartadas.tsv` por nombre de
+archivo de Commons, para que no se vuelva a proponer. `tests/e2e/fotos.spec.js` falla
+si esos tres lugares no coinciden o si una foto queda sin autor.
 
 - **El crédito es por foto, no por auto** (`CREDITOS_POR_FOTO`). El `data-credito`
   del `<th>` es solo el de la portada. Antes el crédito se fijaba al abrir el zoom
@@ -182,6 +189,14 @@ huecos** desde 1.
 - Al bajar de Commons hay que **mirar el resultado uno por uno**: de 117 procesadas
   hubo que descartar 8 (volantes sueltos, un techo de vidrio con reflejo, un
   prototipo camuflado). El tamaño del archivo no delata ninguno de esos casos.
+- Muchas fotos de cabina **no dicen "interior" en el nombre**, pasan por Vision y
+  quedan como un volante flotando. Por eso `buscar` guarda también `ID.int.jpg`, sin
+  recortar: si es una cabina entera, se instala como `ID:interior`. El 2026-09-30 así
+  aparecieron 5 interiores que de otro modo se habrían descartado.
+- **El modelo tiene que llamarse exactamente igual que en la tabla.** Un calificador
+  de versión en el nombre (facelift, II, GT, EV, SHS, Shanhai…) se verifica contra las
+  filas Tipo de propulsión y Precio; si no se puede confirmar, se descarta con ese
+  motivo. EM-P y EREV sí coinciden con los PHEV/REEV de la tabla.
 
 ## Fuentes de datos
 
@@ -210,6 +225,11 @@ El sitio vive en **Vercel**: `https://autoschinos-ar.vercel.app/`, y publica sol
 cada push a `main`, en segundos. Netlify quedó atrás — el `netlify.toml` sigue en el
 repo pero no cumple ninguna función.
 
+La **Fecha de consulta** del pie (`#fechaConsulta`) es la de la última verificación de
+las fichas oficiales, **no la de los precios**, que siguen siendo de las listas de agosto
+2026. La actualiza la rutina sola, y solo si pudo verificar todas las fichas: no
+tocarla a mano.
+
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
 tal cual (a diferencia de Netlify, que inyectaba 536 bytes), así que lo servido y el repo
@@ -224,7 +244,10 @@ sobre `main` ni se pushea, "ni siquiera si te pedí commitear".
 
 **Para la rutina automática de este repo, y solo para ella, el usuario autorizó
 explícitamente la excepción** (2026-09-22): `herramientas-chequeo-diario.sh` puede
-commitear a `main` y pushear sin preguntar.
+commitear a `main` y pushear sin preguntar. Desde el 2026-09-30 corre **una vez por
+semana, los lunes a las 09:15** (launchd), con una pasada completa: fichas, datos
+faltantes y fotos. Si Claude no puede autenticarse o falla, avisa con una notificación
+de macOS; el 2026-09-28 la sesión venció y la pasada no corrió sin que nadie se enterara.
 
 La excepción es angosta y no se extiende:
 
