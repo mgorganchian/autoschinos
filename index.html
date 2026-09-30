@@ -1580,7 +1580,7 @@ document.body.appendChild(fotoZoom);
 const zImg    = fotoZoom.querySelector('img');
 const zPuntos = fotoZoom.querySelector('.puntos');
 const zCred   = fotoZoom.querySelector('.credito');
-let zoomActivo = null, zFotos = [], zIdx = 0, zSlug = '', zCredFallback = '';
+let zoomActivo = null, zFotos = [], zIdx = 0, zSlug = '', zCredFallback = '', zCierre = null;
 
 // Cuántas fotos tiene cada auto. Lo llena FOTOS_POR_AUTO, que se genera junto con
 // los archivos; si un slug no está, se asume una sola.
@@ -1636,7 +1636,7 @@ function abrirZoom(img){
         : Math.max(8, Math.min(r.top - alto - 8, window.innerHeight - alto - 8))) + 'px';
   });
 }
-function cerrarZoom(){ fotoZoom.style.display='none'; zoomActivo=null; zFotos=[]; }
+function cerrarZoom(){ clearTimeout(zCierre); zCierre=null; fotoZoom.style.display='none'; zoomActivo=null; zFotos=[]; }
 
 fotoZoom.querySelector('.ant').addEventListener('click', e=>{ e.stopPropagation(); mostrar(zIdx-1); });
 fotoZoom.querySelector('.sig').addEventListener('click', e=>{ e.stopPropagation(); mostrar(zIdx+1); });
@@ -1654,11 +1654,17 @@ document.addEventListener('click', e => {
   if (img){ (zoomActivo === img) ? cerrarZoom() : abrirZoom(img); return; }
   if (!(e.target.closest && e.target.closest('#fotoZoom'))) cerrarZoom();
 });
+// Al salir de la miniatura o de la foto ampliada no se cierra en el acto: se espera
+// un instante, y si el mouse llega a cualquiera de las dos, sigue abierto. Entre las
+// dos hay unos píxeles de hueco, y cerrar en el acto hacía que se cerrara al cruzarlo,
+// antes de llegar a la foto ampliada, sin poder pasar de foto.
 document.addEventListener('pointerover', e => {
   if (!zoomActivo || e.pointerType !== 'mouse') return;
   const t = e.target.closest ? e.target : null;
-  if (t && (t.closest('#fotoZoom') || t.closest('.car-photo') === zoomActivo)) return;
-  cerrarZoom();
+  if (t && (t.closest('#fotoZoom') || t.closest('.car-photo') === zoomActivo)) {
+    clearTimeout(zCierre); zCierre = null; return;
+  }
+  if (!zCierre) zCierre = setTimeout(cerrarZoom, 350);
 });
 window.addEventListener('scroll', cerrarZoom, true);
 window.addEventListener('resize', cerrarZoom);

@@ -178,6 +178,40 @@ test.describe('tooltips y fotos', () => {
     await expect(zoom).toBeHidden();
   });
 
+  // El zoom se ubica unos píxeles abajo (o arriba) de la miniatura. Cerrarlo apenas
+  // el mouse salía de la miniatura hacía que se cerrara al cruzar ese hueco, antes
+  // de llegar a la foto ampliada, y no se podía pasar de foto con el mouse.
+  test('el zoom no se cierra al cruzar con el mouse el hueco hasta la foto ampliada', async ({ page }, info) => {
+    test.skip(info.project.name === 'celular', 'el cierre por hover solo aplica con mouse');
+    const slug = 'byd-sealion-7';
+    const foto = page.locator(`img.car-photo[data-slug="${slug}"]`);
+    await foto.scrollIntoViewIfNeeded();
+    await foto.click();
+    const zoom = page.locator('#fotoZoom');
+    await expect(zoom).toBeVisible();
+
+    const a = await foto.boundingBox();
+    const b = await zoom.boundingBox();
+    // Si no hubiera hueco entre las dos, este test no probaría nada.
+    const hueco = b.y > a.y ? b.y - (a.y + a.height) : a.y - (b.y + b.height);
+    expect(hueco).toBeGreaterThan(0);
+
+    // De a ~2 px, como un mouse real: con pasos más largos el movimiento salta por
+    // encima del hueco sin caer nunca adentro, y el test pasa aunque el bug esté.
+    const x = a.x + a.width / 2;
+    const desde = a.y + a.height / 2, hasta = b.y + b.height / 2;
+    await page.mouse.move(x, desde);
+    await page.mouse.move(x, hasta, { steps: Math.ceil(Math.abs(hasta - desde) / 2) });
+    await expect(zoom).toBeVisible();
+
+    await zoom.locator('.sig').click();
+    await expect(zoom.locator('img')).toHaveAttribute('src', `fotos/${slug}-2.jpg`);
+
+    // Lejos de las dos, sí se cierra.
+    await page.mouse.move(5, 790, { steps: 5 });
+    await expect(zoom).toBeHidden();
+  });
+
   test('todas las fotos que declara FOTOS_POR_AUTO existen', async ({ page, request }, info) => {
     test.skip(info.project.name !== 'escritorio', 'no depende del viewport');
     const porAuto = await page.evaluate(() => window.FOTOS_POR_AUTO);
