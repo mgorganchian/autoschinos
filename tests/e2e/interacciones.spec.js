@@ -144,6 +144,12 @@ test.describe('selector de autos', () => {
   });
 });
 
+// El zoom se muestra y recién en el cuadro siguiente (requestAnimationFrame) se
+// ubica junto a la miniatura. Medirlo antes da la posición de antes de ubicarlo,
+// al final del documento: el test daba un "hueco" de 9622 px según quién ganara
+// la carrera. Dos cuadros alcanzan para que ya esté en su lugar.
+const zoomUbicado = page => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+
 test.describe('tooltips y fotos', () => {
   test('una celda sin dato muestra su explicación en el tooltip', async ({ page }) => {
     const celda = page.locator('#mainTable .val-nd[data-tip]').first();
@@ -178,10 +184,26 @@ test.describe('tooltips y fotos', () => {
     await expect(zoom).toBeHidden();
   });
 
-  // El zoom se ubica unos píxeles abajo (o arriba) de la miniatura. Cerrarlo apenas
-  // el mouse salía de la miniatura hacía que se cerrara al cruzar ese hueco, antes
-  // de llegar a la foto ampliada, y no se podía pasar de foto con el mouse.
-  test('el zoom no se cierra al cruzar con el mouse el hueco hasta la foto ampliada', async ({ page }, info) => {
+  // La foto ampliada tiene que quedar pegada a la miniatura. Con 8 px de hueco se
+  // veía una franja con los nombres de los autos a medio tapar, y el mouse, al
+  // cruzarla para ir a la foto ampliada, salía de las dos y el zoom se cerraba.
+  test('la foto ampliada queda pegada a la miniatura, sin hueco', async ({ page }, info) => {
+    test.skip(info.project.name === 'celular', 'el zoom por hover es de escritorio');
+    const foto = page.locator('img.car-photo[data-slug="byd-sealion-7"]');
+    await foto.scrollIntoViewIfNeeded();
+    await foto.click();
+    const zoom = page.locator('#fotoZoom');
+    await expect(zoom).toBeVisible();
+    await zoomUbicado(page);
+    const a = await foto.boundingBox();
+    const b = await zoom.boundingBox();
+    const hueco = b.y > a.y ? b.y - (a.y + a.height) : a.y - (b.y + b.height);
+    expect(hueco).toBeLessThanOrEqual(0);
+  });
+
+  // Si el mouse sale un instante de las dos (yendo en diagonal, o por el costado de la
+  // miniatura), el zoom espera antes de cerrarse: llegar a la foto ampliada lo mantiene.
+  test('el zoom aguanta que el mouse salga un instante antes de llegar a la foto ampliada', async ({ page }, info) => {
     test.skip(info.project.name === 'celular', 'el cierre por hover solo aplica con mouse');
     const slug = 'byd-sealion-7';
     const foto = page.locator(`img.car-photo[data-slug="${slug}"]`);
@@ -189,19 +211,17 @@ test.describe('tooltips y fotos', () => {
     await foto.click();
     const zoom = page.locator('#fotoZoom');
     await expect(zoom).toBeVisible();
+    await zoomUbicado(page);
 
     const a = await foto.boundingBox();
     const b = await zoom.boundingBox();
-    // Si no hubiera hueco entre las dos, este test no probaría nada.
-    const hueco = b.y > a.y ? b.y - (a.y + a.height) : a.y - (b.y + b.height);
-    expect(hueco).toBeGreaterThan(0);
-
-    // De a ~2 px, como un mouse real: con pasos más largos el movimiento salta por
-    // encima del hueco sin caer nunca adentro, y el test pasa aunque el bug esté.
-    const x = a.x + a.width / 2;
-    const desde = a.y + a.height / 2, hasta = b.y + b.height / 2;
-    await page.mouse.move(x, desde);
-    await page.mouse.move(x, hasta, { steps: Math.ceil(Math.abs(hasta - desde) / 2) });
+    // Al costado de la miniatura, a su altura: fuera de las dos. De a ~2 px, como un
+    // mouse real; con pasos largos el movimiento salta por encima y no prueba nada.
+    const afuera = { x: a.x + a.width + 6, y: a.y + a.height / 2 };
+    const dentro = { x: a.x + a.width / 2, y: b.y + b.height / 2 };
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+    await page.mouse.move(afuera.x, afuera.y, { steps: Math.ceil((afuera.x - a.x - a.width / 2) / 2) });
+    await page.mouse.move(dentro.x, dentro.y, { steps: Math.ceil(Math.abs(dentro.y - afuera.y) / 2) });
     await expect(zoom).toBeVisible();
 
     await zoom.locator('.sig').click();
