@@ -151,7 +151,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   parecidos según los criterios tildados, que se combinan (precio, tipo de auto,
   tamaño, propulsión, asientos, y autonomía solo si el auto elegido es eléctrico:
   `SIM_SOLO_SI`). Las autonomías mezclan ciclos NEDC/WLTP/CLTC, y el criterio lo
-  aclara en su tooltip. La distancia de cada criterio está explicada arriba
+  aclara en su tooltip. Con **Propulsión** tildada sugiere **primero los del mismo
+  tipo** (`SIM_FAMILIA`: el mild-hybrid va con los híbridos, porque ninguno se
+  enchufa y el BJ60 es el único mild), y si hay menos de 3 completa con otros. Es
+  **preferencia, no filtro**: el usuario pidió explícitamente que no fuera estricta. La distancia de cada criterio está explicada arriba
   de `SIM_CRITERIOS`. Si el auto elegido no tiene un dato, ese criterio se apaga; si
   no lo tiene el candidato, cuenta como lo más distinto. **Para sumar un auto se usa
   `simHabilitar()`**, nunca tildarlo a mano: un auto se ve si pasa los filtros Y está

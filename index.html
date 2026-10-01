@@ -1411,7 +1411,12 @@ tbodyWrap.addEventListener('scroll', ()=>{
 //   tipo        misma carrocería 0; SUV/Crossover o Sedán/Hatchback 0,5; otra 1
 //   tamaño      escalones de segmento (chico → muy grande), sobre 4
 //   propulsión  escalones de electrificación (nafta → mild → híbrido →
-//               enchufable → eléctrico), sobre 4
+//               enchufable → eléctrico), sobre 4. Además, tildada, sugiere
+//               PRIMERO los del mismo tipo: enchufable con enchufable, eléctrico
+//               con eléctrico, y mild-hybrid junto con híbrido (los dos son
+//               híbridos que no se enchufan). Si del mismo tipo hay menos de 3,
+//               completa con los más parecidos de otro: es una preferencia, no un
+//               filtro (pedido explícito, para no dejar a nadie sin sugerencias).
 //   asientos    diferencia de plazas, sobre 3, tope 1
 //   autonomía   solo si el auto elegido es eléctrico: diferencia relativa de km,
 //               tope 1. Las cifras vienen de distintos ciclos (NEDC, WLTP, CLTC)
@@ -1431,6 +1436,10 @@ const SIM_PROP = { ice:0, mhev:1, hev:2, phev:3, ev:4 };
 const SIM_TIPO_CERCA = [['SUV','Crossover'], ['Sedán','Hatchback']];
 const SIM_TAM_TXT = { mini:'Chico', compact:'Compacto', mid:'Mediano', big:'Grande', xl:'Muy grande' };
 const SIM_PROP_TXT = { ice:'Nafta o diésel', mhev:'Mild-hybrid', hev:'Híbrido', phev:'Enchufable', ev:'Eléctrico' };
+// Familias para "mismo tipo": el mild-hybrid va con los híbridos, porque ninguno se
+// enchufa y el BAIC BJ60 es el único mild-hybrid del catálogo.
+const SIM_FAMILIA = { ice:'combustion', mhev:'hibrido', hev:'hibrido', phev:'enchufable', ev:'electrico' };
+const SIM_FAMILIA_TXT = { combustion:'nafteros o diésel', hibrido:'híbridos que no se enchufan', enchufable:'híbridos enchufables', electrico:'eléctricos' };
 function simColumna(nombre){
   const f = DATA.flatMap(cat => cat[1]).find(r => r[0] === nombre);
   return CARS.map((_, i) => f ? pctlValor(f[i + 1], nombre) : null);
@@ -1458,12 +1467,14 @@ const simUsable = (base, k) => simAplica(base, k) && simDist(base, base, k) !== 
 
 function simCalcular(base){
   const ks = [...simCriterios].filter(k => simUsable(base, k));
-  if (!ks.length) return [];
-  return CARS.map((_, i) => i).filter(i => i !== base).map(i => {
+  if (!ks.length) return { items: [], vacio: 'criterios' };
+  const fam = ks.includes('propulsion') ? SIM_FAMILIA[CARS[base].type] : null;
+  const pool = CARS.map((_, i) => i).filter(i => i !== base);
+  return { items: pool.map(i => {
     const d = ks.reduce((s, k) => { const v = simDist(base, i, k); return s + (v === null ? 1 : v); }, 0) / ks.length;
     const dp = simDist(base, i, 'precio');
-    return { i, d, dp: dp === null ? 2 : dp };
-  }).sort((p, q) => p.d - q.d || p.dp - q.dp || p.i - q.i).slice(0, 3);
+    return { i, d, dp: dp === null ? 2 : dp, otra: fam !== null && SIM_FAMILIA[CARS[i].type] !== fam };
+  }).sort((p, q) => (p.otra - q.otra) || p.d - q.d || p.dp - q.dp || p.i - q.i).slice(0, 3), vacio: null };
 }
 function simResumen(i, base){
   const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i], a = SIM_AUTONOMIA[i];
@@ -1482,10 +1493,12 @@ const simEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 
 // Dibuja el bloque en `box`. `o` dice qué significa sumar en ese lugar.
 function simRender(box, base, o){
-  const items = simCalcular(base);
+  const { items, vacio } = simCalcular(base);
   const chips = SIM_CRITERIOS.filter(([k]) => simAplica(base, k)).map(([k, et]) => {
     const ok = simUsable(base, k);
-    const tip = ok ? (SIM_AYUDA[k] || '') : CARS[base].name + ' no tiene este dato, así que no se puede usar.';
+    const tip = !ok ? CARS[base].name + ' no tiene este dato, así que no se puede usar.'
+              : k === 'propulsion' ? 'Tildada, sugiere primero ' + (SIM_FAMILIA_TXT[SIM_FAMILIA[CARS[base].type]] || 'autos del mismo tipo') + '. Si hay menos de 3, completa con los más parecidos de otro tipo.'
+              : (SIM_AYUDA[k] || '');
     return '<button type="button" data-crit="' + k + '" aria-pressed="' + (ok && simCriterios.has(k)) + '"' +
       (ok ? '' : ' disabled') + (tip ? ' data-tip="' + simEsc(tip) + '"' : '') + '>' + et + '</button>';
   }).join('');
@@ -1499,7 +1512,7 @@ function simRender(box, base, o){
             '<div><b>' + simEsc(CARS[r.i].name) + '</b><small>' + simEsc(simResumen(r.i, base)) + '</small></div>' +
             '<button type="button" class="sim-sumar" data-idx="' + r.i + '"' + (ya ? ' disabled' : '') + '>' + (ya ? o.ya : o.accion) + '</button></li>';
         }).join('') + '</ul>' +
-        '<button type="button" class="sim-todos"' + (items.every(r => o.elegido(r.i)) ? ' disabled' : '') + '>' + o.todos + '</button>'
+        (items.length > 1 ? '<button type="button" class="sim-todos"' + (items.every(r => o.elegido(r.i)) ? ' disabled' : '') + '>' + o.todos(items.length) + '</button>' : '')
       : '<p class="sim-vacio">Elegí al menos un criterio.</p>');
   // Los clics adentro no siguen hacia el documento: el panel de la tabla se cierra
   // con un clic afuera, y redibujar deja al elemento tocado fuera del documento.
@@ -1564,7 +1577,7 @@ function simModal(){
   if (simBase === null){ box.hidden = true; box.innerHTML = ''; return; }
   box.hidden = false;
   simRender(box, simBase, {
-    accion: '+ Sumar', ya: '✓ Sumado', todos: 'Sumar los 3',
+    accion: '+ Sumar', ya: '✓ Sumado', todos: n => 'Sumar los ' + n,
     elegido: i => sel.includes(i),
     sumar: i => { simSumados.add(i); simHabilitar(i); simRefrescarSelector(); },
     todosLos: is => { is.forEach(i => { simSumados.add(i); simHabilitar(i); }); simRefrescarSelector(); },
@@ -1583,7 +1596,7 @@ function simPanel(){
   const todos = colVisible.every(Boolean);
   panel.hidden = false;
   simRender(panel, simTablaBase, {
-    accion: todos ? 'Comparar' : '+ Sumar', ya: '✓ En la tabla', todos: 'Comparar con los 3',
+    accion: todos ? 'Comparar' : '+ Sumar', ya: '✓ En la tabla', todos: n => 'Comparar con los ' + n,
     elegido: i => !todos && colVisible[i],
     sumar: i => {
       if (colVisible.every(Boolean)) simFijar([simTablaBase, i]); else { simHabilitar(simTablaBase); simHabilitar(i); }

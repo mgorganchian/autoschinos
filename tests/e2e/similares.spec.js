@@ -127,6 +127,42 @@ test.describe('similares en el selector', () => {
     expect((await sugeridos(box)).sort()).toEqual(esperados.sort());
   });
 
+  // Pedido explícito: un enchufable sugiere enchufables, un eléctrico eléctricos, y
+  // el mild-hybrid va con los híbridos (ninguno se enchufa). Es preferencia, no filtro.
+  const FAMILIA = { ice: 'combustion', mhev: 'hibrido', hev: 'hibrido', phev: 'enchufable', ev: 'electrico' };
+  const familia = n => FAMILIA[CARS[indice(n)].type];
+
+  test('con Propulsión tildada, sugiere primero autos del mismo tipo', async ({ page }) => {
+    let primero = true;
+    for (const base of ['Lynk & Co 06', 'Arcfox S5', 'Haval H6 HEV', 'BAIC X35', 'BAIC BJ60']) {
+      if (primero) { await elegirSolo(page, base); primero = false; }
+      else { await page.click('#modelNoneBtn'); await page.locator(`#modelList input[data-idx="${indice(base)}"]`).check(); }
+      const box = page.locator('#simModal');
+      await expect(box.locator('.sim-titulo')).toContainText(base);
+      await expect(box.locator('[data-crit="propulsion"]')).toHaveAttribute('aria-pressed', 'true');
+      const tres = await sugeridos(box);
+      expect(tres, base).toHaveLength(3);
+      for (const n of tres) expect(familia(n), `${base} → ${n}`).toBe(familia(base));
+    }
+  });
+
+  test('no es estricta: si del mismo tipo hay menos de 3, completa con otros', async ({ page }) => {
+    // Hoy todos los tipos tienen 3 o más autos, así que se simula en memoria: al
+    // Haval le quedan un solo compañero híbrido, y el resto pasa a nafta.
+    const r = await page.evaluate(() => {
+      const base = CARS.findIndex(c => c.name === 'Haval H6 HEV');
+      const hibridos = CARS.map((_, i) => i).filter(i => i !== base && ['hev', 'mhev'].includes(CARS[i].type));
+      const antes = hibridos.map(i => CARS[i].type);
+      hibridos.slice(1).forEach(i => { CARS[i].type = 'ice'; });
+      const { items } = simCalcular(base);
+      hibridos.forEach((i, k) => { CARS[i].type = antes[k]; });
+      return { queda: CARS[hibridos[0]].name, items: items.map(x => ({ n: CARS[x.i].name, otra: x.otra })) };
+    });
+    expect(r.items).toHaveLength(3);
+    expect(r.items[0]).toEqual({ n: r.queda, otra: false });
+    expect(r.items.slice(1).every(x => x.otra)).toBe(true);
+  });
+
   test('si el auto no tiene precio, el criterio Precio se apaga', async ({ page }) => {
     await elegirSolo(page, 'BYD Sealion 7');                  // precio "aún no confirmado"
     const precio = page.locator('#simModal [data-crit="precio"]');
