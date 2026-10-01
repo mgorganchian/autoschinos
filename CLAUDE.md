@@ -146,6 +146,15 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   porque cada ficha mide distinto (el Lynk & Co 01 da 0,9 con batería llena y 6,4 con
   batería vacía; los BYD DM-i no aclaran). Los cuadraditos de la tabla todavía los
   incluyen.
+- **Autos similares** (bloque "Autos similares a X por:" en el selector con un solo
+  auto elegido, y botón "Similares" en cada auto de la tabla): sugiere los 3 más
+  parecidos según los criterios tildados, que se combinan (precio, tipo de auto,
+  tamaño, propulsión, asientos). La distancia de cada criterio está explicada arriba
+  de `SIM_CRITERIOS`. Si el auto elegido no tiene un dato, ese criterio se apaga; si
+  no lo tiene el candidato, cuenta como lo más distinto. **Para sumar un auto se usa
+  `simHabilitar()`**, nunca tildarlo a mano: un auto se ve si pasa los filtros Y está
+  tildado, y habilitar su marca tildaba de rebote a sus hermanos de marca (8 autos en
+  vez de 2). `tests/e2e/similares.spec.js` lo cubre.
 - Los **7 todoterreno** (BJ40 ×2, BJ60, BJ30 ×2, Tank 300, Jetour T2) usan la silueta
   `b-offroad` pero su campo `body` **sigue siendo `"SUV"`**: cambia el dibujo, no el filtro.
 

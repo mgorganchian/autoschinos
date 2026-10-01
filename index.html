@@ -733,6 +733,31 @@
     .rk-item{grid-template-columns:1.8rem 52px minmax(0,1fr) auto;gap:8px;padding-right:9px}
     .rk-foto{width:52px;height:33px}
   }
+  /* ============ Autos similares ==========================================
+     El mismo bloque va en el selector (con un solo auto elegido) y en el panel
+     que abre el botón "Similares" de cada auto de la tabla. */
+  .sim{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);position:relative}
+  .sim-titulo{font-size:.78rem;font-weight:700;margin:0 22px 6px 0}
+  .sim-crit{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+  .sim-crit button{background:#fff;color:var(--ink);border:1px solid #c9ced8;border-radius:14px;padding:3px 10px;font-size:.7rem;cursor:pointer}
+  .sim-crit button[aria-pressed="true"]{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff}
+  .sim-crit button:disabled{opacity:.45;cursor:not-allowed}
+  .sim-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .sim-lista li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:9px;align-items:center}
+  .sim-lista img{width:52px;height:33px;object-fit:contain;border-radius:5px;background:#fff;display:block}
+  .sim-lista b{font-size:.76rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-lista small{font-size:.64rem;color:#5b6170;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-sumar{background:var(--byd-blue);color:#fff;border:0;border-radius:7px;padding:5px 10px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap}
+  .sim-sumar:disabled{background:#e6f2ec;color:var(--yes);cursor:default}
+  .sim-todos{margin-top:9px;width:100%;background:#fff;color:var(--byd-blue);border:1px solid var(--byd-blue);border-radius:8px;padding:6px;font-size:.74rem;font-weight:600;cursor:pointer}
+  .sim-todos:disabled{opacity:.5;cursor:default}
+  .sim-vacio{font-size:.72rem;color:#5b6170;margin:4px 0 0}
+  .sim button:focus-visible{outline:2px solid var(--byd-blue);outline-offset:2px}
+  .sim-btn{display:block;margin:4px auto 0;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:1px 9px;font-size:.6rem;cursor:pointer}
+  .sim-btn:hover{background:rgba(255,255,255,.24)}
+  .sim-btn:focus-visible{outline:2px solid #fff;outline-offset:1px}
+  #simPanel{position:fixed;z-index:70;left:50%;transform:translateX(-50%);bottom:14px;width:min(440px,calc(100vw - 24px));box-shadow:0 12px 40px rgba(0,0,0,.35)}
+  .sim-cerrar{position:absolute;top:5px;right:7px;background:none;border:0;font-size:.95rem;line-height:1;padding:4px;cursor:pointer;color:#5b6170}
 </style>
 </head>
 <body>
@@ -818,6 +843,8 @@
           </div>
         </div>
       </div>
+
+      <div class="filter-step sim" id="simModal" hidden></div>
 
       <button class="advanced-toggle" id="advancedToggleBtn" type="button">⚙️ Más filtros: disponibilidad, segmento, carrocería, propulsión, asientos <span id="advArrow">▾</span></button>
 
@@ -931,6 +958,7 @@
 </div>
 
 <div class="no-results" id="noResults" style="display:none">No se encontraron características con ese término.</div>
+<div class="sim" id="simPanel" role="dialog" aria-label="Autos similares" hidden></div>
 <section class="ranking" id="rankingView" hidden>
   <div class="rk-head"><h2 id="rkTitulo"></h2><p id="rkSub"></p></div>
   <ol class="rk-lista" id="rkLista"></ol>
@@ -1373,6 +1401,196 @@ tbodyWrap.addEventListener('scroll', ()=>{
   theadWrap.scrollLeft = tbodyWrap.scrollLeft;
 }, {passive:true});
 
+// ============ Autos similares =============================================
+// Sugiere los 3 autos más parecidos a uno elegido, según los criterios que se
+// tilden (se combinan). Aparece en el selector cuando queda un solo auto elegido,
+// y en el botón "Similares" de cada auto de la tabla.
+//
+// Distancia en cada criterio, de 0 (igual) a 1 (lo más distinto):
+//   precio      diferencia relativa contra el precio del auto elegido, tope 1
+//   tipo        misma carrocería 0; SUV/Crossover o Sedán/Hatchback 0,5; otra 1
+//   tamaño      escalones de segmento (chico → muy grande), sobre 4
+//   propulsión  escalones de electrificación (nafta → mild → híbrido →
+//               enchufable → eléctrico), sobre 4
+//   asientos    diferencia de plazas, sobre 3, tope 1
+// Se promedian los criterios tildados. Si el auto elegido no tiene un dato, ese
+// criterio se apaga. Si el que no lo tiene es el candidato, cuenta como lo más
+// distinto: si no, saldrían sugeridos justo los autos de los que menos se sabe.
+const SIM_CRITERIOS = [['precio','Precio'], ['tipo','Tipo de auto'], ['tamano','Tamaño'], ['propulsion','Propulsión'], ['asientos','Asientos']];
+let simCriterios = new Set(SIM_CRITERIOS.map(k => k[0]));
+const SIM_TAMANO = { mini:0, compact:1, mid:2, big:3, xl:4 };
+const SIM_PROP = { ice:0, mhev:1, hev:2, phev:3, ev:4 };
+const SIM_TIPO_CERCA = [['SUV','Crossover'], ['Sedán','Hatchback']];
+const SIM_TAM_TXT = { mini:'Chico', compact:'Compacto', mid:'Mediano', big:'Grande', xl:'Muy grande' };
+const SIM_PROP_TXT = { ice:'Nafta o diésel', mhev:'Mild-hybrid', hev:'Híbrido', phev:'Enchufable', ev:'Eléctrico' };
+function simColumna(nombre){
+  const f = DATA.flatMap(cat => cat[1]).find(r => r[0] === nombre);
+  return CARS.map((_, i) => f ? pctlValor(f[i + 1], nombre) : null);
+}
+const SIM_PRECIO = simColumna('Precio de lista (versión tope de gama de la tabla)');
+const SIM_ASIENTOS = simColumna('Número de asientos');
+
+function simDist(a, b, k){
+  const A = CARS[a], B = CARS[b];
+  if (k === 'precio'){ const x = SIM_PRECIO[a], y = SIM_PRECIO[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / x, 1); }
+  if (k === 'tipo') return A.body === B.body ? 0 : SIM_TIPO_CERCA.some(p => p.includes(A.body) && p.includes(B.body)) ? 0.5 : 1;
+  if (k === 'tamano'){ const x = SIM_TAMANO[A.size], y = SIM_TAMANO[B.size]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
+  if (k === 'propulsion'){ const x = SIM_PROP[A.type], y = SIM_PROP[B.type]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
+  if (k === 'asientos'){ const x = SIM_ASIENTOS[a], y = SIM_ASIENTOS[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / 3, 1); }
+  return null;
+}
+const simUsable = (base, k) => simDist(base, base, k) !== null;
+
+function simCalcular(base){
+  const ks = [...simCriterios].filter(k => simUsable(base, k));
+  if (!ks.length) return [];
+  return CARS.map((_, i) => i).filter(i => i !== base).map(i => {
+    const d = ks.reduce((s, k) => { const v = simDist(base, i, k); return s + (v === null ? 1 : v); }, 0) / ks.length;
+    const dp = simDist(base, i, 'precio');
+    return { i, d, dp: dp === null ? 2 : dp };
+  }).sort((p, q) => p.d - q.d || p.dp - q.dp || p.i - q.i).slice(0, 3);
+}
+function simResumen(i){
+  const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i];
+  return [p != null ? 'USD ' + p.toLocaleString('es-AR') : 'Precio s/d', c.body, SIM_TAM_TXT[c.size] || 'Tamaño s/d',
+          SIM_PROP_TXT[c.type] || 'Propulsión s/d', s != null ? s + ' asientos' : 'Asientos s/d'].join(' · ');
+}
+function simFoto(i){
+  const th = document.querySelectorAll('#theadTable thead th:not(.feat-col)')[i];
+  const img = th && th.querySelector('img.car-photo');
+  return img ? img.src : '';
+}
+const simEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+// Dibuja el bloque en `box`. `o` dice qué significa sumar en ese lugar.
+function simRender(box, base, o){
+  const items = simCalcular(base);
+  const chips = SIM_CRITERIOS.map(([k, et]) => {
+    const ok = simUsable(base, k);
+    return '<button type="button" data-crit="' + k + '" aria-pressed="' + (ok && simCriterios.has(k)) + '"' +
+      (ok ? '' : ' disabled data-tip="' + simEsc(CARS[base].name + ' no tiene este dato, así que no se puede usar.') + '"') + '>' + et + '</button>';
+  }).join('');
+  box.innerHTML = (o.cerrar ? '<button type="button" class="sim-cerrar" aria-label="Cerrar">✕</button>' : '') +
+    '<p class="sim-titulo">Autos similares a ' + simEsc(CARS[base].name) + ' por:</p><div class="sim-crit">' + chips + '</div>' +
+    (items.length
+      ? '<ul class="sim-lista">' + items.map(r => {
+          const ya = o.elegido(r.i);
+          return '<li data-auto="' + simEsc(CARS[r.i].name) + '" data-idx="' + r.i + '">' +
+            (simFoto(r.i) ? '<img src="' + simFoto(r.i) + '" alt="">' : '<span></span>') +
+            '<div><b>' + simEsc(CARS[r.i].name) + '</b><small>' + simEsc(simResumen(r.i)) + '</small></div>' +
+            '<button type="button" class="sim-sumar" data-idx="' + r.i + '"' + (ya ? ' disabled' : '') + '>' + (ya ? o.ya : o.accion) + '</button></li>';
+        }).join('') + '</ul>' +
+        '<button type="button" class="sim-todos"' + (items.every(r => o.elegido(r.i)) ? ' disabled' : '') + '>' + o.todos + '</button>'
+      : '<p class="sim-vacio">Elegí al menos un criterio.</p>');
+  // Los clics adentro no siguen hacia el documento: el panel de la tabla se cierra
+  // con un clic afuera, y redibujar deja al elemento tocado fuera del documento.
+  box.onclick = e => {
+    e.stopPropagation();
+    const crit = e.target.closest('[data-crit]');
+    if (crit){ if (!crit.disabled){ const k = crit.dataset.crit; simCriterios.has(k) ? simCriterios.delete(k) : simCriterios.add(k); o.redibujar(); } return; }
+    const s = e.target.closest('.sim-sumar');
+    if (s){ if (!s.disabled) o.sumar(+s.dataset.idx); return; }
+    if (e.target.closest('.sim-todos')){ o.todosLos(items.map(r => r.i)); return; }
+    if (e.target.closest('.sim-cerrar')) o.cerrar();
+  };
+}
+
+// --- Selección: el auto se ve si pasa los filtros Y está tildado ------------
+// Para sumar uno hay que habilitar sus filtros, pero sin que se tilden de rebote
+// los demás autos que esos filtros dejan ver, que arrancan tildados: elegir un
+// Lynk & Co con la marca filtrada en BYD sumaba los tres Lynk.
+function simHabilitar(i){
+  const antes = CARS.map((_, k) => matchesFacets(k));
+  const c = CARS[i];
+  selectedBrands.add(c.brand);
+  selectedSegments.add(SEGMENT_LABELS[c.size] || 'Sin dato');
+  selectedBodies.add(c.body);
+  selectedProps.add(c.type);
+  selectedSeats.add(seatOfCar[i]);
+  selectedStatus.add(c.status);
+  CARS.forEach((_, k) => { if (k !== i && !antes[k] && matchesFacets(k)) modelChecked.set(k, false); });
+  modelChecked.set(i, true);
+}
+function simFijar(indices){
+  CARS.forEach((_, k) => modelChecked.set(k, false));
+  indices.forEach(simHabilitar);
+}
+function simRefrescarSelector(){
+  renderBrandList(); updateBrandBtnLabel();
+  [['statusRow', selectedStatus], ['segmentRow', selectedSegments], ['bodyRow', selectedBodies],
+   ['propRow', selectedProps], ['seatsRow', selectedSeats]].forEach(([id, set]) =>
+    document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = set.has(cb.dataset.val); }));
+  renderModelList();
+}
+const simElegidos = () => CARS.map((_, i) => i).filter(i => matchesFacets(i) && modelChecked.get(i));
+// Lleva la selección a la tabla, como el botón Comparar pero sin cerrar nada.
+function simAplicar(){
+  colVisible = CARS.map((_, i) => matchesFacets(i) && modelChecked.get(i));
+  applyColumnVisibility();
+  applyFilters();
+  if (!document.getElementById('rankingView').hidden) renderRanking();
+  const n = colVisible.filter(Boolean).length;
+  document.getElementById('summaryText').textContent = '🚗 Comparando ' + n + ' auto' + (n === 1 ? '' : 's');
+}
+
+// --- En el selector: con un solo auto elegido --------------------------------
+// El bloque queda mientras lo que se sumó sea desde acá. Si se tilda otro auto a
+// mano, la persona ya está armando su propia comparación y el bloque se va.
+let simBase = null, simSumados = new Set();
+function simModal(){
+  const box = document.getElementById('simModal');
+  const sel = simElegidos();
+  if (sel.length === 1){ if (simBase !== sel[0]){ simBase = sel[0]; simSumados = new Set(); } }
+  else if (simBase === null || !sel.includes(simBase) || !sel.every(i => i === simBase || simSumados.has(i))){ simBase = null; simSumados = new Set(); }
+  if (simBase === null){ box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  simRender(box, simBase, {
+    accion: '+ Sumar', ya: '✓ Sumado', todos: 'Sumar los 3',
+    elegido: i => sel.includes(i),
+    sumar: i => { simSumados.add(i); simHabilitar(i); simRefrescarSelector(); },
+    todosLos: is => { is.forEach(i => { simSumados.add(i); simHabilitar(i); }); simRefrescarSelector(); },
+    redibujar: simModal,
+  });
+}
+
+// --- En la tabla: botón "Similares" de cada auto ----------------------------
+// Con los 46 autos a la vista todavía no hay una comparación armada, así que
+// sumar uno arranca una: el auto contra el sugerido. "Comparar con los 3" deja
+// solo el auto y sus 3 parecidos.
+let simTablaBase = null;
+function simPanel(){
+  const panel = document.getElementById('simPanel');
+  if (simTablaBase === null){ panel.hidden = true; panel.innerHTML = ''; return; }
+  const todos = colVisible.every(Boolean);
+  panel.hidden = false;
+  simRender(panel, simTablaBase, {
+    accion: todos ? 'Comparar' : '+ Sumar', ya: '✓ En la tabla', todos: 'Comparar con los 3',
+    elegido: i => !todos && colVisible[i],
+    sumar: i => {
+      if (colVisible.every(Boolean)) simFijar([simTablaBase, i]); else { simHabilitar(simTablaBase); simHabilitar(i); }
+      simRefrescarSelector(); simAplicar(); simPanel();
+    },
+    todosLos: is => { simFijar([simTablaBase, ...is]); simRefrescarSelector(); simAplicar(); simPanel(); },
+    redibujar: simPanel,
+    cerrar: simCerrarPanel,
+  });
+}
+function simCerrarPanel(){ simTablaBase = null; simPanel(); }
+
+document.querySelectorAll('#theadTable thead th:not(.feat-col)').forEach((th, i) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'sim-btn'; b.dataset.idx = i; b.textContent = 'Similares';
+  b.setAttribute('aria-label', 'Autos similares a ' + CARS[i].name);
+  th.appendChild(b);
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('.sim-btn') : null;
+  if (b){ simTablaBase = +b.dataset.idx; simPanel(); return; }
+  if (simTablaBase !== null && !(e.target.closest && e.target.closest('#simPanel'))) simCerrarPanel();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && simTablaBase !== null) simCerrarPanel(); });
+document.getElementById('openModalBtn').addEventListener('click', simCerrarPanel);
+
 // ================= Nuevo sistema de selección: Marca → Modelo → Filtros opcionales =================
 const BRANDS = [...new Set(CARS.map(c=>c.brand))];
 const SEGMENT_LABELS = {xl:"Grande", big:"Grande", mid:"Mediano", compact:"Compacto", mini:"Chico", nd:"Sin dato"};
@@ -1450,6 +1668,7 @@ function updateCompareCount(){
   const n = CARS.filter((c,i)=> matchesFacets(i) && modelChecked.get(i)).length;
   document.getElementById('compareCount').textContent = n;
   document.getElementById('compareBtn').disabled = n===0;
+  simModal();
 }
 
 function onFacetChange(){
