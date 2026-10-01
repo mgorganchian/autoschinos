@@ -141,6 +141,11 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   cifra pero en otra unidad o medida distinto). Las cifras NOTE/EXT entran marcadas con
   su explicación. Respeta los autos elegidos en el comparador. `tests/e2e/ranking.spec.js`
   falla si un eléctrico se rankea en consumo o una pickup en baúl.
+  En **Consumo, los enchufables (`type:"phev"`) van aparte y sin puesto** (`RK_APARTE`):
+  rankeados salían primeros con 0,9–1,2 L/100km, y tampoco se ordenan entre ellos
+  porque cada ficha mide distinto (el Lynk & Co 01 da 0,9 con batería llena y 6,4 con
+  batería vacía; los BYD DM-i no aclaran). Los cuadraditos de la tabla todavía los
+  incluyen.
 - Los **7 todoterreno** (BJ40 ×2, BJ60, BJ30 ×2, Tank 300, Jetour T2) usan la silueta
   `b-offroad` pero su campo `body` **sigue siendo `"SUV"`**: cambia el dibujo, no el filtro.
 

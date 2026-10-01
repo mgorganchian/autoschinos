@@ -78,6 +78,28 @@ test.describe('vista ranking', () => {
     expect(noAplica.every(n => electricos.includes(n))).toBe(true);
   });
 
+  // Rankeados junto a los demás, los enchufables salían primeros con 0,9-1,2 L/100km.
+  // Tampoco se ordenan entre ellos: cada ficha mide distinto (batería llena, vacía,
+  // un promedio), así que van aparte, sin puesto y con la cifra completa.
+  test('consumo: los enchufables van aparte, sin puesto y con su cifra completa', async ({ page }) => {
+    await abrirRanking(page);
+    await elegirFila(page, 'Consumo combustible NEDC (L/100km)');
+    const enchufables = CARS.filter(c => c.type === 'phev').map(c => c.name);
+    const rankeados = await enLista(page);
+    expect(rankeados.length).toBeGreaterThan(0);
+    expect(rankeados.filter(n => enchufables.includes(n))).toEqual([]);
+
+    const aparte = await enGrupo(page, 'enchufables');
+    const fila = filas.find(f => f[0] === 'Consumo combustible NEDC (L/100km)');
+    const conCifra = CARS.map((c, i) => ({ c, v: fila[i + 1] }))
+      .filter(({ c, v }) => c.type === 'phev' && !/^NR:|^ND$/.test(v)).map(({ c }) => c.name);
+    expect(aparte.sort()).toEqual(conCifra.sort());
+    await expect(page.locator('#rkResto section[data-grupo="enchufables"] .rk-pos')).toHaveCount(0);
+    await expect(page.locator('#rkResto section[data-grupo="enchufables"] li[data-auto="Lynk & Co 01"]')).toContainText('6,4 con batería vacía');
+    // El grupo va primero entre los que no se rankean, pegado al ranking.
+    await expect(page.locator('#rkResto section').first()).toHaveAttribute('data-grupo', 'enchufables');
+  });
+
   test('baúl: lo medido en kg, mm o con asientos rebatidos va a "No comparable"', async ({ page }) => {
     await abrirRanking(page);
     await elegirFila(page, 'Volumen de baúl/carga (L)');

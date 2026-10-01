@@ -1776,6 +1776,19 @@ function rkNumero(n, nombre){
 }
 function rkEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 
+// Filas donde un tipo de propulsión va aparte, SIN puesto. En consumo, los
+// enchufables: su cifra depende de con cuánta batería se arranque y cada ficha la
+// mide distinto (Lynk & Co 01: "0,9 con batería full y 6,4 con batería vacía";
+// Leapmotor: el promedio de la etiqueta AR; los BYD DM-i: sin aclarar). Rankearlos
+// ponía primero al Lynk 01 con su número de batería llena. Tampoco se ordenan
+// entre ellos, por lo mismo: va la cifra completa de cada ficha.
+const RK_APARTE = {
+  'Consumo combustible NEDC (L/100km)': {
+    tipos: ['phev'], clave: 'enchufables', titulo: 'Híbridos enchufables',
+    texto: 'Su consumo depende de con cuánta batería se arranque, y cada ficha lo mide distinto: con la batería llena, con la batería vacía, un promedio, o sin aclararlo. Por eso no se ordenan, ni entre sí ni contra los nafteros e híbridos: va la cifra completa de cada ficha.',
+  },
+};
+
 function rkClasificar(v, nombre){
   const n = pctlValor(v, nombre);
   if (n !== null) return { tipo:'ok', n };
@@ -1813,10 +1826,14 @@ function renderRanking(){
   const autos = rkDatosAutos();
   const elegidos = CARS.map((_, i) => i).filter(i => colVisible[i]);
 
+  const aparte = RK_APARTE[nombre];
   const ok = [], resto = { sd: [], na: [], nc: [] };
+  if (aparte) resto[aparte.clave] = [];
   for (const i of elegidos){
     const v = fila[i + 1], c = rkClasificar(v, nombre);
-    if (c.tipo === 'ok') ok.push({ i, v, n: c.n }); else resto[c.tipo].push({ i, v });
+    if (c.tipo === 'ok' && aparte && aparte.tipos.includes(CARS[i].type)) resto[aparte.clave].push({ i, v });
+    else if (c.tipo === 'ok') ok.push({ i, v, n: c.n });
+    else resto[c.tipo].push({ i, v });
   }
   ok.sort((a, b) => dir > 0 ? b.n - a.n : a.n - b.n);
   // Los empates comparten puesto: 1, 2, 2, 4.
@@ -1851,6 +1868,7 @@ function renderRanking(){
     '<li class="rk-vacio">Ninguno de los autos elegidos tiene esta cifra para comparar.</li>';
 
   const GRUPOS = [
+    ...(aparte ? [[aparte.clave, aparte.titulo, aparte.texto]] : []),
     ['nc', 'No comparable', 'Tienen cifra, pero medida de otra forma (otra unidad, o con los asientos rebatidos), así que no se pueden ordenar junto a las demás.'],
     ['na', 'No aplica', 'Esta característica no corresponde a estos autos (por ejemplo, el consumo de nafta en un eléctrico).'],
     ['sd', 'Sin dato', 'No hay cifra en la ficha ni en otra fuente confiable. No quiere decir que estén abajo de todo: no se sabe dónde caen.'],
@@ -1867,6 +1885,8 @@ function renderRanking(){
                   : (typeof r.v === 'string' && r.v.startsWith('NR:') ? r.v.split('|')[1] : '');
         return '<li data-auto="' + nom + '"' + (tip ? ' data-tip="' + rkEsc(tip) + '"' : '') + '>' + nom + '</li>';
       }
+      // "No comparable" y los que van aparte muestran la cifra: es justamente lo
+      // que explica por qué no entran en el ranking.
       return '<li data-auto="' + nom + '">' + nom + renderVal(r.v) + '</li>';
     }).join('') + '</ul></section>').join('');
 }
