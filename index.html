@@ -19,6 +19,10 @@
     --ext-text:#8a5a00;
     --note-bg:#e6f0ff;
     --note-text:#1a4fa0;
+    /* Ancho de la columna de características y de cada auto. Lo usan los <col> y
+       el ancho de la tabla, que se calcula con la cantidad de autos visibles. */
+    --ancho-feat:104px;
+    --ancho-col:92px;
   }
   *{box-sizing:border-box;}
   body{
@@ -242,8 +246,8 @@
      (características + 2 autos), usando % del ancho de pantalla en vez de píxeles fijos,
      para que funcione igual sin importar el modelo de celular. 24+36+36 = 96vw: el 4%
      que sobra deja asomar la columna siguiente, como pista de que se scrollea al costado ---- */
-  col.col-feat{width:104px;}
-  col.col-data{width:92px;}
+  col.col-feat{width:var(--ancho-feat);}
+  col.col-data{width:var(--ancho-col);}
 
   @media (max-width: 600px) and (orientation: portrait){
     thead th.feat-col, tbody td.feat{
@@ -256,8 +260,9 @@
       min-width:36vw !important;
       max-width:36vw !important;
     }
-    col.col-feat{width:24vw;}
-    col.col-data{width:36vw;}
+    :root{--ancho-feat:24vw;--ancho-col:36vw;}
+    col.col-feat{width:var(--ancho-feat);}
+    col.col-data{width:var(--ancho-col);}
   }
 
   /* ---- Modo horizontal (apaisado): el alto escasea, no el ancho.
@@ -1325,6 +1330,30 @@ const diffCheckbox = document.getElementById('diffOnly');
 diffCheckbox.addEventListener('change', applyFilters);
 
 function applyColumnVisibility(){
+  // Con table-layout:fixed el ancho se reparte por POSICIÓN de columna, no por auto:
+  // una celda oculta no ocupa lugar y los autos visibles se corren a la izquierda,
+  // pero cada <col> sigue sumando su ancho. Con 2 autos elegidos la tabla medía
+  // 4336 px, casi todo en blanco, y si estaba desplazada a la derecha los 2 autos
+  // quedaban fuera de la pantalla (2026-10-01). Por eso hay tantos <col> como autos
+  // visibles, y la tabla mide exactamente eso: también en el celular, donde el
+  // mínimo de 820 px habría estirado 2 autos más allá del ancho de la pantalla.
+  const k = colVisible.filter(Boolean).length;
+  for (const t of [document.getElementById('theadTable'), document.getElementById('mainTable')]){
+    const cg = t.querySelector('colgroup');
+    const cols = cg.querySelectorAll('col.col-data');
+    for (let i = cols.length; i < k; i++){ const col = document.createElement('col'); col.className = 'col-data'; cg.appendChild(col); }
+    for (let i = cols.length - 1; i >= k; i--) cols[i].remove();
+    t.style.width = 'calc(var(--ancho-feat) + ' + k + ' * var(--ancho-col))';
+    t.style.minWidth = '0';
+  }
+  // Las filas de categoría también: en una tabla de ancho fijo la cantidad de
+  // columnas la define la fila que más ocupa, y con colspan="47" el cuerpo seguía
+  // teniendo 47 columnas, 44 de ellas vacías (131 px de más con 2 autos en el
+  // celular). El colspan="47" del código queda como está: es el de los 46 autos.
+  document.querySelectorAll('#mainTable tr.cat-row td').forEach(td => { td.colSpan = k + 1; });
+  // Una selección nueva arranca desde el primer auto.
+  const cuerpo = document.getElementById('tbodyWrap'), header = document.getElementById('theadWrap');
+  cuerpo.scrollLeft = 0; header.scrollLeft = 0;
   document.querySelectorAll('#theadTable thead th').forEach((th,i)=>{
     if(i===0) return; // feature column always visible
     th.classList.toggle('col-hidden', !colVisible[i-1]);

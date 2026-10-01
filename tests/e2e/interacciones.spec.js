@@ -111,6 +111,37 @@ test.describe('selector de autos', () => {
     expect(celdas).toBe(esperados.length);
   });
 
+  // Bug real (2026-10-01): con la tabla desplazada a la derecha, elegir 2 autos los
+  // dejaba fuera de la pantalla. Las columnas ocultas seguían sumando ancho (la tabla
+  // medía 4336 px con 2 autos) y el scroll se quedaba donde estaba.
+  test('elegir 2 autos con la tabla desplazada los muestra en pantalla', async ({ page }) => {
+    await page.locator('#tbodyWrap').evaluate(el => { el.scrollLeft = 1500; });
+    expect(await page.locator('#tbodyWrap').evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+    await page.click('#openModalBtn');
+    await page.click('#modelDropdownBtn');
+    await page.click('#modelNoneBtn');
+    await page.locator('#modelList input[data-idx="1"]').check();
+    await page.locator('#modelList input[data-idx="2"]').check();
+    await expect(page.locator('#compareCount')).toHaveText('2');
+    await page.click('#compareBtn');
+
+    await expect(columnasVisibles(page)).toHaveCount(2);
+    const ancho = page.viewportSize().width;
+    for (const th of await columnasVisibles(page).all()) {
+      const b = await th.boundingBox();
+      expect(b.x, 'la columna arranca dentro de la pantalla').toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width, 'la columna termina dentro de la pantalla').toBeLessThanOrEqual(ancho + 1);
+    }
+    // Sin espacio en blanco para desplazarse: la tabla mide lo que sus columnas visibles.
+    const sobra = await page.locator('#tbodyWrap').evaluate(el => el.scrollWidth - el.clientWidth);
+    expect(sobra).toBeLessThanOrEqual(1);
+    // El cuerpo mide lo mismo que el header. Las filas de categoría con colspan="47"
+    // le dejaban 44 columnas vacías al cuerpo, cosa que en escritorio no se veía.
+    const cuerpo = (await page.locator('#mainTable').boundingBox()).width;
+    const header = (await page.locator('#theadTable').boundingBox()).width;
+    expect(Math.abs(cuerpo - header)).toBeLessThanOrEqual(1);
+  });
+
   test('destildar un modelo lo saca de la comparación', async ({ page }) => {
     await page.click('#openModalBtn');
     await page.click('#modelDropdownBtn');
