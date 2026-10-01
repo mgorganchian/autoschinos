@@ -154,7 +154,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   aclara en su tooltip. Con **Propulsión** tildada sugiere **primero los del mismo
   tipo** (`SIM_FAMILIA`: el mild-hybrid va con los híbridos, porque ninguno se
   enchufa y el BJ60 es el único mild), y si hay menos de 3 completa con otros. Es
-  **preferencia, no filtro**: el usuario pidió explícitamente que no fuera estricta. La distancia de cada criterio está explicada arriba
+  **preferencia, no filtro**: el usuario pidió explícitamente que no fuera estricta.
+  El **tamaño se mide por el largo** (está en 44 de 46 autos; el segmento falta en 7)
+  y **pesa el doble** (`SIM_PESO`), también pedido explícito. Con el triple el largo
+  pisaba al tipo de auto: no subirlo sin mirar qué sugiere. La distancia de cada criterio está explicada arriba
   de `SIM_CRITERIOS`. Si el auto elegido no tiene un dato, ese criterio se apaga; si
   no lo tiene el candidato, cuenta como lo más distinto. **Para sumar un auto se usa
   `simHabilitar()`**, nunca tildarlo a mano: un auto se ve si pasa los filtros Y está

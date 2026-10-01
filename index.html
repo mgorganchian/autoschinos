@@ -1409,7 +1409,12 @@ tbodyWrap.addEventListener('scroll', ()=>{
 // Distancia en cada criterio, de 0 (igual) a 1 (lo más distinto):
 //   precio      diferencia relativa contra el precio del auto elegido, tope 1
 //   tipo        misma carrocería 0; SUV/Crossover o Sedán/Hatchback 0,5; otra 1
-//   tamaño      escalones de segmento (chico → muy grande), sobre 4
+//   tamaño      diferencia de largo en mm, sobre 1000 (un metro de diferencia es
+//               lo más distinto). Antes era el segmento, pero 7 autos no lo tienen
+//               cargado y el largo está en 44 de 46. Y PESA EL DOBLE que el resto
+//               (pedido explícito): con peso parejo, al Sealion 7 (4,83 m) le
+//               salían eléctricos compactos. Con el triple, el largo ya pisaba al
+//               tipo de auto y le sugería un sedán por medir casi lo mismo.
 //   propulsión  escalones de electrificación (nafta → mild → híbrido →
 //               enchufable → eléctrico), sobre 4. Además, tildada, sugiere
 //               PRIMERO los del mismo tipo: enchufable con enchufable, eléctrico
@@ -1422,7 +1427,7 @@ tbodyWrap.addEventListener('scroll', ()=>{
 //               tope 1. Las cifras vienen de distintos ciclos (NEDC, WLTP, CLTC)
 //               y eso se aclara en el propio criterio: sirven para encontrar
 //               parecidos, no para compararlas al kilómetro.
-// Se promedian los criterios tildados. Si el auto elegido no tiene un dato, ese
+// Se promedian los criterios tildados, ponderados por SIM_PESO. Si el auto elegido no tiene un dato, ese
 // criterio se apaga. Si el que no lo tiene es el candidato, cuenta como lo más
 // distinto: si no, saldrían sugeridos justo los autos de los que menos se sabe.
 const SIM_CRITERIOS = [['precio','Precio'], ['tipo','Tipo de auto'], ['tamano','Tamaño'], ['propulsion','Propulsión'], ['asientos','Asientos'], ['autonomia','Autonomía']];
@@ -1431,10 +1436,10 @@ const SIM_CRITERIOS = [['precio','Precio'], ['tipo','Tipo de auto'], ['tamano','
 const SIM_SOLO_SI = { autonomia: car => car.type === 'ev' };
 const SIM_AYUDA = { autonomia: 'Las autonomías vienen de distintos ciclos (NEDC, WLTP, CLTC) según la ficha de cada auto: sirven para encontrar parecidos, no para compararlas al kilómetro.' };
 let simCriterios = new Set(SIM_CRITERIOS.map(k => k[0]));
-const SIM_TAMANO = { mini:0, compact:1, mid:2, big:3, xl:4 };
+const SIM_PESO = { tamano: 2 };
+const simPeso = k => SIM_PESO[k] || 1;
 const SIM_PROP = { ice:0, mhev:1, hev:2, phev:3, ev:4 };
 const SIM_TIPO_CERCA = [['SUV','Crossover'], ['Sedán','Hatchback']];
-const SIM_TAM_TXT = { mini:'Chico', compact:'Compacto', mid:'Mediano', big:'Grande', xl:'Muy grande' };
 const SIM_PROP_TXT = { ice:'Nafta o diésel', mhev:'Mild-hybrid', hev:'Híbrido', phev:'Enchufable', ev:'Eléctrico' };
 // Familias para "mismo tipo": el mild-hybrid va con los híbridos, porque ninguno se
 // enchufa y el BAIC BJ60 es el único mild-hybrid del catálogo.
@@ -1447,12 +1452,13 @@ function simColumna(nombre){
 const SIM_PRECIO = simColumna('Precio de lista (versión tope de gama de la tabla)');
 const SIM_ASIENTOS = simColumna('Número de asientos');
 const SIM_AUTONOMIA = simColumna('Autonomía EV NEDC (km)');
+const SIM_LARGO = simColumna('Longitud (mm)');
 
 function simDist(a, b, k){
   const A = CARS[a], B = CARS[b];
   if (k === 'precio'){ const x = SIM_PRECIO[a], y = SIM_PRECIO[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / x, 1); }
   if (k === 'tipo') return A.body === B.body ? 0 : SIM_TIPO_CERCA.some(p => p.includes(A.body) && p.includes(B.body)) ? 0.5 : 1;
-  if (k === 'tamano'){ const x = SIM_TAMANO[A.size], y = SIM_TAMANO[B.size]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
+  if (k === 'tamano'){ const x = SIM_LARGO[a], y = SIM_LARGO[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / 1000, 1); }
   if (k === 'propulsion'){ const x = SIM_PROP[A.type], y = SIM_PROP[B.type]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
   if (k === 'asientos'){ const x = SIM_ASIENTOS[a], y = SIM_ASIENTOS[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / 3, 1); }
   if (k === 'autonomia'){
@@ -1470,15 +1476,17 @@ function simCalcular(base){
   if (!ks.length) return { items: [], vacio: 'criterios' };
   const fam = ks.includes('propulsion') ? SIM_FAMILIA[CARS[base].type] : null;
   const pool = CARS.map((_, i) => i).filter(i => i !== base);
+  const total = ks.reduce((s, k) => s + simPeso(k), 0);
   return { items: pool.map(i => {
-    const d = ks.reduce((s, k) => { const v = simDist(base, i, k); return s + (v === null ? 1 : v); }, 0) / ks.length;
+    const d = ks.reduce((s, k) => { const v = simDist(base, i, k); return s + simPeso(k) * (v === null ? 1 : v); }, 0) / total;
     const dp = simDist(base, i, 'precio');
     return { i, d, dp: dp === null ? 2 : dp, otra: fam !== null && SIM_FAMILIA[CARS[i].type] !== fam };
   }).sort((p, q) => (p.otra - q.otra) || p.d - q.d || p.dp - q.dp || p.i - q.i).slice(0, 3), vacio: null };
 }
 function simResumen(i, base){
-  const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i], a = SIM_AUTONOMIA[i];
-  const partes = [p != null ? 'USD ' + p.toLocaleString('es-AR') : 'Precio s/d', c.body, SIM_TAM_TXT[c.size] || 'Tamaño s/d',
+  const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i], a = SIM_AUTONOMIA[i], l = SIM_LARGO[i];
+  const largo = l != null ? (l / 1000).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m' : 'Largo s/d';
+  const partes = [p != null ? 'USD ' + p.toLocaleString('es-AR') : 'Precio s/d', c.body, largo,
                   SIM_PROP_TXT[c.type] || 'Propulsión s/d', s != null ? s + ' asientos' : 'Asientos s/d'];
   // Con un eléctrico elegido, la autonomía va adelante: es lo primero que se compara.
   if (simAplica(base, 'autonomia')) partes.splice(1, 0, a != null ? a.toLocaleString('es-AR') + ' km' : 'Autonomía s/d');
@@ -1498,6 +1506,7 @@ function simRender(box, base, o){
     const ok = simUsable(base, k);
     const tip = !ok ? CARS[base].name + ' no tiene este dato, así que no se puede usar.'
               : k === 'propulsion' ? 'Tildada, sugiere primero ' + (SIM_FAMILIA_TXT[SIM_FAMILIA[CARS[base].type]] || 'autos del mismo tipo') + '. Si hay menos de 3, completa con los más parecidos de otro tipo.'
+              : k === 'tamano' ? 'Se compara por el largo, y pesa el doble que los otros criterios.'
               : (SIM_AYUDA[k] || '');
     return '<button type="button" data-crit="' + k + '" aria-pressed="' + (ok && simCriterios.has(k)) + '"' +
       (ok ? '' : ' disabled') + (tip ? ' data-tip="' + simEsc(tip) + '"' : '') + '>' + et + '</button>';

@@ -163,6 +163,35 @@ test.describe('similares en el selector', () => {
     expect(r.items.slice(1).every(x => x.otra)).toBe(true);
   });
 
+  // El tamaño se mide por el largo y pesa el doble (pedido explícito). Antes, con
+  // el segmento y peso parejo, al Sealion 7 (4,83 m) le salían eléctricos compactos.
+  const largo = n => { const f = filas.find(r => r[0] === 'Longitud (mm)'); const v = f[indice(n) + 1];
+    if (/^NR:|^ND$/.test(v)) return null; const m = /\d+/.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]); return m ? Number(m[0]) : null; };
+
+  test('el tamaño se compara por el largo: al Sealion 7 no le sugiere autos mucho más chicos', async ({ page }) => {
+    await elegirSolo(page, 'BYD Sealion 7');
+    const tres = await sugeridos(page.locator('#simModal'));
+    expect(tres).toHaveLength(3);
+    for (const n of tres) expect(Math.abs(largo(n) - largo('BYD Sealion 7')), n).toBeLessThan(300);
+    await expect(page.locator('#simModal .sim-lista li small').first()).toContainText(' m ·');
+  });
+
+  test('un auto sin segmento cargado igual compara por tamaño, con su largo', async ({ page }) => {
+    expect(CARS[indice('Haval H6 HEV')].size).toBe('nd');
+    await elegirSolo(page, 'Haval H6 HEV');
+    const tam = page.locator('#simModal [data-crit="tamano"]');
+    await expect(tam).toBeEnabled();
+    await expect(tam).toHaveAttribute('aria-pressed', 'true');
+    await expect(tam).toHaveAttribute('data-tip', /doble/);
+  });
+
+  test('el largo pesa el doble: al Dolphin Mini ya no le sugiere el BAIC EU5, 66 cm más largo', async ({ page }) => {
+    await elegirSolo(page, 'Dolphin Mini');
+    const tres = await sugeridos(page.locator('#simModal'));
+    expect(tres).not.toContain('BAIC EU5');
+    for (const n of tres) expect(largo(n), n).toBeLessThan(4500);
+  });
+
   test('si el auto no tiene precio, el criterio Precio se apaga', async ({ page }) => {
     await elegirSolo(page, 'BYD Sealion 7');                  // precio "aún no confirmado"
     const precio = page.locator('#simModal [data-crit="precio"]');
