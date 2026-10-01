@@ -1,0 +1,135 @@
+// Vista Ranking: ordena los autos elegidos del mejor al peor en cada fila de
+// PCTL_DIR. Lo que más importa es que nunca rankee algo que no es comparable:
+// un eléctrico en consumo de nafta, una pickup con el baúl en kg.
+const { test, expect } = require('@playwright/test');
+const { leerIndex, vigilarErrores, FILAS_DATOS } = require('./helpers');
+
+const { CARS, PCTL_DIR, filas } = leerIndex();
+const N = CARS.length;
+const FILAS_RANKING = filas.map(f => f[0]).filter(n => PCTL_DIR[n]);
+
+let errores;
+test.beforeEach(async ({ page }) => {
+  errores = vigilarErrores(page);
+  await page.goto('/index.html');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+});
+test.afterEach(() => expect(errores).toEqual([]));
+
+async function abrirRanking(page) {
+  await page.click('#vistaRanking');
+  await expect(page.locator('#rankingView')).toBeVisible();
+}
+async function elegirFila(page, nombre) {
+  await page.locator(`#rkScroll .rk-chip[data-fila="${nombre}"]`).click();
+  await expect(page.locator('#rkScroll .rk-chip.active')).toHaveAttribute('data-fila', nombre);
+}
+const enLista = page => page.locator('#rkLista .rk-item').evaluateAll(ls => ls.map(l => l.dataset.auto));
+const enGrupo = (page, g) => page.locator(`#rkResto section[data-grupo="${g}"] li`).evaluateAll(ls => ls.map(l => l.dataset.auto));
+
+test.describe('vista ranking', () => {
+  test('muestra las 14 filas comparables y vuelve a la tabla', async ({ page }) => {
+    await abrirRanking(page);
+    await expect(page.locator('#rkScroll .rk-chip')).toHaveCount(FILAS_RANKING.length);
+    expect(FILAS_RANKING).toHaveLength(14);
+    await expect(page.locator('#tbodyWrap')).toBeHidden();
+    await expect(page.locator('#search')).toBeHidden();
+
+    await page.click('#vistaTabla');
+    await expect(page.locator('#rankingView')).toBeHidden();
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator('#search')).toBeVisible();
+  });
+
+  test('cada ranking va del mejor al peor y cada auto aparece una sola vez', async ({ page }, info) => {
+    test.skip(info.project.name !== 'escritorio', 'no depende del viewport');
+    await abrirRanking(page);
+    for (const nombre of FILAS_RANKING) {
+      await elegirFila(page, nombre);
+      const valores = await page.locator('#rkLista .rk-item').evaluateAll(ls => ls.map(l => Number(l.dataset.valor)));
+      const dir = PCTL_DIR[nombre];
+      for (let k = 1; k < valores.length; k++) {
+        expect(dir > 0 ? valores[k - 1] >= valores[k] : valores[k - 1] <= valores[k], `${nombre}: puesto ${k} y ${k + 1}`).toBe(true);
+      }
+      const todos = [...await enLista(page), ...await page.locator('#rkResto li').evaluateAll(ls => ls.map(l => l.dataset.auto))];
+      expect(todos.length, nombre).toBe(N);
+      expect(new Set(todos).size, `${nombre}: autos repetidos`).toBe(N);
+    }
+  });
+
+  test('los empates comparten puesto', async ({ page }) => {
+    await abrirRanking(page);
+    await elegirFila(page, 'Número de asientos');
+    const items = await page.locator('#rkLista .rk-item').evaluateAll(ls => ls.map(l => ({ v: Number(l.dataset.valor), pos: Number(l.querySelector('.rk-pos').textContent) })));
+    const deSiete = items.filter(i => i.v === 7);
+    expect(deSiete.length).toBeGreaterThan(1);
+    expect(deSiete.every(i => i.pos === 1)).toBe(true);
+    expect(items[deSiete.length].pos).toBe(deSiete.length + 1);
+  });
+
+  test('consumo: ningún eléctrico se rankea, van a "No aplica"', async ({ page }) => {
+    await abrirRanking(page);
+    await elegirFila(page, 'Consumo combustible NEDC (L/100km)');
+    const electricos = CARS.filter(c => c.type === 'ev').map(c => c.name);
+    const rankeados = await enLista(page);
+    expect(rankeados.filter(n => electricos.includes(n))).toEqual([]);
+    const noAplica = await enGrupo(page, 'na');
+    expect(noAplica.length).toBeGreaterThan(0);
+    expect(noAplica.every(n => electricos.includes(n))).toBe(true);
+  });
+
+  test('baúl: lo medido en kg, mm o con asientos rebatidos va a "No comparable"', async ({ page }) => {
+    await abrirRanking(page);
+    await elegirFila(page, 'Volumen de baúl/carga (L)');
+    const pickups = CARS.filter(c => c.body === 'Pickup').map(c => c.name);
+    const rankeados = await enLista(page);
+    expect(rankeados.filter(n => pickups.includes(n))).toEqual([]);
+    const noComparable = await enGrupo(page, 'nc');
+    for (const n of ['BAIC BJ30 4x2', 'BAIC BJ30 4x4']) expect(noComparable).toContain(n);
+  });
+
+  test('las cifras de otro ciclo o mercado van marcadas, con su explicación', async ({ page }) => {
+    await abrirRanking(page);
+    await elegirFila(page, 'Autonomía EV NEDC (km)');
+    const marcas = page.locator('#rkLista .rk-marca');
+    expect(await marcas.count()).toBeGreaterThan(0);
+    const tips = await marcas.evaluateAll(ms => ms.map(m => m.dataset.tip || ''));
+    expect(tips.filter(t => t.trim() === '')).toEqual([]);
+  });
+
+  test('respeta los autos elegidos en el comparador', async ({ page }) => {
+    const marca = 'DFSK';
+    const esperados = CARS.filter(c => c.brand === marca).map(c => c.name);
+    await page.click('#openModalBtn');
+    await page.click('#brandDropdownBtn');
+    await page.click('#brandNoneBtn');
+    await page.locator(`#brandList input[data-val="${marca}"]`).check();
+    await page.click('#compareBtn');
+    await abrirRanking(page);
+    const todos = [...await enLista(page), ...await page.locator('#rkResto li').evaluateAll(ls => ls.map(l => l.dataset.auto))];
+    expect(todos.sort()).toEqual([...esperados].sort());
+    await expect(page.locator('#rkSub')).toContainText(`de ${esperados.length} auto`);
+  });
+
+  test('volver a la tabla conserva el scroll horizontal', async ({ page }, info) => {
+    test.skip(info.project.name !== 'escritorio', 'el scroll se prueba con el ancho de escritorio');
+    await page.locator('#tbodyWrap').evaluate(el => { el.scrollLeft = 300; });
+    const antes = await page.locator('#tbodyWrap').evaluate(el => el.scrollLeft);
+    expect(antes).toBeGreaterThan(0);
+    await abrirRanking(page);
+    await page.click('#vistaTabla');
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    expect(await page.locator('#tbodyWrap').evaluate(el => el.scrollLeft)).toBe(antes);
+    expect(await page.locator('#theadWrap').evaluate(el => el.scrollLeft)).toBe(antes);
+  });
+
+  test('en el celular no desborda a lo ancho', async ({ page }, info) => {
+    test.skip(info.project.name !== 'celular', 'solo aplica al ancho de celular');
+    await abrirRanking(page);
+    for (const nombre of ['Precio de lista (versión tope de gama de la tabla)', 'Autonomía EV NEDC (km)', 'Volumen de baúl/carga (L)']) {
+      await elegirFila(page, nombre);
+      const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(desborde, nombre).toBeLessThanOrEqual(0);
+    }
+  });
+});

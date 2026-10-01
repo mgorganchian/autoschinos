@@ -692,6 +692,42 @@
   .pct{display:inline-flex;gap:1px;vertical-align:middle;margin-left:5px;flex-shrink:0}
   .pct i{width:4px;height:9px;border-radius:1px;background:#dbe0e6}
   .pct i.on{background:#1f9d55}
+  /* ============ Vista Ranking ============================================
+     Ordena a los autos del mejor al peor en cada una de las 14 filas de
+     PCTL_DIR. Usa la misma paleta y los mismos chips que la tabla. */
+  .vista-toggle{display:inline-flex;border:1px solid rgba(255,255,255,.4);border-radius:7px;overflow:hidden;flex-shrink:0}
+  .vista-toggle button{background:transparent;color:rgba(255,255,255,.85);border:0;font-size:.68rem;padding:4px 11px;cursor:pointer}
+  .vista-toggle button[aria-selected="true"]{background:#fff;color:var(--byd-blue-dark);font-weight:600}
+  .vista-toggle button:focus-visible,.rk-chip:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+  .ranking{max-width:760px;margin:0 auto;padding:14px 12px 28px}
+  .rk-head h2{font-size:1rem;margin:0 0 3px;color:var(--ink);text-wrap:balance}
+  .rk-head p{margin:0 0 12px;font-size:.74rem;color:#5b6170;line-height:1.4}
+  .rk-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .rk-item{display:grid;grid-template-columns:2.2rem 64px minmax(0,1fr) auto;align-items:center;gap:10px;
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 6px}
+  .rk-pos{font-weight:700;font-size:.95rem;text-align:center;color:var(--byd-blue-dark);font-variant-numeric:tabular-nums}
+  .rk-foto{width:64px;height:40px;object-fit:contain;background:#fff;border-radius:6px;display:block}
+  .rk-cuerpo{min-width:0}
+  .rk-nombre{font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:4px;min-width:0}
+  .rk-nombre span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-nombre .prop-icon{flex-shrink:0}
+  .rk-barra{height:6px;background:var(--paper);border-radius:3px;margin-top:5px;overflow:hidden}
+  .rk-barra i{display:block;height:100%;background:var(--byd-blue);border-radius:3px}
+  .rk-orig{font-size:.66rem;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-valor{font-size:.9rem;font-weight:700;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rk-valor small{font-weight:500;font-size:.7rem;color:#5b6170;margin-left:2px}
+  .rk-marca{cursor:help;margin-left:3px;font-size:.8rem}
+  .rk-vacio{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;font-size:.8rem;color:#5b6170}
+  .rk-resto h3{font-size:.78rem;margin:20px 0 4px;color:var(--ink);font-weight:600}
+  .rk-resto p{font-size:.7rem;color:#6b7280;margin:0 0 7px;line-height:1.4}
+  .rk-resto ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .rk-resto li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:.72rem}
+  .rk-resto li[data-tip]{cursor:help}
+  .rk-resto li > span{margin-left:6px}
+  @media (max-width:480px){
+    .rk-item{grid-template-columns:1.8rem 52px minmax(0,1fr) auto;gap:8px;padding-right:9px}
+    .rk-foto{width:52px;height:33px}
+  }
 </style>
 </head>
 <body>
@@ -710,7 +746,12 @@
     <input type="text" id="search" placeholder="Buscar característica...">
   </div>
   <div class="cat-scroll" id="catScroll"></div>
+  <div class="cat-scroll" id="rkScroll" style="display:none" aria-label="Característica del ranking"></div>
   <div class="toolbar-row">
+    <div class="vista-toggle" role="tablist" aria-label="Vista">
+      <button type="button" role="tab" id="vistaTabla" aria-selected="true">Tabla</button>
+      <button type="button" role="tab" id="vistaRanking" aria-selected="false">Ranking</button>
+    </div>
     <label class="diff-toggle">
       <input type="checkbox" id="diffOnly">
       Solo Diferencias
@@ -885,6 +926,11 @@
 </div>
 
 <div class="no-results" id="noResults" style="display:none">No se encontraron características con ese término.</div>
+<section class="ranking" id="rankingView" hidden>
+  <div class="rk-head"><h2 id="rkTitulo"></h2><p id="rkSub"></p></div>
+  <ol class="rk-lista" id="rkLista"></ol>
+  <div class="rk-resto" id="rkResto"></div>
+</section>
 <div id="tooltipBox"></div>
 
 <footer>
@@ -1539,6 +1585,7 @@ document.getElementById('compareBtn').addEventListener('click', ()=>{
   colVisible = CARS.map((car,i)=> matchesFacets(i) && modelChecked.get(i));
   applyColumnVisibility();
   applyFilters();
+  if (!document.getElementById('rankingView').hidden) renderRanking();
   const n = colVisible.filter(Boolean).length;
   summaryText.textContent = '🚗 Comparando ' + n + ' auto' + (n===1?'':'s');
   closeModal();
@@ -1671,6 +1718,161 @@ document.addEventListener('pointerover', e => {
 });
 window.addEventListener('scroll', cerrarZoom, true);
 window.addEventListener('resize', cerrarZoom);
+
+// ============ Vista Ranking ============================================
+// Ordena los autos elegidos del mejor al peor en cada una de las 14 filas de
+// PCTL_DIR, las únicas donde "mejor" tiene una dirección objetiva. Lee los
+// números con pctlValor(), el mismo lector de los cuadraditos verdes, así que
+// hereda sus vetos: "No aplica (100% eléctrico)" no cuenta como 100, ni el baúl
+// de una pickup en kg como litros.
+//
+// Lo que no se puede rankear no se esconde: va al final, separado en tres grupos
+// que NO son lo mismo. "Sin dato" es que no se sabe; "No aplica" es que la
+// característica no corresponde (consumo de nafta en un eléctrico); "No
+// comparable" es que hay cifra pero medida de otra forma.
+const RK_FILAS = DATA.flatMap(cat => cat[1]).filter(f => PCTL_DIR[f[0]]);
+let rkActual = RK_FILAS[0][0];
+
+// Unidad de cada fila, sacada del paréntesis final del nombre ("(kW)", "(L)").
+// El precio va aparte: su paréntesis es una aclaración, no una unidad.
+function rkUnidad(nombre){
+  if (nombre.startsWith('Precio')) return '';
+  const m = /\(([^()]{1,10})\)\s*$/.exec(nombre);
+  return m ? m[1] : '';
+}
+function rkEtiqueta(nombre){ return nombre.replace(/\s*\([^()]*\)\s*$/, ''); }
+function rkNumero(n, nombre){
+  const t = n.toLocaleString('es-AR', {maximumFractionDigits: 2});
+  return nombre.startsWith('Precio') ? 'USD ' + t : t;
+}
+function rkEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+function rkClasificar(v, nombre){
+  const n = pctlValor(v, nombre);
+  if (n !== null) return { tipo:'ok', n };
+  if (typeof v !== 'string' || v === 'ND' || v.startsWith('NR:')) return { tipo:'sd' };
+  const s = cleanVal(v) || '';
+  if (/^\s*No aplica/i.test(s)) return { tipo:'na' };
+  if (!/\d/.test(s)) return { tipo:'sd' };          // "Aún no confirmado", "No desglosado"
+  return { tipo:'nc' };
+}
+
+// Datos del encabezado de cada auto: miniatura e íconos de propulsión.
+let rkAutos = null;
+function rkDatosAutos(){
+  if (rkAutos) return rkAutos;
+  const ths = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
+  rkAutos = CARS.map((car, i) => {
+    const img = ths[i] && ths[i].querySelector('img.car-photo');
+    const iconos = ths[i] ? [...ths[i].querySelectorAll('small svg.prop-icon')].map(s => s.outerHTML).join('') : '';
+    return { nombre: car.name, foto: img ? img.src : '', iconos };
+  });
+  return rkAutos;
+}
+
+function rkChips(){
+  const cont = document.getElementById('rkScroll');
+  cont.innerHTML = RK_FILAS.map(f =>
+    '<button type="button" class="cat-btn rk-chip' + (f[0] === rkActual ? ' active' : '') + '" aria-pressed="' +
+    (f[0] === rkActual) + '" data-fila="' + rkEsc(f[0]) + '">' + rkEsc(rkEtiqueta(f[0])) + '</button>').join('');
+}
+
+function renderRanking(){
+  rkChips();
+  const fila = RK_FILAS.find(f => f[0] === rkActual);
+  const nombre = fila[0], dir = PCTL_DIR[nombre], unidad = rkUnidad(nombre);
+  const autos = rkDatosAutos();
+  const elegidos = CARS.map((_, i) => i).filter(i => colVisible[i]);
+
+  const ok = [], resto = { sd: [], na: [], nc: [] };
+  for (const i of elegidos){
+    const v = fila[i + 1], c = rkClasificar(v, nombre);
+    if (c.tipo === 'ok') ok.push({ i, v, n: c.n }); else resto[c.tipo].push({ i, v });
+  }
+  ok.sort((a, b) => dir > 0 ? b.n - a.n : a.n - b.n);
+  // Los empates comparten puesto: 1, 2, 2, 4.
+  ok.forEach((r, k) => { r.pos = (k > 0 && r.n === ok[k - 1].n) ? ok[k - 1].pos : k + 1; });
+  const max = ok.reduce((m, r) => Math.max(m, r.n), 0) || 1;
+  const marcados = ok.filter(r => /^(NOTE|EXT):/.test(r.v)).length;
+
+  document.getElementById('rkTitulo').textContent = rkEtiqueta(nombre) + (unidad ? ' (' + unidad + ')' : '');
+  document.getElementById('rkSub').textContent =
+    (dir > 0 ? 'Mayor es mejor' : 'Menor es mejor') + ' · ' + ok.length + ' de ' + elegidos.length +
+    ' autos con cifra para comparar' +
+    (marcados ? ' · ' + marcados + ' con cifra de otro ciclo, otro mercado o con una aclaración (ℹ️ 🔶: tocalos para ver de dónde sale)' : '');
+
+  document.getElementById('rkLista').innerHTML = ok.length ? ok.map(r => {
+    const a = autos[r.i];
+    const tip = r.v.includes('|') ? r.v.split('|')[1] : '';
+    const marca = r.v.startsWith('NOTE:') ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Aclaración: métrica no directamente comparable entre estas fichas.') + '">ℹ️</span>'
+                : r.v.startsWith('EXT:')  ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Dato de otra fuente, no oficial de la ficha AR.') + '">🔶</span>' : '';
+    const original = (cleanVal(r.v) || '').trim();
+    // El texto de la ficha va debajo solo si dice algo más que el número.
+    const soloNumero = original.replace(/\s+/g, '') === String(r.n).replace('.', ',') || original === String(r.n);
+    return '<li class="rk-item" data-auto="' + rkEsc(a.nombre) + '" data-valor="' + r.n + '">' +
+      '<span class="rk-pos">' + r.pos + '</span>' +
+      (a.foto ? '<img class="rk-foto" src="' + a.foto + '" alt="">' : '<span></span>') +
+      '<div class="rk-cuerpo"><div class="rk-nombre"><span>' + rkEsc(a.nombre) + '</span>' + a.iconos + '</div>' +
+      '<div class="rk-barra" aria-hidden="true"><i style="width:' + (100 * r.n / max).toFixed(1) + '%"></i></div>' +
+      (soloNumero ? '' : '<div class="rk-orig" title="' + rkEsc(original) + '">' + rkEsc(original) + '</div>') + '</div>' +
+      '<div class="rk-valor">' + rkNumero(r.n, nombre) + (unidad ? '<small>' + rkEsc(unidad) + '</small>' : '') + marca + '</div>' +
+      '</li>';
+  }).join('') : '';
+  if (!ok.length) document.getElementById('rkLista').innerHTML =
+    '<li class="rk-vacio">Ninguno de los autos elegidos tiene esta cifra para comparar.</li>';
+
+  const GRUPOS = [
+    ['nc', 'No comparable', 'Tienen cifra, pero medida de otra forma (otra unidad, o con los asientos rebatidos), así que no se pueden ordenar junto a las demás.'],
+    ['na', 'No aplica', 'Esta característica no corresponde a estos autos (por ejemplo, el consumo de nafta en un eléctrico).'],
+    ['sd', 'Sin dato', 'No hay cifra en la ficha ni en otra fuente confiable. No quiere decir que estén abajo de todo: no se sabe dónde caen.'],
+  ];
+  document.getElementById('rkResto').innerHTML = GRUPOS.filter(([k]) => resto[k].length).map(([k, titulo, texto]) =>
+    '<section data-grupo="' + k + '"><h3>' + titulo + ' (' + resto[k].length + ')</h3><p>' + texto + '</p><ul>' +
+    resto[k].map(r => {
+      const nom = rkEsc(autos[r.i].nombre);
+      // "Sin dato" y "No aplica": el título del grupo ya dice qué pasa, así que va
+      // solo el nombre, con el detalle en el tooltip. "No comparable" muestra la
+      // cifra, porque es justamente el motivo de que no entre.
+      if (k === 'sd' || k === 'na'){
+        const tip = k === 'na' ? (cleanVal(r.v) || '')
+                  : (typeof r.v === 'string' && r.v.startsWith('NR:') ? r.v.split('|')[1] : '');
+        return '<li data-auto="' + nom + '"' + (tip ? ' data-tip="' + rkEsc(tip) + '"' : '') + '>' + nom + '</li>';
+      }
+      return '<li data-auto="' + nom + '">' + nom + renderVal(r.v) + '</li>';
+    }).join('') + '</ul></section>').join('');
+}
+
+let rkScrollTabla = 0;
+function mostrarVista(v){
+  const rk = v === 'ranking';
+  // Al esconder la tabla el navegador le pierde el scroll horizontal: se guarda
+  // para que al volver siga en los mismos autos.
+  if (rk && tbodyWrap.style.display !== 'none') rkScrollTabla = tbodyWrap.scrollLeft;
+  document.getElementById('vistaTabla').setAttribute('aria-selected', String(!rk));
+  document.getElementById('vistaRanking').setAttribute('aria-selected', String(rk));
+  for (const el of [theadWrap, tbodyWrap, document.querySelector('header .controls'),
+                    document.getElementById('catScroll'), document.querySelector('.diff-toggle')])
+    el.style.display = rk ? 'none' : '';
+  document.getElementById('rkScroll').style.display = rk ? '' : 'none';
+  document.getElementById('rankingView').hidden = !rk;
+  if (rk){
+    document.getElementById('noResults').style.display = 'none';
+    renderRanking();
+  } else {
+    applyFilters();                                   // repone el aviso de "sin resultados"
+    tbodyWrap.scrollLeft = rkScrollTabla;
+    theadWrap.scrollLeft = tbodyWrap.scrollLeft;      // el header vuelve alineado con el cuerpo
+  }
+}
+document.getElementById('vistaTabla').addEventListener('click', () => mostrarVista('tabla'));
+document.getElementById('vistaRanking').addEventListener('click', () => mostrarVista('ranking'));
+document.getElementById('rkScroll').addEventListener('click', e => {
+  const b = e.target.closest('.rk-chip');
+  if (!b) return;
+  rkActual = b.dataset.fila;
+  renderRanking();
+  b.scrollIntoView && document.querySelector('#rkScroll .rk-chip.active').scrollIntoView({ block:'nearest', inline:'nearest' });
+});
 
 // Referencias de colores: ocultas por defecto, se muestran con un toque
 const legendBox = document.getElementById('legendBox');

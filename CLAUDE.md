@@ -133,6 +133,14 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   filas en kW y una en **km/l** dentro de la fila en L/100km. Los empates se reparten
   con **rango medio**, sin eso los 37 autos de 5 asientos caían a 0 por un solo auto
   de 4.
+- La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 14
+  filas de `PCTL_DIR`**, y lee los números con el **mismo `pctlValor()`** que los
+  cuadraditos: no tiene parser propio, así que hereda los vetos. Lo que no se puede
+  rankear va al final en **tres grupos distintos que no hay que fusionar**: "Sin dato"
+  (no se sabe), "No aplica" (consumo de nafta en un eléctrico) y "No comparable" (hay
+  cifra pero en otra unidad o medida distinto). Las cifras NOTE/EXT entran marcadas con
+  su explicación. Respeta los autos elegidos en el comparador. `tests/e2e/ranking.spec.js`
+  falla si un eléctrico se rankea en consumo o una pickup en baúl.
 - Los **7 todoterreno** (BJ40 ×2, BJ60, BJ30 ×2, Tank 300, Jetour T2) usan la silueta
   `b-offroad` pero su campo `body` **sigue siendo `"SUV"`**: cambia el dibujo, no el filtro.
 
