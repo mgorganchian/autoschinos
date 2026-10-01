@@ -149,7 +149,9 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **Autos similares** (bloque "Autos similares a X por:" en el selector con un solo
   auto elegido, y botón "Similares" en cada auto de la tabla): sugiere los 3 más
   parecidos según los criterios tildados, que se combinan (precio, tipo de auto,
-  tamaño, propulsión, asientos). La distancia de cada criterio está explicada arriba
+  tamaño, propulsión, asientos, y autonomía solo si el auto elegido es eléctrico:
+  `SIM_SOLO_SI`). Las autonomías mezclan ciclos NEDC/WLTP/CLTC, y el criterio lo
+  aclara en su tooltip. La distancia de cada criterio está explicada arriba
   de `SIM_CRITERIOS`. Si el auto elegido no tiene un dato, ese criterio se apaga; si
   no lo tiene el candidato, cuenta como lo más distinto. **Para sumar un auto se usa
   `simHabilitar()`**, nunca tildarlo a mano: un auto se ve si pasa los filtros Y está

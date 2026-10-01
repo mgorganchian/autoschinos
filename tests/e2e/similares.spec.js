@@ -4,7 +4,7 @@
 const { test, expect } = require('@playwright/test');
 const { leerIndex, vigilarErrores, FILAS_DATOS } = require('./helpers');
 
-const { CARS } = leerIndex();
+const { CARS, filas } = leerIndex();
 const N = CARS.length;
 const indice = nombre => CARS.findIndex(c => c.name === nombre);
 const columnasVisibles = page => page.locator('#theadTable thead th:not(.feat-col):not(.col-hidden)');
@@ -93,6 +93,38 @@ test.describe('similares en el selector', () => {
     for (const k of ['precio', 'tipo', 'tamano', 'propulsion', 'asientos']) await box.locator(`[data-crit="${k}"]`).click();
     await expect(box.locator('.sim-lista li')).toHaveCount(0);
     await expect(box.locator('.sim-vacio')).toBeVisible();
+  });
+
+  test('con un eléctrico elegido aparece "Autonomía"; con uno a nafta o híbrido, no', async ({ page }) => {
+    await elegirSolo(page, 'Arcfox S5');
+    const autonomia = page.locator('#simModal [data-crit="autonomia"]');
+    await expect(autonomia).toBeVisible();
+    await expect(autonomia).toHaveAttribute('aria-pressed', 'true');
+    // Avisa que las cifras vienen de ciclos distintos.
+    await expect(autonomia).toHaveAttribute('data-tip', /ciclos/);
+    await expect(page.locator('#simModal .sim-lista li small').first()).toContainText(' km');
+
+    await page.click('#modelNoneBtn');
+    await page.locator(`#modelList input[data-idx="${indice('Lynk & Co 06')}"]`).check();
+    await expect(page.locator('#simModal .sim-titulo')).toContainText('Lynk & Co 06');
+    await expect(page.locator('#simModal [data-crit="autonomia"]')).toHaveCount(0);
+  });
+
+  test('solo "Autonomía": sugiere los 3 de autonomía más cercana', async ({ page }) => {
+    const base = 'Arcfox S5';
+    await elegirSolo(page, base);
+    const box = page.locator('#simModal');
+    for (const k of ['precio', 'tipo', 'tamano', 'propulsion', 'asientos']) await box.locator(`[data-crit="${k}"]`).click();
+    await expect(box.locator('[aria-pressed="true"]')).toHaveCount(1);
+
+    // Lo esperado, calculado aparte: el primer número de cada celda de autonomía.
+    const fila = filas.find(f => f[0] === 'Autonomía EV NEDC (km)');
+    const km = i => { const v = fila[i + 1]; if (/^NR:|^ND$/.test(v)) return null; const s = v.replace(/^(NOTE|EXT):/, '').split('|')[0];
+      if (/^\s*No aplica/i.test(s)) return null; const m = /\d+/.exec(s); return m ? Number(m[0]) : null; };
+    const b = km(indice(base));
+    const esperados = CARS.map((c, i) => ({ n: c.name, k: km(i) })).filter(x => x.n !== base && x.k !== null)
+      .sort((p, q) => Math.abs(p.k - b) - Math.abs(q.k - b)).slice(0, 3).map(x => x.n);
+    expect((await sugeridos(box)).sort()).toEqual(esperados.sort());
   });
 
   test('si el auto no tiene precio, el criterio Precio se apaga', async ({ page }) => {

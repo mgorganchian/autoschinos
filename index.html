@@ -1413,10 +1413,18 @@ tbodyWrap.addEventListener('scroll', ()=>{
 //   propulsión  escalones de electrificación (nafta → mild → híbrido →
 //               enchufable → eléctrico), sobre 4
 //   asientos    diferencia de plazas, sobre 3, tope 1
+//   autonomía   solo si el auto elegido es eléctrico: diferencia relativa de km,
+//               tope 1. Las cifras vienen de distintos ciclos (NEDC, WLTP, CLTC)
+//               y eso se aclara en el propio criterio: sirven para encontrar
+//               parecidos, no para compararlas al kilómetro.
 // Se promedian los criterios tildados. Si el auto elegido no tiene un dato, ese
 // criterio se apaga. Si el que no lo tiene es el candidato, cuenta como lo más
 // distinto: si no, saldrían sugeridos justo los autos de los que menos se sabe.
-const SIM_CRITERIOS = [['precio','Precio'], ['tipo','Tipo de auto'], ['tamano','Tamaño'], ['propulsion','Propulsión'], ['asientos','Asientos']];
+const SIM_CRITERIOS = [['precio','Precio'], ['tipo','Tipo de auto'], ['tamano','Tamaño'], ['propulsion','Propulsión'], ['asientos','Asientos'], ['autonomia','Autonomía']];
+// Criterios que solo existen para cierto tipo de auto elegido: en los demás, el
+// botón ni aparece.
+const SIM_SOLO_SI = { autonomia: car => car.type === 'ev' };
+const SIM_AYUDA = { autonomia: 'Las autonomías vienen de distintos ciclos (NEDC, WLTP, CLTC) según la ficha de cada auto: sirven para encontrar parecidos, no para compararlas al kilómetro.' };
 let simCriterios = new Set(SIM_CRITERIOS.map(k => k[0]));
 const SIM_TAMANO = { mini:0, compact:1, mid:2, big:3, xl:4 };
 const SIM_PROP = { ice:0, mhev:1, hev:2, phev:3, ev:4 };
@@ -1429,6 +1437,7 @@ function simColumna(nombre){
 }
 const SIM_PRECIO = simColumna('Precio de lista (versión tope de gama de la tabla)');
 const SIM_ASIENTOS = simColumna('Número de asientos');
+const SIM_AUTONOMIA = simColumna('Autonomía EV NEDC (km)');
 
 function simDist(a, b, k){
   const A = CARS[a], B = CARS[b];
@@ -1437,9 +1446,15 @@ function simDist(a, b, k){
   if (k === 'tamano'){ const x = SIM_TAMANO[A.size], y = SIM_TAMANO[B.size]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
   if (k === 'propulsion'){ const x = SIM_PROP[A.type], y = SIM_PROP[B.type]; return x == null || y == null ? null : Math.abs(x - y) / 4; }
   if (k === 'asientos'){ const x = SIM_ASIENTOS[a], y = SIM_ASIENTOS[b]; return x == null || y == null ? null : Math.min(Math.abs(x - y) / 3, 1); }
+  if (k === 'autonomia'){
+    if (!SIM_SOLO_SI.autonomia(A)) return null;
+    const x = SIM_AUTONOMIA[a], y = SIM_AUTONOMIA[b];
+    return x == null || y == null ? null : Math.min(Math.abs(x - y) / x, 1);
+  }
   return null;
 }
-const simUsable = (base, k) => simDist(base, base, k) !== null;
+const simAplica = (base, k) => !SIM_SOLO_SI[k] || SIM_SOLO_SI[k](CARS[base]);
+const simUsable = (base, k) => simAplica(base, k) && simDist(base, base, k) !== null;
 
 function simCalcular(base){
   const ks = [...simCriterios].filter(k => simUsable(base, k));
@@ -1450,10 +1465,13 @@ function simCalcular(base){
     return { i, d, dp: dp === null ? 2 : dp };
   }).sort((p, q) => p.d - q.d || p.dp - q.dp || p.i - q.i).slice(0, 3);
 }
-function simResumen(i){
-  const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i];
-  return [p != null ? 'USD ' + p.toLocaleString('es-AR') : 'Precio s/d', c.body, SIM_TAM_TXT[c.size] || 'Tamaño s/d',
-          SIM_PROP_TXT[c.type] || 'Propulsión s/d', s != null ? s + ' asientos' : 'Asientos s/d'].join(' · ');
+function simResumen(i, base){
+  const c = CARS[i], p = SIM_PRECIO[i], s = SIM_ASIENTOS[i], a = SIM_AUTONOMIA[i];
+  const partes = [p != null ? 'USD ' + p.toLocaleString('es-AR') : 'Precio s/d', c.body, SIM_TAM_TXT[c.size] || 'Tamaño s/d',
+                  SIM_PROP_TXT[c.type] || 'Propulsión s/d', s != null ? s + ' asientos' : 'Asientos s/d'];
+  // Con un eléctrico elegido, la autonomía va adelante: es lo primero que se compara.
+  if (simAplica(base, 'autonomia')) partes.splice(1, 0, a != null ? a.toLocaleString('es-AR') + ' km' : 'Autonomía s/d');
+  return partes.join(' · ');
 }
 function simFoto(i){
   const th = document.querySelectorAll('#theadTable thead th:not(.feat-col)')[i];
@@ -1465,10 +1483,11 @@ const simEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // Dibuja el bloque en `box`. `o` dice qué significa sumar en ese lugar.
 function simRender(box, base, o){
   const items = simCalcular(base);
-  const chips = SIM_CRITERIOS.map(([k, et]) => {
+  const chips = SIM_CRITERIOS.filter(([k]) => simAplica(base, k)).map(([k, et]) => {
     const ok = simUsable(base, k);
+    const tip = ok ? (SIM_AYUDA[k] || '') : CARS[base].name + ' no tiene este dato, así que no se puede usar.';
     return '<button type="button" data-crit="' + k + '" aria-pressed="' + (ok && simCriterios.has(k)) + '"' +
-      (ok ? '' : ' disabled data-tip="' + simEsc(CARS[base].name + ' no tiene este dato, así que no se puede usar.') + '"') + '>' + et + '</button>';
+      (ok ? '' : ' disabled') + (tip ? ' data-tip="' + simEsc(tip) + '"' : '') + '>' + et + '</button>';
   }).join('');
   box.innerHTML = (o.cerrar ? '<button type="button" class="sim-cerrar" aria-label="Cerrar">✕</button>' : '') +
     '<p class="sim-titulo">Autos similares a ' + simEsc(CARS[base].name) + ' por:</p><div class="sim-crit">' + chips + '</div>' +
@@ -1477,7 +1496,7 @@ function simRender(box, base, o){
           const ya = o.elegido(r.i);
           return '<li data-auto="' + simEsc(CARS[r.i].name) + '" data-idx="' + r.i + '">' +
             (simFoto(r.i) ? '<img src="' + simFoto(r.i) + '" alt="">' : '<span></span>') +
-            '<div><b>' + simEsc(CARS[r.i].name) + '</b><small>' + simEsc(simResumen(r.i)) + '</small></div>' +
+            '<div><b>' + simEsc(CARS[r.i].name) + '</b><small>' + simEsc(simResumen(r.i, base)) + '</small></div>' +
             '<button type="button" class="sim-sumar" data-idx="' + r.i + '"' + (ya ? ' disabled' : '') + '>' + (ya ? o.ya : o.accion) + '</button></li>';
         }).join('') + '</ul>' +
         '<button type="button" class="sim-todos"' + (items.every(r => o.elegido(r.i)) ? ' disabled' : '') + '>' + o.todos + '</button>'
