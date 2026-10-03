@@ -1,6 +1,6 @@
 # autoschinos — reglas del proyecto
 
-Comparativo de **46 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
+Comparativo de **50 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
 Todo vive en un único `index.html` autocontenido de ~600 KB: sin CSS, JS ni imágenes
 externas. Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.**
@@ -47,7 +47,7 @@ de `CARS`.
 |---|---|
 | `type` | `ice` `hev` `mhev` `phev` `ev` `tbd` |
 | `size` | `xl` `big` `mid` `compact` `mini` `nd` |
-| `body` | `SUV` `Crossover` `Sedán` `Hatchback` `Minivan` `Pickup` |
+| `body` | `SUV` `Crossover` `Sedán` `Hatchback` `Minivan` `Pickup` `Convertible` |
 | `status` | `venta` `preventa` `nolanzado` `discontinuado` |
 
 **`size` (segmento) se asigna por el largo**, con los umbrales anotados arriba de `CARS`

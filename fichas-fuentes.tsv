@@ -79,6 +79,15 @@ Maxus eTerron	maxus-eterron9.pdf	https://maxus.com.ar/documents/Maxus_FT_eTerron
 # Es mucho más confiable que crawlear el HTML, donde además los links vienen
 # JSON-escapados (https:\/\/...) y un grep href normal no los ve.
 
+#
+# Agregados el 2026-10-03. Estas tres se bajaron al scratchpad de la sesión y no a
+# ~/Downloads, porque el usuario no permite escribir ahí: no hay copia local.
+JMEV Easy 3	jmev-easy-3.pdf	https://jmevargentina.com.ar/FT-Easy-3.pdf	22eb7e22b946ff56e85675454da1b8b0bfc9b8d77b6ac86cd0f0fd46bbb2be90	2026-10-03
+Chery Arrizo 8	chery-arrizo-8-csh-confort-luxury.pdf	https://chery.com.ar/wp-content/uploads/2026/10/FT_ARRIZO-8-CSH-CONFORT-Y-LUXURY.pdf	60d9667786239aeb61988e18cb8cb174ebc30f2b7601781f73bcc5ecc971ce87	2026-10-03
+MG Cyberster	mg-cyberster-mgpilar.pdf	https://www.mgpilar.com.ar/assets/archivos/ficha_tecnica_mg_cyberster.pdf	4a7cfceebc0d96ed9d0c06d8f15e2dcbd22612653eada949770fb1370763701d	2026-10-03
+# Stelato S9: SIN ficha argentina. BAIC lo exhibió en la Expo Auto Chino 2026 sin
+# fecha de venta; la columna sale del mercado chino (versión eléctrica AWD) y va
+# toda marcada EXT.
 
 # ---------------------------------------------------------------------------
 # FOTOS del encabezado. Son fotos de prensa de cada marca, embebidas en
@@ -210,3 +219,13 @@ Skywell BE11	Skyworth EV6 005.jpg	CC0	JustAnotherCarDesign	https://commons.wikim
 #   Omoda C5 = Omoda 5 — Wikipedia: "The Omoda C5 (also known as Omoda 5)"
 #     OJO: el Omoda E5 es la version electrica, otro modelo. Descartadas sus fotos.
 Omoda C5	Chery Omoda 5 008.jpg	CC0	JustAnotherCarDesign	https://commons.wikimedia.org/wiki/File:Chery_Omoda_5_008.jpg
+
+# ---------------------------------------------------------------------------
+# PORTADAS DE LOS AUTOS AGREGADOS EL 2026-10-03
+# Tapa de la propia ficha (auto <TAB> ficha de la que se extrajo):
+JMEV Easy 3	tapa de jmev-easy-3.pdf
+Chery Arrizo 8	tapa de chery-arrizo-8-csh-confort-luxury.pdf
+MG Cyberster	página 1 de mg-cyberster-mgpilar.pdf
+# Commons (auto <TAB> archivo en Commons <TAB> licencia <TAB> autor <TAB> página).
+# Se eligió la que dice "EV" en el nombre: es la versión que se cargó.
+Stelato S9	Stelato S9 EV 01 China 2025-03-28.jpg	CC BY-SA 4.0	Navigator84	https://commons.wikimedia.org/wiki/File:Stelato_S9_EV_01_China_2025-03-28.jpg

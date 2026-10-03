@@ -19,7 +19,7 @@ test.describe('invariantes del index.html', () => {
     const VALIDOS = {
       type: ['ice', 'hev', 'mhev', 'phev', 'ev', 'tbd'],
       size: ['xl', 'big', 'mid', 'compact', 'mini', 'nd'],
-      body: ['SUV', 'Crossover', 'Sedán', 'Hatchback', 'Minivan', 'Pickup'],
+      body: ['SUV', 'Crossover', 'Sedán', 'Hatchback', 'Minivan', 'Pickup', 'Convertible'],
       status: ['venta', 'preventa', 'nolanzado', 'discontinuado'],
     };
     for (const car of CARS) {
