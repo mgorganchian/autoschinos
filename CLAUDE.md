@@ -1,6 +1,6 @@
 # autoschinos — reglas del proyecto
 
-Comparativo de **50 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
+Comparativo de **56 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
 Todo vive en un único `index.html` autocontenido de ~600 KB: sin CSS, JS ni imágenes
 externas. Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.**
