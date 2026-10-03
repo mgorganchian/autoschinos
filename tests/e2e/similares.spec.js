@@ -176,13 +176,18 @@ test.describe('similares en el selector', () => {
     await expect(page.locator('#simModal .sim-lista li small').first()).toContainText(' m ·');
   });
 
-  test('un auto sin segmento cargado igual compara por tamaño, con su largo', async ({ page }) => {
-    expect(CARS[indice('Haval H6 HEV')].size).toBe('nd');
+  test('Tamaño usa el largo y lo dice; sin largo cargado se apaga', async ({ page }) => {
     await elegirSolo(page, 'Haval H6 HEV');
     const tam = page.locator('#simModal [data-crit="tamano"]');
     await expect(tam).toBeEnabled();
     await expect(tam).toHaveAttribute('aria-pressed', 'true');
-    await expect(tam).toHaveAttribute('data-tip', /doble/);
+    await expect(tam).toHaveAttribute('data-tip', /largo.*doble/);
+
+    expect(largo('Omoda C5')).toBeNull();                     // sin ninguna medida cargada
+    await page.click('#modelNoneBtn');
+    await page.locator(`#modelList input[data-idx="${indice('Omoda C5')}"]`).check();
+    await expect(page.locator('#simModal .sim-titulo')).toContainText('Omoda C5');
+    await expect(page.locator('#simModal [data-crit="tamano"]')).toBeDisabled();
   });
 
   test('el largo pesa el doble: al Dolphin Mini ya no le sugiere el BAIC EU5, 66 cm más largo', async ({ page }) => {

@@ -1027,6 +1027,14 @@ function renderVal(v){
   return '<span class="val-spec">'+v+'</span>';
 }
 
+// Segmento (size) de 17 autos que no lo tenían, asignado el 2026-10-03 por el LARGO,
+// con umbrales en el punto medio de cada hueco entre los autos ya clasificados:
+//   chico < 4150 mm ≤ compacto < 4515 ≤ mediano < 4714 ≤ grande < 4825 ≤ muy grande
+// Reproduce 24 de los 27 que ya estaban (no coinciden los dos BJ30, "compact" con
+// 4730 mm, y el Lynk & Co 08, "xl" con 4820 mm: clasificados antes con otro
+// criterio). Se probó sumar ancho y distancia entre ejes y reproducía solo 13 de 27.
+// Las pickups (5,3 a 5,6 m) quedan "xl" por medidas, aunque el mercado las llame
+// medianas. Omoda C5 y Jaecoo 7 siguen "nd": no tienen ninguna medida cargada.
 // Metadata per column, en el mismo orden que las columnas del thead (46 autos)
 const CARS = [
   {name:"BAIC BJ60", short:"BJ60", type:"mhev", size:"xl", brand:"BAIC", body:"SUV", status:"venta"},
@@ -1054,23 +1062,23 @@ const CARS = [
   {name:"BAIC X35", short:"X35", type:"ice", size:"compact", brand:"BAIC", body:"SUV", status:"venta"},
   {name:"Yuan Pro",    short:"Yuan Pro", type:"ev", size:"compact", brand:"BYD", body:"Crossover", status:"venta"},
   {name:"Dolphin Mini",short:"Dolphin Mini", type:"ev", size:"mini", brand:"BYD", body:"Hatchback", status:"venta"},
-  {name:"Chery Tiggo 8 Pro", short:"Tiggo 8 Pro", type:"ice", size:"nd", brand:"Chery", body:"SUV", status:"venta"},
-  {name:"Haval H6 HEV", short:"H6 HEV", type:"hev", size:"nd", brand:"Haval", body:"SUV", status:"venta"},
-  {name:"Poer 4WD", short:"Poer 4WD", type:"ice", size:"nd", brand:"GWM (Poer)", body:"Pickup", status:"venta"},
-  {name:"Tank 300", short:"Tank 300", type:"ice", size:"nd", brand:"GWM (Tank)", body:"SUV", status:"venta"},
-  {name:"Ora 03", short:"Ora 03", type:"ev", size:"nd", brand:"GWM (Ora)", body:"Hatchback", status:"venta"},
-  {name:"MG ZS HEV", short:"MG ZS HEV", type:"hev", size:"nd", brand:"MG", body:"SUV", status:"venta"},
-  {name:"Changan CS55 Plus", short:"CS55 Plus", type:"phev", size:"nd", brand:"Changan", body:"SUV", status:"venta"},
-  {name:"Geely EX5", short:"EX5", type:"ev", size:"nd", brand:"Geely", body:"SUV", status:"venta"},
-  {name:"JAC T9", short:"T9", type:"ice", size:"nd", brand:"JAC", body:"Pickup", status:"venta"},
-  {name:"Jetour T2", short:"T2", type:"ice", size:"nd", brand:"Jetour", body:"SUV", status:"venta"},
-  {name:"GAC S7", short:"S7", type:"phev", size:"nd", brand:"GAC", body:"Sedán", status:"venta"},
-  {name:"Kaiyi X7", short:"X7", type:"ice", size:"nd", brand:"Kaiyi", body:"SUV", status:"venta"},
-  {name:"Forthing U-Tour", short:"U-Tour", type:"hev", size:"nd", brand:"Forthing", body:"SUV", status:"venta"},
-  {name:"Skywell BE11", short:"BE11", type:"ev", size:"nd", brand:"Skywell", body:"SUV", status:"venta"},
-  {name:"DFSK E5", short:"E5", type:"phev", size:"nd", brand:"DFSK", body:"SUV", status:"venta"},
-  {name:"Foton Tunland V9", short:"Tunland V9", type:"ice", size:"nd", brand:"Foton", body:"Pickup", status:"venta"},
-  {name:"Maxus eTerron", short:"eTerron", type:"ev", size:"nd", brand:"Maxus", body:"Pickup", status:"venta"},
+  {name:"Chery Tiggo 8 Pro", short:"Tiggo 8 Pro", type:"ice", size:"big", brand:"Chery", body:"SUV", status:"venta"},
+  {name:"Haval H6 HEV", short:"H6 HEV", type:"hev", size:"mid", brand:"Haval", body:"SUV", status:"venta"},
+  {name:"Poer 4WD", short:"Poer 4WD", type:"ice", size:"xl", brand:"GWM (Poer)", body:"Pickup", status:"venta"},
+  {name:"Tank 300", short:"Tank 300", type:"ice", size:"big", brand:"GWM (Tank)", body:"SUV", status:"venta"},
+  {name:"Ora 03", short:"Ora 03", type:"ev", size:"compact", brand:"GWM (Ora)", body:"Hatchback", status:"venta"},
+  {name:"MG ZS HEV", short:"MG ZS HEV", type:"hev", size:"compact", brand:"MG", body:"SUV", status:"venta"},
+  {name:"Changan CS55 Plus", short:"CS55 Plus", type:"phev", size:"mid", brand:"Changan", body:"SUV", status:"venta"},
+  {name:"Geely EX5", short:"EX5", type:"ev", size:"mid", brand:"Geely", body:"SUV", status:"venta"},
+  {name:"JAC T9", short:"T9", type:"ice", size:"xl", brand:"JAC", body:"Pickup", status:"venta"},
+  {name:"Jetour T2", short:"T2", type:"ice", size:"big", brand:"Jetour", body:"SUV", status:"venta"},
+  {name:"GAC S7", short:"S7", type:"phev", size:"xl", brand:"GAC", body:"Sedán", status:"venta"},
+  {name:"Kaiyi X7", short:"X7", type:"ice", size:"mid", brand:"Kaiyi", body:"SUV", status:"venta"},
+  {name:"Forthing U-Tour", short:"U-Tour", type:"hev", size:"xl", brand:"Forthing", body:"SUV", status:"venta"},
+  {name:"Skywell BE11", short:"BE11", type:"ev", size:"mid", brand:"Skywell", body:"SUV", status:"venta"},
+  {name:"DFSK E5", short:"E5", type:"phev", size:"big", brand:"DFSK", body:"SUV", status:"venta"},
+  {name:"Foton Tunland V9", short:"Tunland V9", type:"ice", size:"xl", brand:"Foton", body:"Pickup", status:"venta"},
+  {name:"Maxus eTerron", short:"eTerron", type:"ev", size:"xl", brand:"Maxus", body:"Pickup", status:"venta"},
   {name:"Omoda C5", short:"Omoda C5", type:"tbd", size:"nd", brand:"Omoda", body:"Crossover", status:"nolanzado"},
   {name:"Jaecoo 7", short:"Jaecoo 7", type:"tbd", size:"nd", brand:"Jaecoo", body:"SUV", status:"nolanzado"},
   {name:"Leapmotor C10", short:"C10", type:"phev", size:"big", brand:"Leapmotor", body:"SUV", status:"venta"},
