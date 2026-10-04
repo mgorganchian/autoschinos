@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Comparativo de autos chinos en Argentina</title>
+<meta name="description" content="Más de 100 autos chinos que se venden en Argentina, comparados con sus fichas técnicas oficiales: precio, potencia, autonomía, consumo, equipamiento, garantía y ranking.">
+<!-- Vista previa al compartir (WhatsApp, Telegram, redes). Es la misma para cualquier
+     link: un sitio estático no puede armar una imagen por comparación. og.jpg se regenera
+     a mano si cambian mucho los autos (fotos oficiales, sin créditos de Commons). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Autos chinos en Argentina">
+<meta property="og:title" content="Comparativo de autos chinos en Argentina">
+<meta property="og:description" content="Más de 100 autos con sus fichas técnicas oficiales: precio, potencia, autonomía, consumo, garantía y ranking.">
+<meta property="og:image" content="https://autoschinos-ar.vercel.app/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="color-scheme" content="light dark">
 <script>/* Tema elegido a mano (si lo hay), antes de pintar: sin esto, quien eligió oscuro ve un destello blanco. */
 try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -568,6 +580,20 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   }
   .dropdown-list label:hover{background:var(--surface-hover);}
   .dropdown-list input{width:18px;height:18px;cursor:pointer;flex-shrink:0;}
+  /* Selector de modelos como catálogo de tarjetas */
+  .dropdown-actions{flex-wrap:wrap;align-items:center}
+  .model-buscar{flex:1 1 160px;min-width:0;font-size:.8rem;padding:6px 9px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--ink)}
+  .model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;padding:6px}
+  .model-grid label.mcard{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:4px 6px;padding:6px;
+    border:1px solid var(--line);border-radius:9px;background:var(--surface);align-items:center}
+  .model-grid label.mcard:hover{background:var(--surface-hover)}
+  .model-grid label.mcard.on{border-color:var(--byd-blue);box-shadow:inset 0 0 0 1px var(--byd-blue)}
+  .mcard input{grid-row:1;grid-column:1;width:16px;height:16px}
+  .mcard img{grid-row:1;grid-column:2;width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:6px}
+  .mcard-txt{grid-row:2;grid-column:1 / span 2;min-width:0;line-height:1.2}
+  .mcard-txt b{display:block;font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mcard-txt small{display:block;font-size:.62rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mcard-vacio{grid-column:1 / -1;font-size:.8rem;color:var(--ink-2);margin:8px}
 
   .advanced-toggle{
     width:100%;
@@ -831,6 +857,59 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .rk-pesos select,.rk-gasto input{font-size:.74rem;padding:3px 5px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);max-width:110px}
   .rk-gasto input{width:100px}
 
+  /* ============ Página de cada auto ======================================== */
+  .th-nombre{display:block;width:100%;background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;font-weight:700;
+    cursor:pointer;text-decoration:underline dotted rgba(255,255,255,.5);text-underline-offset:2px}
+  .th-nombre:hover{text-decoration-color:#fff}
+  .th-nombre:focus-visible{outline:2px solid #fff;outline-offset:1px}
+  .ficha-overlay{position:fixed;inset:0;z-index:1000;background:rgba(10,15,30,.6);display:flex;align-items:flex-end;justify-content:center}
+  .ficha-overlay[hidden]{display:none}
+  .ficha-hoja{position:relative;background:var(--paper);color:var(--ink);width:100%;max-width:880px;max-height:94vh;overflow-y:auto;
+    border-radius:16px 16px 0 0;padding:18px 18px 28px;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
+  .ficha-cerrar{position:sticky;top:0;float:right;z-index:2;background:var(--surface);border:1px solid var(--line);color:var(--ink);
+    width:34px;height:34px;border-radius:50%;font-size:1rem;cursor:pointer}
+  .ficha-cabeza{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+  .ficha-foto{position:relative;line-height:0}
+  .ficha-foto img{width:100%;aspect-ratio:900/570;object-fit:contain;background:#fff;border-radius:12px}
+  .ficha-nav{position:absolute;top:42%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:50%;
+    background:rgba(255,255,255,.92);color:#0b1f47;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.28)}
+  .ficha-nav.ant{left:8px} .ficha-nav.sig{right:8px}
+  .ficha-puntos{display:flex;justify-content:center;gap:5px;margin-top:6px;line-height:1}
+  .ficha-puntos i{width:6px;height:6px;border-radius:50%;background:var(--dot-off)}
+  .ficha-puntos i.on{background:var(--dot-on)}
+  .ficha-cred{display:block;font-size:.6rem;color:var(--ink-3);margin-top:4px;line-height:1.3}
+  .ficha-marca{margin:4px 0 0;font-size:.78rem;color:var(--ink-2);text-transform:uppercase;letter-spacing:.5px}
+  .ficha-titulo h2{margin:2px 0 8px;font-size:1.6rem;line-height:1.1;text-wrap:balance}
+  .ficha-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+  .ficha-chips span{display:inline-flex;align-items:center;gap:4px;background:var(--chip-bg);border-radius:12px;padding:3px 9px;font-size:.72rem}
+  .ficha-chips .prop-icon{opacity:1}
+  .ficha-estado.venta{background:var(--yes-bg);color:var(--yes)}
+  .ficha-estado.preventa,.ficha-estado.nolanzado{background:var(--ext-bg);color:var(--ext-text)}
+  .ficha-acciones{display:flex;flex-direction:column;gap:6px}
+  .ficha-btn{background:var(--surface);color:var(--link);border:1px solid var(--link);border-radius:8px;padding:7px 12px;font-size:.78rem;font-weight:600;cursor:pointer}
+  .ficha-btn.primario{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff}
+  .rk-ver-ficha{margin-top:10px;width:100%}
+  .ficha-datos{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin:18px 0}
+  .ficha-datos>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .ficha-datos dt{font-size:.66rem;color:var(--ink-2);margin-bottom:3px}
+  .ficha-datos dd{margin:0;font-size:.86rem;font-weight:600}
+  .ficha-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ficha-hoja h3{font-size:.86rem;margin:0 0 6px}
+  .ficha-puntos-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+  .ficha-puntos-lista li{display:flex;justify-content:space-between;gap:8px;font-size:.76rem;padding:4px 8px;border-radius:6px;background:var(--surface)}
+  .ficha-puntos-lista.fuerte b{color:var(--yes)} .ficha-puntos-lista.debil b{color:var(--no)}
+  .ficha-nota,.ficha-vacio{font-size:.7rem;color:var(--ink-3);margin:8px 0 14px;line-height:1.4}
+  .ficha-sim ul,.ficha-links{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:6px}
+  .ficha-sim li{display:flex;gap:8px;align-items:center}
+  .ficha-sim-auto{flex:1;min-width:0;display:flex;gap:9px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);
+    border-radius:9px;padding:5px 8px;cursor:pointer;color:var(--ink)}
+  .ficha-sim-auto img{width:58px;height:37px;object-fit:contain;background:#fff;border-radius:5px;flex-shrink:0}
+  .ficha-sim-auto span{min-width:0} .ficha-sim-auto b{display:block;font-size:.78rem}
+  .ficha-sim-auto small{display:block;font-size:.64rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ficha-links a{color:var(--link);font-size:.78rem}
+  @media (max-width:640px){ .ficha-cabeza,.ficha-cols{grid-template-columns:1fr} .ficha-hoja{padding:14px 12px 24px} }
+  @media print{ .ficha-overlay{display:none !important} .th-nombre{text-decoration:none;color:#000} }
+
   /* ============ Mayores diferencias ======================================== */
   .dif{display:flex;flex-wrap:wrap;gap:8px 24px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);font-size:.74rem;color:var(--ink)}
   .dif[hidden]{display:none}      /* el display:flex de arriba le ganaba al atributo hidden */
@@ -843,6 +922,9 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .dif-margen{font-weight:700;font-variant-numeric:tabular-nums;background:var(--note-bg);color:var(--note-text);border-radius:4px;padding:0 4px}
   .dif-vacio{margin:0;color:var(--ink-2)}
   .mejor-sel{color:#d4a000;font-size:.68rem;margin-left:3px}
+  .cmp-barra{display:block;height:5px;margin:4px 6px 0;border-radius:3px;background:var(--pct-off);overflow:hidden}
+  .cmp-barra i{display:block;height:100%;border-radius:3px;background:var(--bar);opacity:.55}
+  .cmp-barra.mejor i{background:var(--yes);opacity:1}
   @media print{ .dif{display:none !important} }
 
   /* ============ Barra resumen: compartir y referencia ===================== */
@@ -1057,8 +1139,9 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
             <div class="dropdown-actions">
               <button class="mini-btn" id="modelAllBtn" type="button">Todos</button>
               <button class="mini-btn" id="modelNoneBtn" type="button">Ninguno</button>
+              <input type="search" id="modelBuscar" class="model-buscar" placeholder="Buscar modelo o marca…" aria-label="Buscar modelo o marca">
             </div>
-            <div class="dropdown-list" id="modelList"></div>
+            <div class="dropdown-list model-grid" id="modelList"></div>
           </div>
         </div>
       </div>
@@ -1249,6 +1332,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <div class="rk-resto" id="rkResto"></div>
   <div class="sim rk-ficha" id="rkFicha" role="dialog" aria-label="Puestos del auto" hidden></div>
 </section>
+<div class="ficha-overlay" id="fichaAuto" role="dialog" aria-modal="true" aria-labelledby="fichaNombre" hidden><div class="ficha-hoja" id="fichaHoja"></div></div>
 <div id="tooltipBox"></div>
 
 <footer>
@@ -2005,6 +2089,16 @@ function actualizarResumen(){
   ref.hidden = refIdx === null;
   if (refIdx !== null) ref.querySelector('b').textContent = CARS[refIdx].short;
   document.getElementById('shareBtn').hidden = todos && refIdx === null && !ordenActual;
+  actualizarTitulo();
+}
+// Título de la pestaña (y del link al compartir desde el navegador): dice qué se compara.
+const TITULO_BASE = 'Comparativo de autos chinos en Argentina';
+function actualizarTitulo(){
+  const ficha = fichaActual !== null ? CARS[fichaActual].name : null;
+  const sel = CARS.filter((_, i) => colVisible[i]);
+  document.title = ficha ? ficha + ' · ' + TITULO_BASE
+    : sel.length < CARS.length && sel.length <= 4 ? sel.map(c => c.short).join(' vs ') + ' · ' + TITULO_BASE
+    : sel.length < CARS.length ? sel.length + ' autos · ' + TITULO_BASE : TITULO_BASE;
 }
 
 // --- En el selector: con un solo auto elegido --------------------------------
@@ -2240,16 +2334,25 @@ document.getElementById('brandNoneBtn').addEventListener('click', ()=>{
 // ---- Dropdown 2: Modelo (multi-selección, depende de la marca elegida) ----
 setupToggleDropdown('modelDropdownBtn', 'modelPanel');
 const modelList = document.getElementById('modelList');
+// Tarjetas con foto, marca, precio y tipo: se elige tocando, como en un catálogo.
+// El buscador solo esconde tarjetas: no cambia qué autos están elegidos.
+const sinTildes = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function renderModelList(){
   modelList.innerHTML = '';
   let visibleCount = 0;
+  const q = sinTildes((document.getElementById('modelBuscar') || {}).value || '').trim();
+  const html = [];
   CARS.forEach((car,i)=>{
     if(!matchesFacets(i)) return;
     visibleCount++;
-    const row = document.createElement('label');
-    row.innerHTML = '<input type="checkbox" '+(modelChecked.get(i)?'checked':'')+' data-idx="'+i+'"> '+car.short;
-    modelList.appendChild(row);
+    if (q && !sinTildes(car.name + ' ' + car.brand).includes(q)) return;
+    const img = TH_AUTO[i] && TH_AUTO[i].querySelector('img.car-photo');
+    const p = SIM_PRECIO[i];
+    html.push('<label class="mcard' + (modelChecked.get(i) ? ' on' : '') + '"><input type="checkbox" ' + (modelChecked.get(i) ? 'checked' : '') + ' data-idx="' + i + '">' +
+      (img ? '<img src="' + img.src + '" alt="">' : '') + '<span class="mcard-txt"><b>' + simEsc(car.short) + '</b><small>' + simEsc(car.brand) + ' · ' +
+      (p != null ? 'USD ' + p.toLocaleString('es-AR') : 'sin precio') + ' · ' + simEsc(SIM_PROP_TXT[car.type] || car.type) + '</small></span></label>');
   });
+  modelList.innerHTML = html.join('') || '<p class="mcard-vacio">Ningún modelo coincide con la búsqueda.</p>';
   document.getElementById('modelCountHint').textContent = visibleCount===CARS.length ? '' : '('+visibleCount+' según la marca elegida)';
   updateModelBtnLabel(visibleCount);
   updateCompareCount();
@@ -2263,10 +2366,12 @@ function updateModelBtnLabel(visibleCount){
   else if(checkedCount===0) btn.innerHTML = 'Ningún modelo elegido <span>▾</span>';
   else btn.innerHTML = checkedCount+' de '+visibleCount+' modelos <span>▾</span>';
 }
+document.getElementById('modelBuscar').addEventListener('input', renderModelList);
 modelList.addEventListener('change', e=>{
   const idx = e.target.dataset.idx;
   if(idx===undefined) return;
   modelChecked.set(parseInt(idx,10), e.target.checked);
+  e.target.closest('.mcard').classList.toggle('on', e.target.checked);
   updateModelBtnLabel();
   updateCompareCount();
 });
@@ -2855,7 +2960,7 @@ function rkPuestoDe(i, k, lista){
     return { pos: yo.pos, de: mismo.length, txt: yo.pos + 'º de ' + mismo.length + ' (' + yo.ciclo + ')' };
   }
   rkOrdenar(ok, rkDir(k));
-  return { pos: yo.pos, de: ok.length, txt: yo.pos + 'º de ' + ok.length };
+  return { pos: yo.pos, de: ok.length, iguales: ok.filter(r => r.n === yo.n).length, txt: yo.pos + 'º de ' + ok.length };
 }
 function rkAbrirFicha(i){
   const cand = rkCandidatos();
@@ -2867,7 +2972,8 @@ function rkAbrirFicha(i){
   }).join('');
   const box = document.getElementById('rkFicha');
   box.innerHTML = '<button type="button" class="sim-cerrar" aria-label="Cerrar">✕</button><p class="sim-titulo">' + rkEsc(CARS[i].name) + ': dónde queda</p>' +
-    '<p class="rk-f-sub">Puesto en cada fila, contra ' + (cand.hayMios && rkFiltro.mios ? 'tus autos elegidos' : 'los autos de los filtros') + '. Verde: cuarto mejor; rojo: cuarto peor.</p><ul class="rk-f-lista">' + filas + '</ul>';
+    '<p class="rk-f-sub">Puesto en cada fila, contra ' + (cand.hayMios && rkFiltro.mios ? 'tus autos elegidos' : 'los autos de los filtros') + '. Verde: cuarto mejor; rojo: cuarto peor.</p><ul class="rk-f-lista">' + filas + '</ul>' +
+    '<button type="button" class="ficha-btn rk-ver-ficha" data-idx="' + i + '">Ver la página del auto</button>';
   box.hidden = false;
   box.querySelector('.sim-cerrar').focus();
 }
@@ -3205,9 +3311,25 @@ function marcarReferencia(){
 // los autos: si no, gana el que más datos publica, no el mejor auto.
 function renderDiferencias(){
   const box = document.getElementById('difBox');
-  document.querySelectorAll('#mainTable .mejor-sel').forEach(s => s.remove());
+  document.querySelectorAll('#mainTable .mejor-sel, #mainTable .cmp-barra').forEach(s => s.remove());
   const vis = CARS.map((_, i) => i).filter(i => colVisible[i]);
   if (vis.length < 2 || vis.length > 6){ box.hidden = true; box.innerHTML = ''; return; }
+  // Barras: en cada fila con dirección, una barra por auto con cifra comparable, el
+  // mejor en verde. Alcanza con que la tengan dos autos (la ★ y el conteo de victorias,
+  // en cambio, piden cifra en todos).
+  RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
+    const vals = vis.map(i => ({ i, n: valorComparable(i, nombre) })).filter(x => x.n != null);
+    if (vals.length < 2) return;
+    const dir = PCTL_DIR[nombre], max = Math.max(...vals.map(x => x.n));
+    const mejor = dir > 0 ? max : Math.min(...vals.map(x => x.n));
+    if (!(max > 0)) return;
+    const tr = document.querySelector('#mainTable tr[data-search="' + CSS.escape(nombre.toLowerCase()) + '"]');
+    vals.forEach(x => {
+      const td = tr && tr.querySelector('td[data-col="' + x.i + '"]');
+      if (td) td.insertAdjacentHTML('beforeend', '<span class="cmp-barra' + (x.n === mejor ? ' mejor' : '') +
+        '" aria-hidden="true"><i style="width:' + Math.max(4, 100 * x.n / max).toFixed(1) + '%"></i></span>');
+    });
+  });
   const filas = [], gana = new Map(vis.map(i => [i, 0]));
   RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
     const vals = vis.map(i => ({ i, n: valorComparable(i, nombre), r: rkValor(i, nombre) }));
@@ -3267,6 +3389,7 @@ function urlGuardar(){
   if (elegidos.length < CARS.length) p.set('autos', elegidos.map(i => SLUG_AUTO[i]).join(','));
   if (refIdx !== null) p.set('ref', SLUG_AUTO[refIdx]);
   if (ordenActual) p.set('orden', ordenActual);
+  if (fichaActual !== null) p.set('auto', SLUG_AUTO[fichaActual]);
   const q = p.toString().replace(/%2C/g, ',');
   try { history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash); } catch (e) {}
 }
@@ -3287,6 +3410,8 @@ function urlCargar(){
     aplicarSeleccion();
     if (autos.length) ocultarTitulo();
   }
+  const auto = porSlug(p.get('auto') || '');
+  if (auto >= 0) abrirFicha(auto);
 }
 
 document.getElementById('shareBtn').addEventListener('click', async () => {
@@ -3350,6 +3475,169 @@ temaBtn.addEventListener('click', () => {
 });
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', temaPintarBoton); } catch (e) {}
 temaPintarBoton();
+
+// ============ Página de cada auto ===========================================
+// Se abre tocando el nombre de un auto (o con ?auto=slug). Todo sale de DATA y de
+// los puestos del ranking: los puntos fuertes y débiles NO son opinión, son las
+// filas donde el auto queda en el cuarto mejor o peor contra los autos a la venta.
+// Los links a fichas oficiales se leen del manifiesto (fichas-fuentes.tsv) para
+// no tener una segunda copia que se desactualice.
+let fichaActual = null;
+let fichaFotoIdx = 0;
+const FICHA_DATOS = [FILA_PRECIO, FILA_POT, FILA_AUT, FILA_CONS, 'Volumen de baúl/carga (L)', 'Número de asientos',
+  'Aceleración 0-100 km/h (s)', 'Capacidad de batería (kWh)', 'Garantía general', 'Garantía de la batería de alto voltaje', 'Fabricado en'];
+let fuentesManifiesto = null;   // Map nombre -> [{tipo, url}]
+async function cargarManifiesto(){
+  if (fuentesManifiesto) return fuentesManifiesto;
+  fuentesManifiesto = new Map();
+  try {
+    const r = await fetch('fichas-fuentes.tsv', { cache: 'no-cache' });
+    if (!r.ok) return fuentesManifiesto;
+    for (const l of (await r.text()).split('\n')){
+      if (!l.trim() || l.startsWith('#')) continue;
+      const [auto, archivo, url] = l.split('\t');
+      if (!url || !/^https:\/\//.test(url) || !/\.pdf(\?|$)/i.test(url)) continue;
+      const tipo = /etiqueta/i.test(archivo) ? 'Etiqueta de consumo' : /folleto|brochure/i.test(archivo) ? 'Folleto'
+        : /manual/i.test(archivo) ? 'Manual' : /garant/i.test(archivo) ? 'Certificado de garantía' : 'Ficha técnica';
+      if (!fuentesManifiesto.has(auto)) fuentesManifiesto.set(auto, []);
+      if (!fuentesManifiesto.get(auto).some(x => x.url === url)) fuentesManifiesto.get(auto).push({ tipo, url });
+    }
+  } catch (e) { /* sin red o abierto como archivo local: la página se arma igual, sin links */ }
+  return fuentesManifiesto;
+}
+
+function fichaFoto(k){
+  const i = fichaActual, slug = SLUG_AUTO[i], fotos = listaDeFotos(slug);
+  fichaFotoIdx = (k + fotos.length) % fotos.length;
+  const img = document.getElementById('fichaImg');
+  img.src = fotos[fichaFotoIdx];
+  img.onerror = () => { const th = TH_AUTO[i].querySelector('img.car-photo'); if (th) img.src = th.src; };
+  const cred = creditoDe(slug, fichaFotoIdx) || (fichaFotoIdx === 0 ? (TH_AUTO[i].querySelector('img.car-photo') || {}).dataset?.credito || '' : '');
+  document.getElementById('fichaCred').textContent = cred;
+  document.querySelectorAll('#fichaPuntos i').forEach((p, n) => p.classList.toggle('on', n === fichaFotoIdx));
+}
+
+function fichaFortalezas(i){
+  const lista = CARS.map((_, k) => k).filter(k => CARS[k].status === 'venta' || k === i);
+  const fuertes = [], debiles = [], sinDato = [];
+  RK_CLAVES.forEach(k => {
+    const p = rkPuestoDe(i, k, lista);
+    if (p.g === 'sd') sinDato.push(rkTitulo(k));
+    // Empatado con más de un cuarto de los autos (ej. 5 asientos): no lo distingue.
+    if (p.pos == null || p.de < 8 || (p.iguales || 1) > p.de / 4) return;
+    const item = { k, txt: p.pos + 'º de ' + p.de, pos: p.pos, de: p.de };
+    if (p.pos <= Math.ceil(p.de / 4)) fuertes.push(item);
+    else if (p.pos > p.de - Math.ceil(p.de / 4)) debiles.push(item);
+  });
+  fuertes.sort((a, b) => a.pos / a.de - b.pos / b.de);
+  debiles.sort((a, b) => b.pos / b.de - a.pos / a.de);
+  return { fuertes: fuertes.slice(0, 6), debiles: debiles.slice(0, 6), sinDato };
+}
+
+async function abrirFicha(i){
+  fichaActual = i;
+  const c = CARS[i], slug = SLUG_AUTO[i];
+  const fotos = listaDeFotos(slug);
+  const val = n => { const v = FILA_POR_NOMBRE[n] && FILA_POR_NOMBRE[n][i + 1]; return v == null ? '' : renderVal(v); };
+  const aplica = n => { const v = FILA_POR_NOMBRE[n][i + 1]; return !(typeof v === 'string' && v.startsWith('No aplica')); };
+  const icono = (TH_AUTO[i].querySelector('small svg.prop-icon') || {}).outerHTML || '';
+  const { fuertes, debiles, sinDato } = fichaFortalezas(i);
+  const sim = simCalcular(i).items;
+  const grupo = typeof GRUPO_DE !== 'undefined' && GRUPO_DE[c.brand] ? GRUPO_DE[c.brand] : null;
+  const lista = (arr, clase) => arr.length ? '<ul class="ficha-puntos-lista ' + clase + '">' + arr.map(x =>
+    '<li><span>' + rkEsc(rkTitulo(x.k)) + '</span><b>' + rkEsc(x.txt) + '</b></li>').join('') + '</ul>' : '<p class="ficha-vacio">Ninguna fila.</p>';
+  const hoja = document.getElementById('fichaHoja');
+  hoja.innerHTML =
+    '<button type="button" class="ficha-cerrar" id="fichaCerrar" aria-label="Cerrar">✕</button>' +
+    '<div class="ficha-cabeza"><div class="ficha-foto"><img id="fichaImg" alt="' + rkEsc(c.name) + '">' +
+      (fotos.length > 1 ? '<button type="button" class="ficha-nav ant" aria-label="Foto anterior">‹</button><button type="button" class="ficha-nav sig" aria-label="Foto siguiente">›</button>' +
+        '<div id="fichaPuntos" class="ficha-puntos">' + fotos.map(() => '<i></i>').join('') + '</div>' : '') +
+      '<small id="fichaCred" class="ficha-cred"></small></div>' +
+    '<div class="ficha-titulo"><p class="ficha-marca">' + rkEsc(c.brand) + (grupo ? ' · grupo ' + rkEsc(grupo.grupo) : '') + '</p>' +
+      '<h2 id="fichaNombre">' + rkEsc(c.name) + '</h2>' +
+      '<p class="ficha-chips"><span>' + icono + rkEsc(SIM_PROP_TXT[c.type] || c.type) + '</span><span>' + rkEsc(c.body) + '</span>' +
+        '<span>' + rkEsc(SEGMENT_LABELS[c.size] || 'Tamaño s/d') + '</span><span class="ficha-estado ' + c.status + '">' + rkEsc(STATUS_LABELS[c.status] || c.status) + '</span></p>' +
+      '<div class="ficha-acciones"><button type="button" class="ficha-btn primario" id="fichaVerTabla">Ver todos sus datos en la tabla</button>' +
+        '<button type="button" class="ficha-btn" id="fichaSumar">' + (colVisible.every(Boolean) ? 'Empezar una comparación' : (colVisible[i] ? '✓ Ya está en tu comparación' : '+ Sumar a mi comparación')) + '</button></div>' +
+    '</div></div>' +
+    '<dl class="ficha-datos">' + FICHA_DATOS.filter(n => FILA_POR_NOMBRE[n] && aplica(n)).map(n =>
+      '<div><dt>' + rkEsc(rkTitulo(n)) + '</dt><dd>' + val(n) + '</dd></div>').join('') +
+      (grupo ? '<div><dt>Grupo automotriz</dt><dd>' + rkEsc(grupo.grupo) + ' <small>(' + rkEsc(grupo.relacion) + ')</small></dd></div>' : '') +
+    '</dl>' +
+    '<div class="ficha-cols"><section><h3>Dónde se destaca</h3>' + lista(fuertes, 'fuerte') + '</section>' +
+      '<section><h3>Dónde queda abajo</h3>' + lista(debiles, 'debil') + '</section></div>' +
+    '<p class="ficha-nota">Puestos contra los autos a la venta, en las filas donde "mejor" tiene una dirección clara (cuarto mejor y cuarto peor). No es una opinión: sale de las cifras de la tabla.' +
+      (sinDato.length ? ' Sin dato en: ' + rkEsc(sinDato.join(', ')) + '.' : '') + '</p>' +
+    (sim.length ? '<section class="ficha-sim"><h3>Parecidos para comparar</h3><ul>' + sim.map(s => {
+      const im = TH_AUTO[s.i].querySelector('img.car-photo');
+      return '<li><button type="button" class="ficha-sim-auto" data-idx="' + s.i + '">' + (im ? '<img src="' + im.src + '" alt="">' : '') +
+        '<span><b>' + rkEsc(CARS[s.i].name) + '</b><small>' + rkEsc(simResumen(s.i, i)) + '</small></span></button>' +
+        '<button type="button" class="ficha-btn" data-comparar="' + s.i + '">Comparar</button></li>';
+    }).join('') + '</ul></section>' : '') +
+    '<section class="ficha-fuentes"><h3>Fuentes oficiales</h3><p id="fichaFuentes" class="ficha-vacio">Cargando…</p></section>';
+  document.getElementById('fichaAuto').hidden = false;
+  document.body.classList.add('modal-open');
+  fichaFoto(0);
+  document.getElementById('fichaCerrar').focus();
+  urlGuardar(); actualizarTitulo();
+  const fuentes = (await cargarManifiesto()).get(c.name) || [];
+  if (fichaActual !== i) return;
+  document.getElementById('fichaFuentes').outerHTML = fuentes.length
+    ? '<ul class="ficha-links">' + fuentes.map(f => {
+        // Si hay más de un documento del mismo tipo, el nombre del archivo los distingue.
+        const repetido = fuentes.filter(g => g.tipo === f.tipo).length > 1;
+        const archivo = decodeURIComponent(new URL(f.url).pathname.split('/').pop());
+        return '<li><a href="' + rkEsc(f.url) + '" target="_blank" rel="noopener">' + rkEsc(f.tipo) + (repetido ? ' «' + rkEsc(archivo) + '»' : ' (PDF)') + ' · ' +
+          rkEsc(new URL(f.url).hostname.replace(/^www\./, '')) + '</a></li>'; }).join('') + '</ul>'
+    : '<p class="ficha-vacio">No hay una ficha técnica oficial argentina registrada para este auto: sus datos salen de otras fuentes, indicadas en cada celda de la tabla.</p>';
+}
+function cerrarFicha(){
+  if (fichaActual === null) return;
+  const i = fichaActual;
+  fichaActual = null;
+  document.getElementById('fichaAuto').hidden = true;
+  document.getElementById('fichaHoja').innerHTML = '';
+  document.body.classList.remove('modal-open');
+  urlGuardar(); actualizarTitulo();
+  const b = TH_AUTO[i] && TH_AUTO[i].querySelector('.th-nombre');
+  if (b) b.focus();
+}
+
+// Nombre del auto en el encabezado como botón: abre su página.
+TH_AUTO.forEach((th, i) => {
+  const tn = [...th.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+  if (!tn) return;
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'th-nombre'; b.dataset.idx = i;
+  b.textContent = tn.textContent;
+  b.title = 'Ver la página del ' + CARS[i].name;
+  th.replaceChild(b, tn);
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('.th-nombre, .rk-ver-ficha') : null;
+  if (b){ abrirFicha(+b.dataset.idx); return; }
+  const ov = document.getElementById('fichaAuto');
+  if (fichaActual === null) return;
+  if (e.target === ov){ cerrarFicha(); return; }
+  if (e.target.closest('#fichaCerrar')){ cerrarFicha(); return; }
+  if (e.target.closest('.ficha-nav')){ fichaFoto(fichaFotoIdx + (e.target.closest('.ant') ? -1 : 1)); return; }
+  const otro = e.target.closest('.ficha-sim-auto');
+  if (otro){ abrirFicha(+otro.dataset.idx); return; }
+  const cmp = e.target.closest('[data-comparar]');
+  if (cmp){ const i = fichaActual; simFijar([i, +cmp.dataset.comparar]); simRefrescarSelector(); cerrarFicha(); aplicarSeleccion(); ocultarTitulo(); return; }
+  if (e.target.closest('#fichaVerTabla')){ const i = fichaActual; simFijar([i]); simRefrescarSelector(); cerrarFicha(); aplicarSeleccion(); ocultarTitulo(); window.scrollTo({ top: 0 }); return; }
+  if (e.target.closest('#fichaSumar')){
+    const i = fichaActual;
+    if (colVisible.every(Boolean)) simFijar([i]); else simHabilitar(i);
+    simRefrescarSelector(); cerrarFicha(); aplicarSeleccion(); ocultarTitulo(); return;
+  }
+});
+document.addEventListener('keydown', e => {
+  if (fichaActual === null) return;
+  if (e.key === 'Escape') cerrarFicha();
+  else if (e.key === 'ArrowLeft' && listaDeFotos(SLUG_AUTO[fichaActual]).length > 1) fichaFoto(fichaFotoIdx - 1);
+  else if (e.key === 'ArrowRight' && listaDeFotos(SLUG_AUTO[fichaActual]).length > 1) fichaFoto(fichaFotoIdx + 1);
+});
 
 ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();

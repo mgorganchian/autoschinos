@@ -246,3 +246,65 @@ test.describe('mayores diferencias', () => {
     await expect(precio).toHaveCount(0);
   });
 });
+
+test.describe('página de cada auto', () => {
+  test('tocar el nombre abre su página, con link propio; Escape la cierra', async ({ page }) => {
+    await abrir(page);
+    const i = indice('Chery Tiggo 7 Pro MHEV');
+    await page.locator(`#theadTable th[data-idx="${i}"] .th-nombre`).click();
+    await expect(page.locator('#fichaAuto')).toBeVisible();
+    await expect(page.locator('#fichaNombre')).toHaveText('Chery Tiggo 7 Pro MHEV');
+    await expect(page).toHaveURL(/auto=chery-tiggo-7-pro-mhev/);
+    await expect(page).toHaveTitle(/^Chery Tiggo 7 Pro MHEV · /);
+    // Las fuentes oficiales salen del manifiesto, servido junto a la página.
+    await expect(page.locator('.ficha-links a').first()).toHaveAttribute('href', /^https:\/\/.*\.pdf/);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#fichaAuto')).toBeHidden();
+    expect(page.url()).not.toContain('auto=');
+  });
+
+  test('el link ?auto= abre la página directo', async ({ page }) => {
+    await abrir(page, '?auto=byd-shark');
+    await expect(page.locator('#fichaNombre')).toHaveText('BYD Shark');
+  });
+
+  test('los puntos fuertes no incluyen empates masivos (5 asientos no es destacarse)', async ({ page }) => {
+    await abrir(page, '?auto=chery-tiggo-7-pro-mhev');
+    await expect(page.locator('#fichaNombre')).toBeVisible();
+    await expect(page.locator('.ficha-puntos-lista.fuerte li', { hasText: 'Número de asientos' })).toHaveCount(0);
+  });
+
+  test('"Comparar" con un parecido arma la comparación de los dos', async ({ page }) => {
+    await abrir(page, '?auto=byd-shark');
+    await page.locator('.ficha-sim [data-comparar]').first().click();
+    await expect(page.locator('#fichaAuto')).toBeHidden();
+    await expect(columnas(page)).toHaveCount(2);
+    expect(await idxVisibles(page)).toContain(indice('BYD Shark'));
+  });
+});
+
+test.describe('selector y comparación', () => {
+  test('el buscador de modelos filtra las tarjetas sin cambiar lo elegido', async ({ page }) => {
+    await abrir(page);
+    await page.click('#openModalBtn');
+    await page.click('#modelDropdownBtn');
+    await page.fill('#modelBuscar', 'tiggo');
+    const vistos = await page.locator('#modelList .mcard b').allTextContents();
+    expect(vistos.length).toBeGreaterThan(2);
+    for (const n of vistos) expect(n.toLowerCase()).toContain('tiggo');
+    await expect(page.locator('#compareCount')).toHaveText(String(CARS.length));
+  });
+
+  test('con 2 a 6 autos, cada fila con dirección muestra barras y el mejor en verde', async ({ page }) => {
+    await abrir(page, '?autos=byd-shark,maxus-t60,jac-t8');
+    const fila = page.locator('#mainTable tr[data-search^="potencia total"]');
+    await expect(fila.locator('.cmp-barra')).toHaveCount(3);
+    await expect(fila.locator('.cmp-barra.mejor')).toHaveCount(1);
+    await expect(fila.locator(`td[data-col="${indice('BYD Shark')}"] .cmp-barra`)).toHaveClass(/mejor/);
+  });
+
+  test('el título de la pestaña dice qué se compara', async ({ page }) => {
+    await abrir(page, '?autos=byd-shark,maxus-t60');
+    await expect(page).toHaveTitle(/^(Shark|T60) vs (Shark|T60) · /);
+  });
+});
