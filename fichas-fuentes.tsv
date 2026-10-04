@@ -214,6 +214,11 @@ Poer 4WD	gwm-poer-luxury.pdf	https://gwm.com.ar/FT-Poer-Luxury.pdf	40c300d2d02fb
 # ⚠️ El campo "Origen" del catálogo de Autocosmos NO sirve: pone el país de la marca
 #   ("Hecho en Gran Bretaña" en todos los MG), no el de la planta.
 
+# --- 2026-10-04: Lynk & Co 900. La ficha AR existe aunque lynkcoar.com.ar no la enlaza en el
+#   menú (página oculta /modelos/lynk-co-900.html). Está armada sobre la plantilla del 01:
+#   rótulos de medidas corridos y el consumo (0,9) igual al del 01, por eso va sin dato.
+Lynk & Co 900	lynk-co-900.pdf	https://www.lynkcoar.com.ar/fichas/ficha-lynk-co-900.pdf	cb38db1b2bb77d87763cfc31ebf6f613e5265c24bb39eec42143f1d3c9d01cb7	2026-10-04
+
 # Stelato S9: SIN ficha argentina. BAIC lo exhibió en la Expo Auto Chino 2026 sin
 # fecha de venta; la columna sale del mercado chino (versión eléctrica AWD) y va
 # toda marcada EXT.
