@@ -11,6 +11,7 @@ const indice = nombre => CARS.findIndex(c => c.name === nombre);
 const columnas = page => page.locator('#theadTable thead th:not(.feat-col):not(.col-hidden)');
 const idxVisibles = page => columnas(page).evaluateAll(ths => ths.map(th => +th.dataset.idx));
 const filaPrecio = page => page.locator('#mainTable tbody tr[data-search^="precio de lista"]');
+const filasDe = nombre => leerIndex().filas.find(f => f[0] === nombre);
 
 let errores;
 test.beforeEach(async ({ page }) => {
@@ -306,5 +307,59 @@ test.describe('selector y comparación', () => {
   test('el título de la pestaña dice qué se compara', async ({ page }) => {
     await abrir(page, '?autos=byd-shark,maxus-t60');
     await expect(page).toHaveTitle(/^(Shark|T60) vs (Shark|T60) · /);
+  });
+});
+
+test.describe('grupos automotrices', () => {
+  test('la vista de grupos muestra quién está detrás de cada marca', async ({ page }) => {
+    await abrir(page);
+    await page.click('#gruposBtn');
+    const changan = page.locator('#gruposHoja .grupo[data-grupo="Changan"]');
+    await expect(changan.locator('.grupo-marca-cab b')).toHaveText(['Changan', 'Deepal']);
+    await expect(changan.locator('.grupo-marca', { hasText: 'Deepal' }).locator('.grupo-rel')).toHaveText('submarca');
+    // Cada marca de la tabla está en algún grupo, una sola vez.
+    const marcas = await page.locator('#gruposHoja .grupo-marca-cab b').allTextContents();
+    expect(new Set(marcas).size).toBe(marcas.length);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#gruposVista')).toBeHidden();
+  });
+
+  test('GWM: en Argentina los 8 se venden como GWM; las submarcas quedan en el grupo', async ({ page }) => {
+    const gwm = CARS.filter(c => c.brand === 'GWM').map(c => c.name);
+    expect(gwm).toHaveLength(8);
+    expect(CARS.some(c => /^GWM \(|^Haval$/.test(c.brand))).toBe(false);
+    await abrir(page);
+    await page.click('#gruposBtn');
+    await expect(page.locator('#gruposHoja .grupo[data-grupo="Great Wall Motor (GWM)"] .grupo-marca-cab b')).toHaveCount(4);
+  });
+
+  test('"Comparar sus autos" de un grupo deja solo sus autos en la tabla', async ({ page }) => {
+    await abrir(page);
+    await page.click('#gruposBtn');
+    await page.locator('#gruposHoja .grupo[data-grupo="Changan"] [data-comparar-grupo]').click();
+    const vis = (await idxVisibles(page)).map(i => CARS[i].name).sort();
+    expect(vis).toEqual(['Changan CS55 Plus', 'Deepal S05']);
+  });
+
+  test('filtro por grupo en el selector', async ({ page }) => {
+    await abrir(page);
+    await page.click('#openModalBtn');
+    await page.click('#advancedToggleBtn');
+    await page.click('#grupoNoneBtn');
+    await page.locator('#grupoRow input[data-val="Chery"]').check();
+    const esperado = await page.evaluate(() => CARS.filter((_, i) => grupoDe(i) === 'Chery').length);
+    expect(esperado).toBeGreaterThan(8);
+    await expect(page.locator('#compareCount')).toHaveText(String(esperado));
+  });
+
+  test('cada auto tiene grupo e importador en la tabla, y la página del auto los muestra', async ({ page }) => {
+    const fg = filasDe('Grupo automotriz'), fi = filasDe('Importador en Argentina');
+    expect(fg.slice(1).every(v => !/PENDIENTE/.test(v))).toBe(true);
+    expect(fi.slice(1).every(v => !/PENDIENTE/.test(v))).toBe(true);
+    await abrir(page, '?auto=deepal-s05');
+    await expect(page.locator('.ficha-marca')).toContainText('grupo Changan');
+    // Una marca nueva sin entrada en MARCAS_INFO quedaría como "Sin dato": que falle acá.
+    const sinGrupo = await page.evaluate(() => CARS.filter((_, i) => grupoDe(i) === 'Sin dato').map(c => c.name));
+    expect(sinGrupo).toEqual([]);
   });
 });

@@ -35,7 +35,7 @@ Con `N = CARS.length`:
 2. **`<th>`** en el `<thead>`, en el mismo índice — con su silueta de carrocería y su
    ícono de propulsión.
 3. **`<col class="col-data">`** en los **DOS** `<colgroup>` (`#theadTable` y `#mainTable`).
-4. **Cada una de las 96 filas de `DATA`**, en la posición correcta.
+4. **Cada una de las 98 filas de `DATA`**, en la posición correcta.
 5. **`colspan="N+1"`** de las filas de categoría — está hardcodeado.
 
 Además hay 3 conteos en texto: `#headerSubtitle`, `#summaryText` y el comentario arriba
@@ -80,7 +80,7 @@ se coló dos veces.
 **Trampas al medir:** `grep '<th'` también matchea `<thead>`; `grep 'col-data'` también
 cuenta las 2 definiciones del `<style>`.
 
-**Verificación cruzada:** renderizar de verdad y contar 96 filas en 14 categorías, con
+**Verificación cruzada:** renderizar de verdad y contar 98 filas en 14 categorías, con
 cero errores de consola. Con el script roto la tabla queda en **0 filas** y el archivo
 igual "parece" bien.
 
@@ -213,6 +213,21 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   valor visible: `PCTL_VETO` la deja fuera del ranking (BJ30, GAC S7, Jetour G700).
 - **Garantía general / de la batería / Fabricado en** (fila de Precio). "Marca china" no
   alcanza para poner "China": hay modelos armados en Brasil o Uruguay.
+
+## Grupos, página de cada auto y vista previa (2026-10-04)
+
+- **Grupo automotriz**: `MARCAS_INFO` (en el script) dice, por marca, el grupo, la
+  relación (marca propia, submarca, adquirida, joint venture, participación,
+  independiente), el detalle, el **importador en Argentina** y las fuentes. De ahí salen
+  el filtro "Grupo" del selector, la vista 🏭 Grupos y las filas "Grupo automotriz" e
+  "Importador en Argentina". **Una marca nueva necesita su entrada** (con fuente): sin
+  ella el test de `ux.spec.js` falla.
+- **GWM**: en Argentina Haval, Ora, Tank y Poer se venden como GWM ("One GWM"), así que su
+  `brand` es `"GWM"`; la submarca sale del nombre del auto (`submarcaDe`). Kaiyi NO es
+  del grupo Chery (la controla Yibin; Chery tiene una parte minoritaria).
+- **Página de cada auto** (`?auto=slug`): lee `fichas-fuentes.tsv` del propio sitio para
+  los links a fuentes oficiales. **No renombrar ni mover ese archivo** (lo sirve Vercel).
+- `og.jpg` (vista previa al compartir) se genera con fotos oficiales sin créditos de Commons.
 
 ## Editar `DATA`
 
