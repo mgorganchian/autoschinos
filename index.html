@@ -830,6 +830,20 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .rk-pesos select,.rk-gasto input{font-size:.74rem;padding:3px 5px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);max-width:110px}
   .rk-gasto input{width:100px}
 
+  /* ============ Mayores diferencias ======================================== */
+  .dif{display:flex;flex-wrap:wrap;gap:8px 24px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);font-size:.74rem;color:var(--ink)}
+  .dif[hidden]{display:none}      /* el display:flex de arriba le ganaba al atributo hidden */
+  .dif-gana{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .dif-gana small,.dif small{color:var(--ink-3);font-size:.66rem}
+  .dif-chip{background:var(--chip-bg);border-radius:12px;padding:2px 9px}
+  .dif-lista ul{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .dif-fila{color:var(--ink-2)}
+  .dif-mejor{font-weight:700;color:var(--yes)}
+  .dif-margen{font-weight:700;font-variant-numeric:tabular-nums;background:var(--note-bg);color:var(--note-text);border-radius:4px;padding:0 4px}
+  .dif-vacio{margin:0;color:var(--ink-2)}
+  .mejor-sel{color:#d4a000;font-size:.68rem;margin-left:3px}
+  @media print{ .dif{display:none !important} }
+
   /* ============ Barra resumen: compartir y referencia ===================== */
   .summary-txt{min-width:0}
   .summary-acciones{display:flex;gap:6px;flex-shrink:0}
@@ -997,6 +1011,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <span><span class="dot" style="background:var(--note-bg);border:1px solid var(--note-text)"></span> Aclaración / no comparable 1 a 1</span>
   <span><span class="pct" style="margin-left:0"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> Cómo queda contra los demás autos en esa fila (4 = mejor 20%). Solo en las filas donde "mejor" tiene una dirección clara.</span>
 </div>
+
+<section class="dif" id="difBox" aria-label="Mayores diferencias" hidden></section>
 
 <!-- ============ MODAL: acá vive TODO el selector, tapa la pantalla y no ocupa nada cuando está cerrado ============ -->
 <div class="modal-overlay" id="modalOverlay" style="display:none;">
@@ -1977,6 +1993,7 @@ function aplicarSeleccion(){
   applyFilters();
   if (!document.getElementById('rankingView').hidden) renderRanking();
   actualizarResumen();
+  renderDiferencias();
   urlGuardar();
 }
 function actualizarResumen(){
@@ -3019,7 +3036,7 @@ function mostrarVista(v){
   document.getElementById('vistaRanking').setAttribute('aria-selected', String(rk));
   for (const el of [theadWrap, tbodyWrap, document.querySelector('header .controls'),
                     document.getElementById('catScroll'), document.querySelector('.diff-toggle'),
-                    document.getElementById('herrTabla')])
+                    document.getElementById('herrTabla'), document.getElementById('difBox')])
     el.style.display = rk ? 'none' : '';
   document.getElementById('rkScroll').style.display = rk ? '' : 'none';
   document.getElementById('rankingView').hidden = !rk;
@@ -3027,6 +3044,7 @@ function mostrarVista(v){
     document.getElementById('noResults').style.display = 'none';
     renderRanking();
   } else {
+    renderDiferencias();
     applyFilters();                                   // repone el aviso de "sin resultados"
     tbodyWrap.scrollLeft = rkScrollTabla;
     theadWrap.scrollLeft = tbodyWrap.scrollLeft;      // el header vuelve alineado con el cuerpo
@@ -3178,6 +3196,52 @@ function marcarReferencia(){
   });
 }
 
+// ============ Mayores diferencias y quién gana ==============================
+// Con 2 a 6 autos en la tabla: las filas donde más se separan (con el margen) y
+// cuántas gana cada uno. Solo filas de PCTL_DIR y con valorComparable(), igual que
+// la referencia: autonomía y consumo por su estimado WLTP, sin enchufables en consumo
+// ni combinadas entre ciclos. Para contar victorias, solo filas con cifra en TODOS
+// los autos: si no, gana el que más datos publica, no el mejor auto.
+function renderDiferencias(){
+  const box = document.getElementById('difBox');
+  document.querySelectorAll('#mainTable .mejor-sel').forEach(s => s.remove());
+  const vis = CARS.map((_, i) => i).filter(i => colVisible[i]);
+  if (vis.length < 2 || vis.length > 6){ box.hidden = true; box.innerHTML = ''; return; }
+  const filas = [], gana = new Map(vis.map(i => [i, 0]));
+  RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
+    const vals = vis.map(i => ({ i, n: valorComparable(i, nombre), r: rkValor(i, nombre) }));
+    if (vals.some(x => x.n == null)) return;
+    const dir = PCTL_DIR[nombre];
+    const orden = [...vals].sort((a, b) => (b.n - a.n) * dir);
+    const mejor = orden[0].n, peor = orden[orden.length - 1].n;
+    if (mejor === peor) return;
+    vals.filter(x => x.n === mejor).forEach(x => {
+      gana.set(x.i, gana.get(x.i) + 1);
+      const td = document.querySelector('#mainTable tr[data-search="' + CSS.escape(nombre.toLowerCase()) + '"] td[data-col="' + x.i + '"]');
+      if (td) td.insertAdjacentHTML('beforeend', '<span class="mejor-sel" title="El mejor de los elegidos en esta fila" aria-label="el mejor de los elegidos">★</span>');
+    });
+    const a = Math.max(mejor, peor), b = Math.min(mejor, peor);
+    filas.push({ nombre, orden, rel: b > 0 ? a / b - 1 : Infinity, est: vals.some(x => x.r.est) });
+  });
+  const nComp = filas.length;
+  if (!nComp){ box.hidden = false; box.innerHTML = '<p class="dif-vacio">Estos autos no tienen ninguna fila comparable con cifra en todos (ver la tabla).</p>'; return; }
+  const nom = i => rkEsc(CARS[i].short);
+  const fmt = (n, nombre) => rkNumero(n, nombre) + (rkUnidad(nombre) ? ' ' + rkEsc(rkUnidad(nombre)) : '');
+  const margen = rel => rel === Infinity ? '' : rel >= 1 ? '×' + (rel + 1).toLocaleString('es-AR', { maximumFractionDigits: 1 }) : '+' + Math.round(rel * 100) + '%';
+  const top = filas.filter(f => f.rel >= 0.05).sort((x, y) => y.rel - x.rel).slice(0, 5);
+  const ranking = [...gana.entries()].sort((x, y) => y[1] - x[1]);
+  box.hidden = false;
+  box.innerHTML = '<div class="dif-gana"><b>Gana en más filas</b> ' +
+    ranking.map(([i, n]) => '<span class="dif-chip">' + nom(i) + ' <b>' + n + '</b></span>').join('') +
+    '<small>de ' + nComp + ' fila' + (nComp === 1 ? '' : 's') + ' con cifra en los ' + vis.length + ' autos (★ en la tabla)</small></div>' +
+    (top.length ? '<div class="dif-lista"><b>Mayores diferencias</b><ul>' + top.map(f => {
+      const m = f.orden[0], p = f.orden[f.orden.length - 1];
+      return '<li><span class="dif-fila">' + rkEsc(rkTitulo(f.nombre)) + '</span> ' +
+        '<span class="dif-mejor">' + nom(m.i) + ' ' + fmt(m.n, f.nombre) + '</span> vs ' + nom(p.i) + ' ' + fmt(p.n, f.nombre) +
+        ' <span class="dif-margen">' + margen(f.rel) + '</span>' + (f.est ? ' <small>(estimado WLTP)</small>' : '') + '</li>';
+    }).join('') + '</ul></div>' : '');
+}
+
 function fijarReferencia(i){
   refIdx = (refIdx === i) ? null : i;
   ordenarColumnas(); marcarReferencia(); actualizarResumen(); urlGuardar();
@@ -3289,6 +3353,7 @@ temaPintarBoton();
 ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();
 actualizarResumen();
+renderDiferencias();
 
 // Tooltip propio: instantáneo, sin el delay nativo del navegador. Funciona con mouse y con tap en mobile.
 const tooltipBox = document.getElementById('tooltipBox');

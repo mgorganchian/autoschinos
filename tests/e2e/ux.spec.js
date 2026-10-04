@@ -219,3 +219,30 @@ test.describe('impresión', () => {
     await expect(page.locator('#theadImpresion')).toHaveCount(0);
   });
 });
+
+test.describe('mayores diferencias', () => {
+  test('con 2 a 6 autos: quién gana y dónde más se separan; ★ en la tabla', async ({ page }) => {
+    await abrir(page, '?autos=byd-shark,maxus-t60,jac-t8');
+    const box = page.locator('#difBox');
+    await expect(box).toBeVisible();
+    const chips = await box.locator('.dif-chip b').allTextContents();
+    expect(chips).toHaveLength(3);
+    const filasConCifra = Number((await box.locator('.dif-gana small').textContent()).match(/de (\d+) fila/)[1]);
+    // Cada fila comparable tiene al menos un ganador (los empates comparten).
+    const victorias = chips.map(Number).reduce((a, b) => a + b, 0);
+    expect(victorias).toBeGreaterThanOrEqual(filasConCifra);
+    await expect(page.locator('#mainTable .mejor-sel')).toHaveCount(victorias);
+  });
+
+  test('con todos los autos o con más de 6 no aparece', async ({ page }) => {
+    await abrir(page);
+    await expect(page.locator('#difBox')).toBeHidden();
+    await expect(page.locator('#mainTable .mejor-sel')).toHaveCount(0);
+  });
+
+  test('solo cuenta filas con cifra en todos: un auto sin dato no pierde por no publicarlo', async ({ page }) => {
+    await abrir(page, '?autos=byd-shark,foton-tunland-v7');   // la V7 no tiene precio en USD
+    const precio = page.locator('#mainTable tr[data-search^="precio de lista"] .mejor-sel');
+    await expect(precio).toHaveCount(0);
+  });
+});
