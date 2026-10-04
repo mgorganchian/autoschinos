@@ -35,7 +35,7 @@ Con `N = CARS.length`:
 2. **`<th>`** en el `<thead>`, en el mismo índice — con su silueta de carrocería y su
    ícono de propulsión.
 3. **`<col class="col-data">`** en los **DOS** `<colgroup>` (`#theadTable` y `#mainTable`).
-4. **Cada una de las 92 filas de `DATA`**, en la posición correcta.
+4. **Cada una de las 96 filas de `DATA`**, en la posición correcta.
 5. **`colspan="N+1"`** de las filas de categoría — está hardcodeado.
 
 Además hay 3 conteos en texto: `#headerSubtitle`, `#summaryText` y el comentario arriba
@@ -80,7 +80,7 @@ se coló dos veces.
 **Trampas al medir:** `grep '<th'` también matchea `<thead>`; `grep 'col-data'` también
 cuenta las 2 definiciones del `<style>`.
 
-**Verificación cruzada:** renderizar de verdad y contar 92 filas en 14 categorías, con
+**Verificación cruzada:** renderizar de verdad y contar 96 filas en 14 categorías, con
 cero errores de consola. Con el script roto la tabla queda en **0 filas** y el archivo
 igual "parece" bien.
 
@@ -128,7 +128,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **La barra resumen NO es sticky** — decisión explícita del usuario.
 - **El header grande se oculta** tras el primer "Comparar" (`hasComparedOnce`).
 - **Dropdown de Marca/Modelo en `position:static`**, no `absolute` (quedaba recortado).
-- El **indicador de percentiles** (4 cuadraditos verdes) va **solo en las 14 filas
+- El **indicador de percentiles** (4 cuadraditos verdes) va **solo en las 15 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
   propósito**: poner el indicador ahí afirmaría que un auto más largo es mejor, y
@@ -140,7 +140,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   filas en kW y una en **km/l** dentro de la fila en L/100km. Los empates se reparten
   con **rango medio**, sin eso los 37 autos de 5 asientos caían a 0 por un solo auto
   de 4.
-- La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 14
+- La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 15
   filas de `PCTL_DIR`**, y lee los números con el **mismo `pctlValor()`** que los
   cuadraditos: no tiene parser propio, así que hereda los vetos. Lo que no se puede
   rankear va al final en **tres grupos distintos que no hay que fusionar**: "Sin dato"
@@ -195,6 +195,24 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   `b-offroad` pero su campo `body` **sigue siendo `"SUV"`**: cambia el dibujo, no el filtro.
 
 ---
+
+## Ciclos, potencia total y garantía (2026-10-04)
+
+- **Cada cifra de autonomía y consumo dice su ciclo** en el valor visible, entre
+  paréntesis y justo después del número, tal como lo dice su fuente: `(NEDC)` `(WLTP)`
+  `(WLTC)` `(CLTC)` `(EPA)` `(etiqueta AR)` o `(ciclo no informado)`. El código los lee
+  así (`CICLO_RE`). **Nunca deducir el ciclo** por el país, la marca o el título de la
+  fila. La etiqueta argentina (IRAM/AITA 10274-2) es NEDC (Res. 85/2018).
+- El ranking ordena autonomía eléctrica y consumo por un **estimado WLTP** (`WLTP_AUT`,
+  `WLTP_CONS`, fuentes en `WLTP_TEXTO`), pero muestra grande la cifra de la ficha. La
+  tabla nunca muestra estimados. La **autonomía combinada no se estima**: no hay factor
+  defendible; se rankea por ciclo. Decisión del usuario: no cambiar sin preguntarle.
+- **Potencia total del sistema (kW)**: naftero = motor; eléctrico = motor(es); híbrido =
+  la combinada que declara la fuente. **Nunca sumar motores a mano**. Si la "combinada"
+  declarada es la suma exacta de los motores, se carga con `, suma de los motores` en el
+  valor visible: `PCTL_VETO` la deja fuera del ranking (BJ30, GAC S7, Jetour G700).
+- **Garantía general / de la batería / Fabricado en** (fila de Precio). "Marca china" no
+  alcanza para poner "China": hay modelos armados en Brasil o Uruguay.
 
 ## Editar `DATA`
 
