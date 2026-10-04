@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Comparativo de autos chinos en Argentina</title>
+<meta name="color-scheme" content="light dark">
+<script>/* Tema elegido a mano (si lo hay), antes de pintar: sin esto, quien eligió oscuro ve un destello blanco. */
+try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
   :root{
     --byd-blue:#0b3d91;
@@ -23,6 +26,28 @@
        el ancho de la tabla, que se calcula con la cantidad de autos visibles. */
     --ancho-feat:104px;
     --ancho-col:92px;
+    /* Superficies y tintas: todo color de la página sale de acá, para que el modo
+       oscuro sea cambiar estos valores y nada más. */
+    --surface:#fff;
+    --surface-alt:#fbfbfc;
+    --surface-hover:#f0f2f6;
+    --chip-bg:#eef1f6;
+    --ink-2:#5b6170;
+    --ink-3:#6b7280;
+    --border-strong:#ccc;
+    --link:var(--byd-blue);
+    --accent-ink:var(--byd-blue-dark);
+    --bar:var(--byd-blue);
+    --pct-off:#dbe0e6;
+    --pct-on:#1f9d55;
+    --yes-bg:#e6f2ec;
+    --dot-off:#c8cfdc;
+    --dot-on:#0b1f47;
+    --tooltip-bg:#1a1d24;
+    --ref-bg:#fff8db;
+    --mejor:#0f7a4a;
+    --peor:#c23b3b;
+    color-scheme:light;
   }
   *{box-sizing:border-box;}
   body{
@@ -85,9 +110,9 @@
   .cat-scroll::-webkit-scrollbar{display:none;}
   .legend{
     font-size:.68rem;
-    color:#444;
+    color:var(--ink-2);
     padding:8px 16px;
-    background:#fff;
+    background:var(--surface);
     border-bottom:1px solid var(--line);
     display:flex;
     gap:14px;
@@ -108,7 +133,7 @@
      sin taparse entre si. Van inline: el texto sigue usando el ancho completo. */
   .feat-icon{width:15px;height:15px;vertical-align:-3px;margin-right:4px;
     stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;
-    stroke-linejoin:round;color:#69727f}
+    stroke-linejoin:round;color:var(--ink-3)}
   .prop-sprite{position:absolute;width:0;height:0;overflow:hidden}
   /* Ícono de propulsión en el subtítulo: gota = combustible, rayo = eléctrico,
      enchufe = se enchufa. Altura fija y ancho automático, para que los cuatro
@@ -116,7 +141,7 @@
   .prop-icon{height:11px;width:auto;vertical-align:-1.5px;margin-right:3px;
     fill:currentColor;opacity:.9}
   .legend-icons{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;
-    padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid rgba(0,0,0,.12)}
+    padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid var(--line)}
   .legend-icons b{font-weight:700}
   .legend-icons span{display:flex;align-items:center;gap:6px}
   .legend-icons .prop-icon{opacity:1;margin-right:0;flex:none}
@@ -137,7 +162,7 @@
   @media (orientation:landscape) and (max-height:500px){ .car-photo{display:none} }
   /* Panel de la foto ampliada. position:fixed a propósito: el encabezado es sticky
      y vive dentro de un contenedor con scroll horizontal, que lo recortaría. */
-  #fotoZoom{position:fixed;z-index:60;background:#fff;border-radius:10px;padding:8px;
+  #fotoZoom{position:fixed;z-index:60;background:var(--surface);border-radius:10px;padding:8px;
     box-shadow:0 12px 40px rgba(0,0,0,.5);display:none}
   #fotoZoom .marco{position:relative;line-height:0}
   #fotoZoom img{display:block;width:100%;height:auto;border-radius:6px;background:#fff}
@@ -149,11 +174,11 @@
   #fotoZoom.multi .nav{display:block}
   #fotoZoom .puntos{display:none;justify-content:center;gap:5px;margin-top:6px}
   #fotoZoom.multi .puntos{display:flex}
-  #fotoZoom .puntos i{width:6px;height:6px;border-radius:50%;background:#c8cfdc;cursor:pointer}
-  #fotoZoom .puntos i.on{background:#0b1f47}
+  #fotoZoom .puntos i{width:6px;height:6px;border-radius:50%;background:var(--dot-off);cursor:pointer}
+  #fotoZoom .puntos i.on{background:var(--dot-on)}
   /* Mientras baja la foto grande, se ve la miniatura ya cargada en vez de un hueco. */
   #fotoZoom img.cargando{opacity:.55;filter:blur(1px)}
-  #fotoZoom .credito{display:block;font-size:.58rem;color:#666;margin-top:4px;
+  #fotoZoom .credito{display:block;font-size:.58rem;color:var(--ink-2);margin-top:4px;
     line-height:1.3;text-align:left}
   .car-icon{display:block;width:calc(var(--w,38) * 1px);height:auto;margin:0 auto 2px;
     fill:currentColor;opacity:.5}
@@ -177,7 +202,7 @@
     table-layout:fixed;
     width:100%;
     min-width:820px;
-    background:white;
+    background:var(--surface);
   }
   thead th{
     /* Arriba, no al medio: las celdas de tabla centran en vertical, así que un
@@ -227,7 +252,7 @@
     text-align:left;
     position:sticky;
     left:0;
-    background:white;
+    background:var(--surface);
     font-size:.68rem;
     line-height:1.2;
     padding-left:8px;
@@ -239,7 +264,7 @@
     word-break:break-word;
   }
   tbody tr:nth-child(even) td.feat, tbody tr:nth-child(even) td{
-    background:#fbfbfc;
+    background:var(--surface-alt);
   }
 
   /* ---- Modo retrato en celulares angostos: fuerza EXACTAMENTE 3 columnas visibles
@@ -318,24 +343,24 @@
   footer{
     padding:16px;
     font-size:.68rem;
-    color:#666;
-    background:#fff;
+    color:var(--ink-2);
+    background:var(--surface);
     border-top:1px solid var(--line);
     line-height:1.5;
   }
   .feat-label{
-    border-bottom:1px dotted #8a8f99;
+    border-bottom:1px dotted var(--nd);
     cursor:help;
   }
   .feat-label:hover{
-    border-bottom-color:var(--byd-blue);
-    color:var(--byd-blue-dark);
+    border-bottom-color:var(--link);
+    color:var(--accent-ink);
   }
   /* Tooltip propio: aparece casi instantáneo, sin el delay nativo del navegador */
   #tooltipBox{
     position:fixed;
     z-index:9999;
-    background:#1a1d24;
+    background:var(--tooltip-bg);
     color:#fff;
     padding:8px 11px;
     border-radius:8px;
@@ -355,7 +380,7 @@
   .no-results{
     padding:30px;
     text-align:center;
-    color:#888;
+    color:var(--ink-3);
     font-size:.85rem;
   }
   .col-toggles{
@@ -455,11 +480,11 @@
   /* El .mini-btn base es blanco (pensado para fondo oscuro) y el cuerpo del
      modal es blanco, así que acá va en azul, igual que en .dropdown-actions. */
   .filter-step-title .facet-actions .mini-btn{
-    color:var(--byd-blue);
+    color:var(--link);
     text-decoration:underline;
     font-weight:600;
   }
-  .filter-step-title .facet-actions .mini-btn:hover{color:var(--byd-blue-dark);}
+  .filter-step-title .facet-actions .mini-btn:hover{color:var(--accent-ink);}
   .filter-step-title .hint{
     font-weight:400;
     font-size:.68rem;
@@ -507,8 +532,8 @@
   }
   .dropdown-panel{
     position:static;
-    background:#fff;
-    border:1px solid #ddd;
+    background:var(--surface);
+    border:1px solid var(--border-strong);
     border-top:none;
     border-radius:0 0 10px 10px;
     box-shadow:0 4px 10px rgba(0,0,0,.08);
@@ -523,8 +548,8 @@
     border-bottom:1px solid var(--line);
     flex-shrink:0;
   }
-  .dropdown-actions .mini-btn{color:var(--byd-blue);text-decoration:underline;}
-  .dropdown-actions .mini-btn:hover{color:var(--byd-blue-dark);}
+  .dropdown-actions .mini-btn{color:var(--link);text-decoration:underline;}
+  .dropdown-actions .mini-btn:hover{color:var(--accent-ink);}
   .dropdown-list{
     max-height:52vh;
     overflow-y:auto;
@@ -541,7 +566,7 @@
     border-radius:6px;
     cursor:pointer;
   }
-  .dropdown-list label:hover{background:#f0f2f6;}
+  .dropdown-list label:hover{background:var(--surface-hover);}
   .dropdown-list input{width:18px;height:18px;cursor:pointer;flex-shrink:0;}
 
   .advanced-toggle{
@@ -620,7 +645,7 @@
     justify-content:center;
   }
   .modal-sheet{
-    background:#fff;
+    background:var(--surface);
     width:100%;
     max-width:680px;
     max-height:94vh;
@@ -666,37 +691,37 @@
     padding:12px 16px;
     border-top:1px solid var(--line);
     flex-shrink:0;
-    background:#fff;
+    background:var(--surface);
   }
   /* Dentro del modal el fondo es claro, así que los filter-step-title y dropdown-btn
      necesitan una variante oscura sobre fondo blanco en vez de blanca sobre azul */
   .modal-body .filter-step-title{color:var(--ink);}
-  .modal-body .filter-step-title .hint{color:#666;}
+  .modal-body .filter-step-title .hint{color:var(--ink-2);}
   .modal-body .dropdown-btn{
-    background:#fff;
+    background:var(--surface);
     color:var(--ink);
-    border:1px solid #ccc;
+    border:1px solid var(--border-strong);
   }
-  .modal-body .dropdown-btn:hover{background:#f2f4f8;}
+  .modal-body .dropdown-btn:hover{background:var(--surface-hover);}
   .modal-body .car-chip{
-    background:#fff;
+    background:var(--surface);
     color:var(--ink);
-    border:1px solid #ccc;
+    border:1px solid var(--border-strong);
   }
-  .modal-body .car-chip.off{background:#f2f2f2;}
+  .modal-body .car-chip.off{background:var(--surface-hover);}
   .modal-body .advanced-toggle{
-    background:#eef1f6;
+    background:var(--chip-bg);
     color:var(--ink);
-    border:1px dashed #bbb;
+    border:1px dashed var(--border-strong);
   }
-  .modal-body .advanced-toggle:hover{background:#e2e6ee;}
+  .modal-body .advanced-toggle:hover{background:var(--surface-hover);}
   body.modal-open{overflow:hidden;}
   /* Indicador de percentiles: cuatro cuadraditos que ubican al auto contra
      los demás EN ESA MISMA FILA. Solo aparece en las filas donde "mejor"
      tiene una dirección objetiva — ver PCTL_DIR en el script. */
   .pct{display:inline-flex;gap:1px;vertical-align:middle;margin-left:5px;flex-shrink:0}
-  .pct i{width:4px;height:9px;border-radius:1px;background:#dbe0e6}
-  .pct i.on{background:#1f9d55}
+  .pct i{width:4px;height:9px;border-radius:1px;background:var(--pct-off)}
+  .pct i.on{background:var(--pct-on)}
   /* ============ Vista Ranking ============================================
      Ordena a los autos del mejor al peor en cada una de las 14 filas de
      PCTL_DIR. Usa la misma paleta y los mismos chips que la tabla. */
@@ -706,27 +731,27 @@
   .vista-toggle button:focus-visible,.rk-chip:focus-visible{outline:2px solid #fff;outline-offset:-2px}
   .ranking{max-width:760px;margin:0 auto;padding:14px 12px 28px}
   .rk-head h2{font-size:1rem;margin:0 0 3px;color:var(--ink);text-wrap:balance}
-  .rk-head p{margin:0 0 12px;font-size:.74rem;color:#5b6170;line-height:1.4}
+  .rk-head p{margin:0 0 12px;font-size:.74rem;color:var(--ink-2);line-height:1.4}
   .rk-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
   .rk-item{display:grid;grid-template-columns:2.2rem 64px minmax(0,1fr) auto;align-items:center;gap:10px;
-    background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 6px}
-  .rk-pos{font-weight:700;font-size:.95rem;text-align:center;color:var(--byd-blue-dark);font-variant-numeric:tabular-nums}
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 6px}
+  .rk-pos{font-weight:700;font-size:.95rem;text-align:center;color:var(--accent-ink);font-variant-numeric:tabular-nums}
   .rk-foto{width:64px;height:40px;object-fit:contain;background:#fff;border-radius:6px;display:block}
   .rk-cuerpo{min-width:0}
   .rk-nombre{font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:4px;min-width:0}
   .rk-nombre span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rk-nombre .prop-icon{flex-shrink:0}
   .rk-barra{height:6px;background:var(--paper);border-radius:3px;margin-top:5px;overflow:hidden}
-  .rk-barra i{display:block;height:100%;background:var(--byd-blue);border-radius:3px}
-  .rk-orig{font-size:.66rem;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-barra i{display:block;height:100%;background:var(--bar);border-radius:3px}
+  .rk-orig{font-size:.66rem;color:var(--ink-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rk-valor{font-size:.9rem;font-weight:700;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .rk-valor small{font-weight:500;font-size:.7rem;color:#5b6170;margin-left:2px}
+  .rk-valor small{font-weight:500;font-size:.7rem;color:var(--ink-2);margin-left:2px}
   .rk-marca{cursor:help;margin-left:3px;font-size:.8rem}
-  .rk-vacio{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;font-size:.8rem;color:#5b6170}
+  .rk-vacio{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;font-size:.8rem;color:var(--ink-2)}
   .rk-resto h3{font-size:.78rem;margin:20px 0 4px;color:var(--ink);font-weight:600}
-  .rk-resto p{font-size:.7rem;color:#6b7280;margin:0 0 7px;line-height:1.4}
+  .rk-resto p{font-size:.7rem;color:var(--ink-3);margin:0 0 7px;line-height:1.4}
   .rk-resto ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-  .rk-resto li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:.72rem}
+  .rk-resto li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:.72rem}
   .rk-resto li[data-tip]{cursor:help}
   .rk-resto li > span{margin-left:6px}
   @media (max-width:480px){
@@ -736,28 +761,132 @@
   /* ============ Autos similares ==========================================
      El mismo bloque va en el selector (con un solo auto elegido) y en el panel
      que abre el botón "Similares" de cada auto de la tabla. */
-  .sim{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);position:relative}
+  .sim{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);position:relative}
   .sim-titulo{font-size:.78rem;font-weight:700;margin:0 22px 6px 0}
   .sim-crit{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
-  .sim-crit button{background:#fff;color:var(--ink);border:1px solid #c9ced8;border-radius:14px;padding:3px 10px;font-size:.7rem;cursor:pointer}
+  .sim-crit button{background:var(--surface);color:var(--ink);border:1px solid var(--border-strong);border-radius:14px;padding:3px 10px;font-size:.7rem;cursor:pointer}
   .sim-crit button[aria-pressed="true"]{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff}
   .sim-crit button:disabled{opacity:.45;cursor:not-allowed}
   .sim-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
   .sim-lista li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:9px;align-items:center}
   .sim-lista img{width:52px;height:33px;object-fit:contain;border-radius:5px;background:#fff;display:block}
   .sim-lista b{font-size:.76rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sim-lista small{font-size:.64rem;color:#5b6170;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-lista small{font-size:.64rem;color:var(--ink-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-sumar{background:var(--byd-blue);color:#fff;border:0;border-radius:7px;padding:5px 10px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap}
-  .sim-sumar:disabled{background:#e6f2ec;color:var(--yes);cursor:default}
-  .sim-todos{margin-top:9px;width:100%;background:#fff;color:var(--byd-blue);border:1px solid var(--byd-blue);border-radius:8px;padding:6px;font-size:.74rem;font-weight:600;cursor:pointer}
+  .sim-sumar:disabled{background:var(--yes-bg);color:var(--yes);cursor:default}
+  .sim-todos{margin-top:9px;width:100%;background:var(--surface);color:var(--link);border:1px solid var(--link);border-radius:8px;padding:6px;font-size:.74rem;font-weight:600;cursor:pointer}
   .sim-todos:disabled{opacity:.5;cursor:default}
-  .sim-vacio{font-size:.72rem;color:#5b6170;margin:4px 0 0}
-  .sim button:focus-visible{outline:2px solid var(--byd-blue);outline-offset:2px}
+  .sim-vacio{font-size:.72rem;color:var(--ink-2);margin:4px 0 0}
+  .sim button:focus-visible{outline:2px solid var(--link);outline-offset:2px}
   .sim-btn{display:block;margin:4px auto 0;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:1px 9px;font-size:.6rem;cursor:pointer}
   .sim-btn:hover{background:rgba(255,255,255,.24)}
   .sim-btn:focus-visible{outline:2px solid #fff;outline-offset:1px}
   #simPanel{position:fixed;z-index:70;left:50%;transform:translateX(-50%);bottom:14px;width:min(440px,calc(100vw - 24px));box-shadow:0 12px 40px rgba(0,0,0,.35)}
-  .sim-cerrar{position:absolute;top:5px;right:7px;background:none;border:0;font-size:.95rem;line-height:1;padding:4px;cursor:pointer;color:#5b6170}
+  .sim-cerrar{position:absolute;top:5px;right:7px;background:none;border:0;font-size:.95rem;line-height:1;padding:4px;cursor:pointer;color:var(--ink-2)}
+
+  /* ============ Barra resumen: compartir y referencia ===================== */
+  .summary-txt{min-width:0}
+  .summary-acciones{display:flex;gap:6px;flex-shrink:0}
+  .share-btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;
+    padding:6px 10px;font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap}
+  .share-btn:hover{background:rgba(255,255,255,.15)}
+  #refInfo .mini-btn{font-size:.68rem;padding:0 2px}
+
+  /* ============ Segunda fila de herramientas ============================== */
+  .toolbar-2{flex-wrap:wrap;justify-content:space-between}
+  .herr-tabla,.herr-gral{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .orden-sel{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;color:rgba(255,255,255,.85)}
+  .orden-sel select{font-size:.68rem;padding:3px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.4);
+    background:rgba(255,255,255,.14);color:#fff;max-width:46vw}
+  .orden-sel select option{color:var(--ink);background:var(--surface)}
+  .legend-toggle:focus-visible,.share-btn:focus-visible,.ref-btn:focus-visible,.orden-sel select:focus-visible{outline:2px solid #fff;outline-offset:1px}
+
+  /* ============ Presupuesto (en el selector) ============================== */
+  .precio-rango{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;font-size:.76rem;color:var(--ink)}
+  .precio-rango output{font-weight:700;font-variant-numeric:tabular-nums}
+  .precio-rango input[type=range]{width:100%;accent-color:var(--byd-blue)}
+  .precio-sd{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--ink-2);margin-top:6px;cursor:pointer}
+
+  /* ============ Categorías plegables ===================================== */
+  tr.cat-row td{cursor:pointer;user-select:none}
+  tr.cat-row td:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+  .cat-chev{display:inline-block;margin-right:6px;transition:transform .15s}
+  tr.cat-plegada .cat-chev{transform:rotate(-90deg)}
+  tr.plegada{display:none}
+  @media (prefers-reduced-motion:reduce){ .cat-chev{transition:none} }
+
+  /* ============ Auto de referencia ======================================= */
+  .th-acciones{display:flex;justify-content:center;align-items:center;gap:3px;margin-top:4px}
+  .th-acciones .sim-btn{margin:0}
+  .ref-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:10px;
+    padding:0 4px;font-size:.6rem;line-height:1.5;cursor:pointer;filter:grayscale(1);opacity:.75}
+  .ref-btn[aria-pressed="true"]{filter:none;opacity:1;background:#fff;border-color:#fff}
+  thead th.col-ref{background:#1d4fa8;box-shadow:inset 0 -3px 0 #ffd54a}
+  tbody td.col-ref{background:var(--ref-bg) !important}
+  .ref-cmp{font-size:.6rem;margin-left:3px;vertical-align:1px}
+  .ref-cmp.mejor{color:var(--mejor)}
+  .ref-cmp.peor{color:var(--peor)}
+
+  /* ============ Modo oscuro ==============================================
+     Solo cambian los valores de las variables. Las fotos conservan su fondo
+     blanco: vienen recortadas sobre un lienzo blanco fijo. */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --byd-blue-dark:#061a3d; --paper:#0e131b; --ink:#e6e9ef; --line:#2a3342;
+      --yes:#3fbf7f; --no:#f07171; --opt:#e0b341; --nd:#8f98a8;
+      --ext-bg:#3a2a0c; --ext-text:#f3c46b; --note-bg:#15284a; --note-text:#9cc0ff;
+      --surface:#161c26; --surface-alt:#19202b; --surface-hover:#222b39; --chip-bg:#1f2735;
+      --ink-2:#a9b1bf; --ink-3:#8f98a8; --border-strong:#3a4456;
+      --link:#8db4ff; --accent-ink:#b8d0ff; --bar:#5b8de0; --pct-off:#2f3848; --pct-on:#34c46e;
+      --yes-bg:#123524; --dot-off:#3a4456; --dot-on:#e6e9ef; --tooltip-bg:#2b3546;
+      --ref-bg:#2c2712; --mejor:#3fbf7f; --peor:#f07171;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --byd-blue-dark:#061a3d; --paper:#0e131b; --ink:#e6e9ef; --line:#2a3342;
+    --yes:#3fbf7f; --no:#f07171; --opt:#e0b341; --nd:#8f98a8;
+    --ext-bg:#3a2a0c; --ext-text:#f3c46b; --note-bg:#15284a; --note-text:#9cc0ff;
+    --surface:#161c26; --surface-alt:#19202b; --surface-hover:#222b39; --chip-bg:#1f2735;
+    --ink-2:#a9b1bf; --ink-3:#8f98a8; --border-strong:#3a4456;
+    --link:#8db4ff; --accent-ink:#b8d0ff; --bar:#5b8de0; --pct-off:#2f3848; --pct-on:#34c46e;
+    --yes-bg:#123524; --dot-off:#3a4456; --dot-on:#e6e9ef; --tooltip-bg:#2b3546;
+    --ref-bg:#2c2712; --mejor:#3fbf7f; --peor:#f07171;
+    color-scheme:dark;
+  }
+
+  /* ============ Impresión / PDF ==========================================
+     Imprime lo que se está viendo: los autos elegidos y las categorías abiertas,
+     siempre en claro. El encabezado de autos se repite en cada hoja (ver
+     beforeprint en el script). */
+  @media print{
+    :root:not(#_), :root:not(#_)[data-theme="dark"]{
+      --byd-blue-dark:#062559; --paper:#fff; --ink:#1a1d24; --line:#d5d9e0;
+      --yes:#0f7a4a; --no:#c23b3b; --opt:#b5860a; --nd:#8a8f99;
+      --ext-bg:#fff4e0; --ext-text:#8a5a00; --note-bg:#e6f0ff; --note-text:#1a4fa0;
+      --surface:#fff; --surface-alt:#fff; --ink-2:#5b6170; --ink-3:#6b7280;
+      --pct-off:#dbe0e6; --pct-on:#1f9d55; --ref-bg:#fff8db; --mejor:#0f7a4a; --peor:#c23b3b;
+      color-scheme:light;
+    }
+    @page{size:landscape;margin:9mm}
+    body{background:#fff}
+    header{background:none;color:#000;padding:0 0 6px}
+    header h1,#headerSubtitle{display:block !important;color:#000}
+    .summary-bar{background:none;border:0;color:#000;padding:0;margin-top:4px}
+    .controls,#catScroll,#rkScroll,.toolbar-row,.summary-acciones,#refQuitarBtn,.th-acciones,
+    #simPanel,#tooltipBox,#fotoZoom,.modal-overlay,.legend,.no-results{display:none !important}
+    #theadWrap{display:none}
+    .table-wrap{overflow:visible}
+    thead th{background:#fff !important;color:#000;border-bottom:1px solid #999;border-left:1px solid #ddd}
+    thead th.col-ref{box-shadow:inset 0 -3px 0 #d4a800}
+    tbody td.feat, tr.cat-row td{position:static}
+    tr.cat-row td{background:#e8ecf3 !important;color:#000}
+    .cat-chev{display:none}
+    tbody tr{break-inside:avoid}
+    .val-ext,.val-note,.pct i,tbody td.col-ref{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .car-photo{max-width:72px}
+    footer{font-size:.6rem}
+  }
 </style>
 </head>
 <body>
@@ -768,8 +897,11 @@
 
   <!-- Barra compacta: siempre visible, es la única forma de reabrir el selector -->
   <div class="summary-bar" id="summaryBar">
-    <span id="summaryText">108 autos · todos incluidos</span>
-    <button class="edit-btn" id="openModalBtn" type="button">🔧 Elegir autos</button>
+    <span class="summary-txt"><span id="summaryText">108 autos · todos incluidos</span><span id="refInfo" hidden> · 📌 Referencia: <b></b> <button class="mini-btn" id="refQuitarBtn" type="button">quitar</button></span></span>
+    <span class="summary-acciones">
+      <button class="share-btn" id="shareBtn" type="button" hidden>🔗 Compartir</button>
+      <button class="edit-btn" id="openModalBtn" type="button">🔧 Elegir autos</button>
+    </span>
   </div>
 
   <div class="controls">
@@ -787,6 +919,18 @@
       Solo Diferencias
     </label>
     <button class="legend-toggle" id="legendToggleBtn" type="button">❔ Referencias</button>
+  </div>
+  <div class="toolbar-row toolbar-2">
+    <span class="herr-tabla" id="herrTabla">
+      <label class="orden-sel"><span>Ordenar autos:</span>
+        <select id="ordenSel"><option value="">como vienen</option></select>
+      </label>
+      <button class="legend-toggle" id="plegarTodoBtn" type="button">⊟ Plegar todo</button>
+    </span>
+    <span class="herr-gral">
+      <button class="legend-toggle" id="imprimirBtn" type="button" title="Imprimir o guardar como PDF lo que estás viendo">🖨 Imprimir / PDF</button>
+      <button class="legend-toggle" id="temaBtn" type="button" aria-label="Cambiar entre modo claro y oscuro">🌙</button>
+    </span>
   </div>
 </header>
 
@@ -816,6 +960,17 @@
     </div>
 
     <div class="modal-body">
+      <div class="filter-step" id="precioStep">
+        <div class="filter-step-title">💵 Presupuesto <span class="hint" id="precioHint"></span><span class="facet-actions"><button class="mini-btn" id="precioResetBtn" type="button">Sin límite</button></span></div>
+        <div class="precio-rango">
+          <label for="precioMinIn">Desde <output id="precioMinOut" for="precioMinIn"></output></label>
+          <input type="range" id="precioMinIn" aria-label="Precio mínimo en dólares">
+          <label for="precioMaxIn">Hasta <output id="precioMaxOut" for="precioMaxIn"></output></label>
+          <input type="range" id="precioMaxIn" aria-label="Precio máximo en dólares">
+        </div>
+        <label class="precio-sd"><input type="checkbox" id="precioSinDato" checked> Incluir los <span id="precioSdN"></span> autos sin precio en dólares</label>
+      </div>
+
       <div class="filter-step">
         <div class="filter-step-title">1️⃣ Marca</div>
         <div class="dropdown" id="brandDropdown">
@@ -1469,6 +1624,45 @@ DATA.forEach((cat,ci)=>{
   });
 });
 
+// El <th> de cada auto, por su índice en CARS. Se toma una sola vez al cargar:
+// ordenar las columnas o fijar un auto de referencia mueve los <th> en el DOM,
+// así que buscarlos por posición ya no dice de qué auto es cada uno.
+const TH_AUTO = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
+TH_AUTO.forEach((th, i) => { th.dataset.idx = i; });
+const SLUG_AUTO = TH_AUTO.map(th => { const img = th.querySelector('img.car-photo'); return img ? img.dataset.slug : ''; });
+
+// Categorías plegables: tocar la fila de la categoría esconde sus filas. Es aparte
+// de 'hidden' (búsqueda, diferencias, chips), para que una categoría plegada siga
+// mostrando su título y se pueda volver a abrir.
+const plegadas = new Set();
+document.querySelectorAll('#mainTable tr.cat-row').forEach(catRow => {
+  const td = catRow.querySelector('td');
+  td.insertAdjacentHTML('afterbegin', '<span class="cat-chev" aria-hidden="true">▾</span>');
+  td.setAttribute('role', 'button');
+  td.tabIndex = 0;
+  td.setAttribute('aria-expanded', 'true');
+});
+function plegar(ci, pleg){
+  if (pleg) plegadas.add(ci); else plegadas.delete(ci);
+  const td = document.querySelector('#mainTable tr.cat-row[data-cat="' + ci + '"] td');
+  td.setAttribute('aria-expanded', String(!pleg));
+  td.closest('tr').classList.toggle('cat-plegada', pleg);
+}
+function actualizarBotonPlegar(){
+  const b = document.getElementById('plegarTodoBtn');
+  if (b) b.textContent = plegadas.size === DATA.length ? '⊞ Desplegar todo' : '⊟ Plegar todo';
+}
+tbody.addEventListener('click', e => {
+  const td = e.target.closest('tr.cat-row td');
+  if (!td) return;
+  const ci = td.closest('tr').dataset.cat;
+  plegar(ci, !plegadas.has(ci));
+  applyFilters(); actualizarBotonPlegar();
+});
+tbody.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.cat-row td')){ e.preventDefault(); e.target.click(); }
+});
+
 let activeCat = 'all';
 const allBtn = document.createElement('button');
 allBtn.className='cat-btn active';
@@ -1515,10 +1709,7 @@ function applyColumnVisibility(){
   // Una selección nueva arranca desde el primer auto.
   const cuerpo = document.getElementById('tbodyWrap'), header = document.getElementById('theadWrap');
   cuerpo.scrollLeft = 0; header.scrollLeft = 0;
-  document.querySelectorAll('#theadTable thead th').forEach((th,i)=>{
-    if(i===0) return; // feature column always visible
-    th.classList.toggle('col-hidden', !colVisible[i-1]);
-  });
+  TH_AUTO.forEach((th, i) => th.classList.toggle('col-hidden', !colVisible[i]));
   allRows.forEach(tr=>{
     tr.querySelectorAll('td[data-col]').forEach(td=>{
       const idx = parseInt(td.dataset.col,10);
@@ -1626,7 +1817,7 @@ function simResumen(i, base){
   return partes.join(' · ');
 }
 function simFoto(i){
-  const th = document.querySelectorAll('#theadTable thead th:not(.feat-col)')[i];
+  const th = TH_AUTO[i];
   const img = th && th.querySelector('img.car-photo');
   return img ? img.src : '';
 }
@@ -1682,6 +1873,13 @@ function simHabilitar(i){
   selectedProps.add(c.type);
   selectedSeats.add(seatOfCar[i]);
   selectedStatus.add(c.status);
+  // Y el presupuesto se estira hasta el auto, si quedaba afuera.
+  const p = SIM_PRECIO[i];
+  if (p == null) precioSinDato = true;
+  else {
+    if (p < precioMin) precioMin = Math.floor(p / PRECIO_PASO) * PRECIO_PASO;
+    if (p > precioMax) precioMax = Math.ceil(p / PRECIO_PASO) * PRECIO_PASO;
+  }
   CARS.forEach((_, k) => { if (k !== i && !antes[k] && matchesFacets(k)) modelChecked.set(k, false); });
   modelChecked.set(i, true);
 }
@@ -1694,17 +1892,33 @@ function simRefrescarSelector(){
   [['statusRow', selectedStatus], ['segmentRow', selectedSegments], ['bodyRow', selectedBodies],
    ['propRow', selectedProps], ['seatsRow', selectedSeats]].forEach(([id, set]) =>
     document.querySelectorAll('#' + id + ' input[type=checkbox]').forEach(cb => { cb.checked = set.has(cb.dataset.val); }));
+  precioSync();
   renderModelList();
 }
 const simElegidos = () => CARS.map((_, i) => i).filter(i => matchesFacets(i) && modelChecked.get(i));
 // Lleva la selección a la tabla, como el botón Comparar pero sin cerrar nada.
-function simAplicar(){
+function simAplicar(){ aplicarSeleccion(); }
+// Lo que hace "Comparar": lleva lo elegido en el selector a la tabla. Lo usan
+// también Similares y el link compartido, para que los tres dejen lo mismo.
+function aplicarSeleccion(){
   colVisible = CARS.map((_, i) => matchesFacets(i) && modelChecked.get(i));
+  if (refIdx !== null && !colVisible[refIdx]) refIdx = null;   // la referencia salió de la comparación
   applyColumnVisibility();
+  ordenarColumnas();
+  marcarReferencia();
   applyFilters();
   if (!document.getElementById('rankingView').hidden) renderRanking();
+  actualizarResumen();
+  urlGuardar();
+}
+function actualizarResumen(){
   const n = colVisible.filter(Boolean).length;
-  document.getElementById('summaryText').textContent = '🚗 Comparando ' + n + ' auto' + (n === 1 ? '' : 's');
+  const todos = n === CARS.length;
+  document.getElementById('summaryText').textContent = todos ? CARS.length + ' autos · todos incluidos' : '🚗 Comparando ' + n + ' auto' + (n === 1 ? '' : 's');
+  const ref = document.getElementById('refInfo');
+  ref.hidden = refIdx === null;
+  if (refIdx !== null) ref.querySelector('b').textContent = CARS[refIdx].short;
+  document.getElementById('shareBtn').hidden = todos && refIdx === null && !ordenActual;
 }
 
 // --- En el selector: con un solo auto elegido --------------------------------
@@ -1751,11 +1965,20 @@ function simPanel(){
 }
 function simCerrarPanel(){ simTablaBase = null; simPanel(); }
 
-document.querySelectorAll('#theadTable thead th:not(.feat-col)').forEach((th, i) => {
+TH_AUTO.forEach((th, i) => {
+  const acc = document.createElement('div');
+  acc.className = 'th-acciones';
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'sim-btn'; b.dataset.idx = i; b.textContent = 'Similares';
   b.setAttribute('aria-label', 'Autos similares a ' + CARS[i].name);
-  th.appendChild(b);
+  // Fijar como referencia: lo pone primero y marca en cada auto si es mejor o peor.
+  const r = document.createElement('button');
+  r.type = 'button'; r.className = 'ref-btn'; r.dataset.idx = i; r.textContent = '📌';
+  r.setAttribute('aria-pressed', 'false');
+  r.setAttribute('aria-label', 'Usar ' + CARS[i].name + ' como referencia');
+  r.title = 'Usar como referencia: queda primero y los demás muestran si son mejores o peores';
+  acc.append(b, r);
+  th.appendChild(acc);
 });
 document.addEventListener('click', e => {
   const b = e.target.closest ? e.target.closest('.sim-btn') : null;
@@ -1801,6 +2024,20 @@ let selectedSeats = new Set(SEATS);
 let selectedStatus = new Set(STATUSES);
 let modelChecked = new Map(CARS.map((c,i)=>[i,true])); // estado individual de cada modelo
 
+// Presupuesto: rango en USD sobre el precio de la fila Precio, leído con el mismo
+// pctlValor() que el ranking. Los autos sin precio en dólares (no publicado, solo en
+// pesos, no lanzado) no tienen cifra para comparar: entran o no según el tilde aparte,
+// y por defecto entran, para no esconder un auto porque falte el dato.
+const PRECIO_PASO = 500;
+const PRECIOS_OK = SIM_PRECIO.filter(p => p != null);
+const PRECIO_PISO = Math.floor(Math.min(...PRECIOS_OK) / 1000) * 1000;
+const PRECIO_TECHO = Math.ceil(Math.max(...PRECIOS_OK) / 1000) * 1000;
+let precioMin = PRECIO_PISO, precioMax = PRECIO_TECHO, precioSinDato = true;
+function precioOk(i){
+  const p = SIM_PRECIO[i];
+  return p == null ? precioSinDato : (p >= precioMin && p <= precioMax);
+}
+
 function matchesFacets(i){
   const car = CARS[i];
   const seg = SEGMENT_LABELS[car.size]||"Sin dato";
@@ -1809,7 +2046,8 @@ function matchesFacets(i){
       && selectedBodies.has(car.body)
       && selectedProps.has(car.type)
       && selectedSeats.has(seatOfCar[i])
-      && selectedStatus.has(car.status);
+      && selectedStatus.has(car.status)
+      && precioOk(i);
 }
 
 // Dropdown genérico para "Más filtros" (segmento, carrocería, propulsión, asientos):
@@ -1962,6 +2200,37 @@ const setAllBodies = buildFacetRow(document.getElementById('bodyRow'), BODIES, s
 const setAllProps = buildFacetRow(document.getElementById('propRow'), PROPS, selectedProps, p=>PROP_LABELS[p]||p, onFacetChange);
 const setAllSeats = buildFacetRow(document.getElementById('seatsRow'), SEATS, selectedSeats, s=> s==='s/d' ? 'Sin dato' : (s+(s==='1'?' asiento':' asientos')), onFacetChange);
 
+// ---- Presupuesto ----
+const precioMinIn = document.getElementById('precioMinIn');
+const precioMaxIn = document.getElementById('precioMaxIn');
+const precioSdIn = document.getElementById('precioSinDato');
+const usd = n => 'USD ' + n.toLocaleString('es-AR');
+[precioMinIn, precioMaxIn].forEach(r => { r.min = PRECIO_PISO; r.max = PRECIO_TECHO; r.step = PRECIO_PASO; });
+document.getElementById('precioSdN').textContent = SIM_PRECIO.filter(p => p == null).length;
+function precioSync(){
+  precioMinIn.value = precioMin; precioMaxIn.value = precioMax; precioSdIn.checked = precioSinDato;
+  document.getElementById('precioMinOut').textContent = usd(precioMin);
+  document.getElementById('precioMaxOut').textContent = usd(precioMax);
+  const libre = precioMin === PRECIO_PISO && precioMax === PRECIO_TECHO;
+  document.getElementById('precioHint').textContent = libre ? '(sin límite)' : '';
+  document.getElementById('precioResetBtn').hidden = libre && precioSinDato;
+}
+function precioCambio(e){
+  let lo = +precioMinIn.value, hi = +precioMaxIn.value;
+  // Los dos controles no se cruzan: el que se mueve empuja al otro.
+  if (lo > hi){ if (e && e.target === precioMinIn) hi = lo; else lo = hi; }
+  precioMin = lo; precioMax = hi; precioSinDato = precioSdIn.checked;
+  precioSync(); renderModelList();
+}
+precioMinIn.addEventListener('input', precioCambio);
+precioMaxIn.addEventListener('input', precioCambio);
+precioSdIn.addEventListener('change', precioCambio);
+document.getElementById('precioResetBtn').addEventListener('click', () => {
+  precioMin = PRECIO_PISO; precioMax = PRECIO_TECHO; precioSinDato = true;
+  precioSync(); renderModelList();
+});
+precioSync();
+
 // Botones "todos / ninguno" de cada fila de Más filtros
 [['status',setAllStatus],['segment',setAllSegments],['body',setAllBodies],['prop',setAllProps],['seats',setAllSeats]]
   .forEach(([id,setAll])=>{
@@ -2003,19 +2272,17 @@ modalOverlay.addEventListener('click', e=>{
 // Confirmar selección: aplica los filtros a la tabla, cierra el modal del todo
 // y esconde el título grande para que la tabla ocupe casi toda la pantalla.
 let hasComparedOnce = false;
-document.getElementById('compareBtn').addEventListener('click', ()=>{
-  colVisible = CARS.map((car,i)=> matchesFacets(i) && modelChecked.get(i));
-  applyColumnVisibility();
-  applyFilters();
-  if (!document.getElementById('rankingView').hidden) renderRanking();
-  const n = colVisible.filter(Boolean).length;
-  summaryText.textContent = '🚗 Comparando ' + n + ' auto' + (n===1?'':'s');
-  closeModal();
+function ocultarTitulo(){
   if(!hasComparedOnce){
     hasComparedOnce = true;
     mainTitle.style.display = 'none';
     document.getElementById('headerSubtitle').style.display = 'none';
   }
+}
+document.getElementById('compareBtn').addEventListener('click', ()=>{
+  aplicarSeleccion();
+  closeModal();
+  ocultarTitulo();
   window.scrollTo({top: 0, behavior:'smooth'});
 });
 
@@ -2196,7 +2463,7 @@ function rkClasificar(v, nombre){
 let rkAutos = null;
 function rkDatosAutos(){
   if (rkAutos) return rkAutos;
-  const ths = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
+  const ths = TH_AUTO;
   rkAutos = CARS.map((car, i) => {
     const img = ths[i] && ths[i].querySelector('img.car-photo');
     const iconos = ths[i] ? [...ths[i].querySelectorAll('small svg.prop-icon')].map(s => s.outerHTML).join('') : '';
@@ -2293,7 +2560,8 @@ function mostrarVista(v){
   document.getElementById('vistaTabla').setAttribute('aria-selected', String(!rk));
   document.getElementById('vistaRanking').setAttribute('aria-selected', String(rk));
   for (const el of [theadWrap, tbodyWrap, document.querySelector('header .controls'),
-                    document.getElementById('catScroll'), document.querySelector('.diff-toggle')])
+                    document.getElementById('catScroll'), document.querySelector('.diff-toggle'),
+                    document.getElementById('herrTabla')])
     el.style.display = rk ? 'none' : '';
   document.getElementById('rkScroll').style.display = rk ? '' : 'none';
   document.getElementById('rankingView').hidden = !rk;
@@ -2341,6 +2609,9 @@ function applyFilters(){
     }
     const show = catMatch && searchMatch && diffMatch;
     r.classList.toggle('hidden', !show);
+    // Plegada aparte: la fila sigue contando como "con resultados" y su categoría
+    // se ve, para poder volver a abrirla.
+    r.classList.toggle('plegada', activeCat === 'all' && plegadas.has(r.dataset.cat));
     if(show) visibleCount++;
   });
 
@@ -2357,6 +2628,194 @@ function applyFilters(){
 
 applyColumnVisibility();
 applyFilters();
+
+// ============ Auto de referencia y orden de las columnas ===================
+// Las dos cosas mueven las columnas en el DOM (th y td), sin tocar DATA ni el
+// índice de cada auto: cada celda sigue diciendo de qué auto es (data-col, y
+// data-idx en el th). La referencia va siempre primera; el resto, en el orden
+// elegido. Se compara solo en las 14 filas de PCTL_DIR, donde "mejor" tiene una
+// dirección objetiva, y con el mismo pctlValor() que los cuadraditos y el ranking:
+// lo que no se puede comparar (otra unidad, sin dato, enchufables en consumo) no
+// lleva marca.
+let refIdx = null, ordenActual = '';
+const FILA_POR_NOMBRE = Object.fromEntries(DATA.flatMap(c => c[1]).map(f => [f[0], f]));
+const ordenClave = nombre => rkEtiqueta(nombre).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const ORDEN_FILAS = RK_FILAS.map(f => ({ clave: ordenClave(f[0]), nombre: f[0], dir: PCTL_DIR[f[0]] }));
+function valorComparable(i, nombre){
+  const aparte = RK_APARTE[nombre];
+  if (aparte && aparte.tipos.includes(CARS[i].type)) return null;
+  return pctlValor(FILA_POR_NOMBRE[nombre][i + 1], nombre);
+}
+
+const ordenSel = document.getElementById('ordenSel');
+ORDEN_FILAS.forEach(o => {
+  const op = document.createElement('option');
+  op.value = o.clave;
+  op.textContent = rkEtiqueta(o.nombre) + (o.dir < 0 ? ' (menor primero)' : ' (mayor primero)');
+  ordenSel.appendChild(op);
+});
+
+function ordenarColumnas(){
+  let orden = CARS.map((_, i) => i);
+  const o = ORDEN_FILAS.find(x => x.clave === ordenActual);
+  if (o){
+    const val = orden.map(i => valorComparable(i, o.nombre));
+    // Mejor primero; los que no tienen cifra comparable, al final y en su orden de siempre.
+    orden.sort((a, b) => (val[a] == null) - (val[b] == null) || (val[a] == null ? 0 : (val[b] - val[a]) * o.dir) || a - b);
+  }
+  if (refIdx !== null) orden = [refIdx, ...orden.filter(i => i !== refIdx)];
+  const filaTh = document.querySelector('#theadTable thead tr');
+  const fr = document.createDocumentFragment();
+  orden.forEach(i => fr.appendChild(TH_AUTO[i]));
+  filaTh.appendChild(fr);
+  allRows.forEach(tr => {
+    const celdas = [];
+    tr.querySelectorAll('td[data-col]').forEach(td => { celdas[+td.dataset.col] = td; });
+    const f = document.createDocumentFragment();
+    orden.forEach(i => f.appendChild(celdas[i]));
+    tr.appendChild(f);
+  });
+  tbodyWrap.scrollLeft = 0; theadWrap.scrollLeft = 0;
+}
+
+function marcarReferencia(){
+  document.querySelectorAll('#mainTable .ref-cmp').forEach(s => s.remove());
+  document.querySelectorAll('.col-ref').forEach(e => e.classList.remove('col-ref'));
+  TH_AUTO.forEach((th, i) => {
+    const b = th.querySelector('.ref-btn');
+    b.setAttribute('aria-pressed', String(i === refIdx));
+  });
+  if (refIdx === null) return;
+  TH_AUTO[refIdx].classList.add('col-ref');
+  allRows.forEach(tr => {
+    tr.querySelector('td[data-col="' + refIdx + '"]').classList.add('col-ref');
+    const nombre = tr.querySelector('.feat-label').textContent;
+    const dir = PCTL_DIR[nombre];
+    if (!dir) return;
+    const base = valorComparable(refIdx, nombre);
+    if (base == null) return;
+    tr.querySelectorAll('td[data-col]').forEach(td => {
+      const i = +td.dataset.col;
+      if (i === refIdx || !colVisible[i]) return;
+      const v = valorComparable(i, nombre);
+      if (v == null || v === base) return;
+      const mejor = (v - base) * dir > 0;
+      td.insertAdjacentHTML('beforeend', '<span class="ref-cmp ' + (mejor ? 'mejor' : 'peor') + '" role="img" aria-label="' +
+        (mejor ? 'mejor' : 'peor') + ' que ' + rkEsc(CARS[refIdx].short) + '" title="' + (mejor ? 'Mejor' : 'Peor') + ' que ' + rkEsc(CARS[refIdx].short) + '">' + (mejor ? '▲' : '▼') + '</span>');
+    });
+  });
+}
+
+function fijarReferencia(i){
+  refIdx = (refIdx === i) ? null : i;
+  ordenarColumnas(); marcarReferencia(); actualizarResumen(); urlGuardar();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('.ref-btn') : null;
+  if (b) fijarReferencia(+b.dataset.idx);
+});
+document.getElementById('refQuitarBtn').addEventListener('click', () => fijarReferencia(refIdx));
+ordenSel.addEventListener('change', () => {
+  ordenActual = ordenSel.value;
+  ordenarColumnas(); actualizarResumen(); urlGuardar();
+});
+
+// ============ Link compartible ============================================
+// La comparación vive en la URL (?autos=slug,slug&ref=slug&orden=clave): el que
+// recibe el link ve los mismos autos, la misma referencia y el mismo orden. Solo
+// nombres de autos: nada personal.
+function urlGuardar(){
+  const p = new URLSearchParams();
+  const elegidos = CARS.map((_, i) => i).filter(i => colVisible[i]);
+  if (elegidos.length < CARS.length) p.set('autos', elegidos.map(i => SLUG_AUTO[i]).join(','));
+  if (refIdx !== null) p.set('ref', SLUG_AUTO[refIdx]);
+  if (ordenActual) p.set('orden', ordenActual);
+  const q = p.toString().replace(/%2C/g, ',');
+  try { history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash); } catch (e) {}
+}
+function urlCargar(){
+  let p;
+  try { p = new URLSearchParams(location.search); } catch (e) { return; }
+  const porSlug = slug => SLUG_AUTO.indexOf(slug);
+  const autos = (p.get('autos') || '').split(',').map(porSlug).filter(i => i >= 0);
+  const ref = porSlug(p.get('ref') || '');
+  const orden = p.get('orden') || '';
+  if (ORDEN_FILAS.some(o => o.clave === orden)){ ordenActual = orden; ordenSel.value = orden; }
+  if (autos.length){
+    simFijar(autos);
+    simRefrescarSelector();
+  }
+  refIdx = ref >= 0 && (!autos.length || autos.includes(ref)) ? ref : null;
+  if (autos.length || refIdx !== null || ordenActual){
+    aplicarSeleccion();
+    if (autos.length) ocultarTitulo();
+  }
+}
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  const b = document.getElementById('shareBtn');
+  const url = location.href;
+  const n = colVisible.filter(Boolean).length;
+  const titulo = n < CARS.length ? 'Comparativo: ' + CARS.filter((_, i) => colVisible[i]).map(c => c.short).slice(0, 4).join(' vs ') + (n > 4 ? ' y ' + (n - 4) + ' más' : '') : document.title;
+  try {
+    if (navigator.share && matchMedia('(pointer:coarse)').matches){ await navigator.share({ title: titulo, url }); return; }
+    await navigator.clipboard.writeText(url);
+    b.textContent = '✓ Link copiado';
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;           // canceló el menú de compartir
+    window.prompt('Copiá este link:', url);
+  }
+  setTimeout(() => { b.textContent = '🔗 Compartir'; }, 2200);
+});
+
+// ============ Plegar todo ==================================================
+document.getElementById('plegarTodoBtn').addEventListener('click', () => {
+  const todas = plegadas.size === DATA.length;
+  DATA.forEach((_, ci) => plegar(String(ci), !todas));
+  applyFilters(); actualizarBotonPlegar();
+});
+
+// ============ Imprimir / PDF ===============================================
+// El encabezado vive en otra <table> (por el sticky de Safari): para imprimir se
+// copia como <thead> de la tabla principal, así el navegador lo repite arriba de
+// cada página, y se saca al terminar.
+window.addEventListener('beforeprint', () => {
+  const viejo = document.getElementById('theadImpresion');
+  if (viejo) viejo.remove();
+  const th = document.querySelector('#theadTable thead').cloneNode(true);
+  th.id = 'theadImpresion';
+  document.getElementById('mainTable').insertBefore(th, document.getElementById('tbody'));
+});
+window.addEventListener('afterprint', () => {
+  const t = document.getElementById('theadImpresion');
+  if (t) t.remove();
+});
+document.getElementById('imprimirBtn').addEventListener('click', () => window.print());
+
+// ============ Modo claro / oscuro ==========================================
+// Sigue al sistema hasta que se toca el botón; la elección queda guardada en
+// este navegador (si se puede: en modo privado no hay dónde, y no pasa nada).
+const temaBtn = document.getElementById('temaBtn');
+const temaOscuro = () => {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+};
+function temaPintarBoton(){
+  const osc = temaOscuro();
+  temaBtn.textContent = osc ? '☀️' : '🌙';
+  temaBtn.title = osc ? 'Pasar a modo claro' : 'Pasar a modo oscuro';
+}
+temaBtn.addEventListener('click', () => {
+  const nuevo = temaOscuro() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = nuevo;
+  try { localStorage.setItem('tema', nuevo); } catch (e) {}
+  temaPintarBoton();
+});
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', temaPintarBoton); } catch (e) {}
+temaPintarBoton();
+
+urlCargar();
+actualizarResumen();
 
 // Tooltip propio: instantáneo, sin el delay nativo del navegador. Funciona con mouse y con tap en mobile.
 const tooltipBox = document.getElementById('tooltipBox');

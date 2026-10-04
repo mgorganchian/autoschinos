@@ -170,6 +170,25 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   `simHabilitar()`**, nunca tildarlo a mano: un auto se ve si pasa los filtros Y está
   tildado, y habilitar su marca tildaba de rebote a sus hermanos de marca (8 autos en
   vez de 2). `tests/e2e/similares.spec.js` lo cubre.
+- **Las columnas se pueden mover** (2026-10-03): el auto de referencia (📌) va primero
+  y "Ordenar autos" reordena el resto. Se mueven los `<th>` y `<td>` en el DOM, sin
+  tocar `DATA` ni `CARS`. Por eso **nunca buscar el `<th>` de un auto por posición**:
+  se usa `TH_AUTO[i]` (tomado al cargar) o `th[data-idx]`, y las celdas por
+  `td[data-col]`. `tests/e2e/ux.spec.js` falla si una celda queda debajo de otro auto.
+  La referencia marca ▲/▼ **solo en las filas de `PCTL_DIR`** y con `pctlValor()`,
+  igual que los cuadraditos; los enchufables no se comparan en consumo (`RK_APARTE`).
+- **La comparación vive en la URL**: `?autos=slug,slug&ref=slug&orden=clave` (los slugs
+  son los de las fotos). Si se renombra un slug, los links viejos a ese auto dejan de
+  incluirlo: no renombrar slugs sin necesidad.
+- **Presupuesto** en el selector: rango en USD sobre `SIM_PRECIO`. Los autos sin precio
+  en dólares entran por defecto (tilde aparte): no esconder un auto porque falte el dato.
+- **Modo oscuro**: todo color sale de las variables de `:root`; el oscuro solo cambia sus
+  valores (por `prefers-color-scheme` y por `data-theme`, que el botón guarda en
+  `localStorage`). **No volver a escribir colores fijos en el CSS** (`#fff`, `#666`…):
+  quedan mal en oscuro. Las fotos mantienen fondo blanco a propósito.
+- **Impresión**: imprime lo que se ve, siempre en claro. Como el encabezado vive en otra
+  `<table>`, `beforeprint` lo copia como `<thead>` de la tabla principal para que se
+  repita en cada hoja.
 - Los **7 todoterreno** (BJ40 ×2, BJ60, BJ30 ×2, Tank 300, Jetour T2) usan la silueta
   `b-offroad` pero su campo `body` **sigue siendo `"SUV"`**: cambia el dibujo, no el filtro.
 
