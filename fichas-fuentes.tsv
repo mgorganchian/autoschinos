@@ -182,8 +182,27 @@ Forthing U-Tour	forthing-u-tour-hev.pdf	https://forthing.com.ar/wp-content/uploa
 # SWM G03F y JMC Grand Avenue Pro: sin ficha AR; prensa y páginas oficiales (EXT/NOTE).
 # Skywell ET5 = el auto que la tabla llamaba "Skywell BE11" (nombre en Reino Unido/España).
 # Omoda 5 = la columna que era "Omoda C5". Jaecoo 7: ficha de Uruguay (EXT), sin ficha AR.
-# Pendiente: el Omoda E5 tiene ficha AR (https://www.omodajaecoo.com.ar/omoda5-ev.pdf,
-#   sha256 c9bcef179baa…) y su columna todavía está cargada con la de Uruguay.
+
+# --- 2026-10-04: fichas usadas para la potencia total, los ciclos y las correcciones:
+Seal 5 DM-i	byd-seal-5-dm-i-ar.pdf	https://www.byd.com/material/__CN/byd-site/ar/flyers_argentina/Ficha_Tecnica-SEAL_5_DM-i%20ARG.pdf	10890b2fafbf9b3ec321eaa76c2f4485e2cefdf0f792f4a73029714b871ae5f6	2026-10-04
+Seal U DM-i	byd-seal-u-dm-i-2026.pdf	https://www.byd.com/material/byd-site/ar/sealudmi/2026%2006%20Ficha%20tenica%20-%20BYD%20SEAL%20U%20DM-i%20ARG.pdf	e3eac644bf253ce2d51f43f2c705719a722e75ab9fe8fc053cf1afeb2d11608b	2026-10-04
+Song Pro	byd-song-pro-2025.pdf	https://www.byd.com/material/byd-site/ar/flyers_argentina/new/AR-BYD-SONG-PRO-20250903.pdf	e434d5073b6233f648cd2256ac17f4597cbb2d69f2abc1cc58e008ea243633e0	2026-10-04
+Atto 2 DM-i	byd-atto-2-dm-i-2026.pdf	https://www.byd.com/material/byd-site/ar/atto-2-dmi/FICHA-TECNICA-ATTO2-DM-i-2026.pdf	401a23081a5c912aa7ce392170bea891c55b77966105676b3f1fa32cdcc87379	2026-10-04
+Yuan Pro	byd-yuan-pro-gs.pdf	https://www.byd.com/material/byd-site/ar/flyers_argentina/new/AR-BYD-YUAN-PRO-GS-20250828.pdf	4643e2975b4bf5275ae4d31ea40e7f2571239db582fafb85b752328b22131bc5	2026-10-04
+Dolphin Mini	byd-dolphin-mini.pdf	https://www.byd.com/material/byd-site/ar/flyers_argentina/new/AR-BYD-DOLPHIN-MINI-20250829.pdf	c30ecafecfd478019cece79d7f1e7f8e32caa3664d11e00e473fc891ebbb0632	2026-10-04
+Lynk & Co 01	lynk-co-01-lynkcoar.pdf	https://www.lynkcoar.com.ar/fichas/ficha-lynk-co-01.pdf	3c839ab12ee4ef1f89f469d3f11df76636a4d20ba59100a4d42c8675676fd8e7	2026-10-04
+Leapmotor C10	leapmotor-c10-oct26.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/c10/ftc10oct26.pdf	b4a20b5f6d8be498493098a0f078bb926412a3538949356075dde769dd6b032e	2026-10-04
+Leapmotor B10	leapmotor-b10-oct26.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/b10/ftb10oct26.pdf	d5737138226f66de076d67fc268979e43a9d3f3aaa25e1bb98cf5bf3dc1ecd82	2026-10-04
+Leapmotor C10	leapmotor-c10-etiqueta.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/etiquetas-de-consumo/c10/20260612_etiqueta_c10.pdf	ba46a2ce2d671ca7213d0a5d4acf0fe14a2a6913e1225bd14a529db0f509cf9c	2026-10-04
+Leapmotor B10	leapmotor-b10-etiqueta.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/etiquetas-de-consumo/b10/20260612_etiqueta_b10.pdf	de37ca6d58f497a82dcbe0deda05f88a5d079c20bff4908f3d440f9366414564	2026-10-04
+Changan CS55 Plus	changan-cs55-plus-phev-ar.pdf	https://changan.com.ar/FT%20-%20Changan%20-%20CS55%20PLUS%20PHEV.pdf	71627656d54c3956031230b3f0f0d3dfd63b526adde47454a6718fb21fd0bff6	2026-10-04
+Omoda E5	omoda-5-ev.pdf	https://www.omodajaecoo.com.ar/omoda5-ev.pdf	c9bcef179baaf0cb7afbd9ea2ed81ed79bd2a832bbfa0ae1da7163ed9ac36883	2026-10-04
+# Lynk & Co: lynkcoar.com.ar tiene los PDF cruzados (la página del 06 baja la ficha del 01
+#   y la del 08 la del 06 nuevo, .../images/cms/1b4bc41c4ec7dcd9d27c.pdf). Hay tres fichas
+#   del 06 que no coinciden; la tabla sigue con la de CITYDRIVE y anota la diferencia.
+# Leapmotor C10/B10: las fichas de octubre 2026 reemplazan a las de julio (solo cambian
+#   los espejos). Omoda E5: la ficha AR parece un borrador ("QR ficha completa" sin completar).
+# Ya no está pendiente el Omoda E5: su columna sale de la ficha AR (omoda5-ev.pdf).
 
 # Stelato S9: SIN ficha argentina. BAIC lo exhibió en la Expo Auto Chino 2026 sin
 # fecha de venta; la columna sale del mercado chino (versión eléctrica AWD) y va
