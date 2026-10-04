@@ -363,3 +363,38 @@ test.describe('grupos automotrices', () => {
     expect(sinGrupo).toEqual([]);
   });
 });
+
+test.describe('deslizar', () => {
+  test('deslizar sobre el encabezado (las fotos) mueve también la tabla', async ({ page }) => {
+    await abrir(page);
+    // Con overflow-x:hidden el dedo no lo mueve (aunque desde código sí): tiene que poder scrollear.
+    expect(await page.locator('#theadWrap').evaluate(el => getComputedStyle(el).overflowX)).toBe('auto');
+    await page.locator('#theadWrap').evaluate(el => { el.scrollLeft = 400; });
+    await expect.poll(() => page.locator('#tbodyWrap').evaluate(el => el.scrollLeft)).toBe(400);
+    await page.locator('#tbodyWrap').evaluate(el => { el.scrollLeft = 150; });
+    await expect.poll(() => page.locator('#theadWrap').evaluate(el => el.scrollLeft)).toBe(150);
+  });
+
+  test('en la foto ampliada, deslizar a la izquierda pasa a la siguiente', async ({ page }, info) => {
+    test.skip(info.project.name !== 'celular', 'gesto táctil');
+    await abrir(page, '?autos=lynk-co-01');
+    await page.locator('#theadTable img.car-photo[data-slug="lynk-co-01"]').click();
+    const zoom = page.locator('#fotoZoom');
+    await expect(zoom).toBeVisible();
+    await expect(zoom.locator('.puntos i').nth(0)).toHaveClass(/on/);
+    await zoom.evaluate(el => {
+      const t = (x) => new Touch({ identifier: 1, target: el, clientX: x, clientY: 200 });
+      el.dispatchEvent(new TouchEvent('touchstart', { touches: [t(300)], changedTouches: [t(300)], bubbles: true }));
+      el.dispatchEvent(new TouchEvent('touchend', { touches: [], changedTouches: [t(180)], bubbles: true }));
+    });
+    await expect(zoom.locator('.puntos i').nth(1)).toHaveClass(/on/);
+  });
+
+  test('el buscador de modelos tolera un error de tipeo ("lync" encuentra Lynk & Co)', async ({ page }) => {
+    await abrir(page);
+    await page.click('#openModalBtn');
+    await page.click('#modelDropdownBtn');
+    await page.fill('#modelBuscar', 'lync 900');
+    await expect(page.locator('#modelList .mcard b')).toHaveText(['900']);
+  });
+});

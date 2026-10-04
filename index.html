@@ -200,9 +200,15 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     position:sticky;
     top:0;
     z-index:15;
-    overflow-x:hidden;
+    /* Se puede deslizar también desde el encabezado (las fotos): antes era hidden y un
+       swipe que arrancaba sobre una foto no movía nada. Sin barra visible: la del cuerpo
+       ya alcanza. Va sincronizado con el cuerpo en las dos direcciones (script). */
+    overflow-x:auto;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
     background:var(--byd-blue-dark);
   }
+  .thead-wrap::-webkit-scrollbar{display:none}
   .table-wrap{
     overflow-x:auto;
     overflow-y:visible;
@@ -1918,9 +1924,18 @@ function applyColumnVisibility(){
 // Sincronizar el scroll horizontal del cuerpo con el header (que ahora vive en su propia tabla)
 const theadWrap = document.getElementById('theadWrap');
 const tbodyWrap = document.getElementById('tbodyWrap');
-tbodyWrap.addEventListener('scroll', ()=>{
-  theadWrap.scrollLeft = tbodyWrap.scrollLeft;
-}, {passive:true});
+// En las dos direcciones: se puede deslizar desde el cuerpo o desde el encabezado. El
+// que se movió manda; el otro solo copia (si el valor ya es el mismo no hace nada, así
+// que no se arma un ida y vuelta).
+let scrollManda = null;
+function sincronizar(origen, destino){
+  if (scrollManda && scrollManda !== origen) return;
+  scrollManda = origen;
+  if (destino.scrollLeft !== origen.scrollLeft) destino.scrollLeft = origen.scrollLeft;
+  requestAnimationFrame(() => { scrollManda = null; });
+}
+tbodyWrap.addEventListener('scroll', () => sincronizar(tbodyWrap, theadWrap), {passive:true});
+theadWrap.addEventListener('scroll', () => sincronizar(theadWrap, tbodyWrap), {passive:true});
 
 // ============ Autos similares =============================================
 // Sugiere los 3 autos más parecidos a uno elegido, según los criterios que se
@@ -2380,6 +2395,23 @@ const modelList = document.getElementById('modelList');
 // Tarjetas con foto, marca, precio y tipo: se elige tocando, como en un catálogo.
 // El buscador solo esconde tarjetas: no cambia qué autos están elegidos.
 const sinTildes = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+// Cada palabra buscada tiene que estar en el nombre, o diferir en una letra de alguna
+// palabra del nombre ("lync" encuentra "Lynk", "tigo" encuentra "Tiggo").
+function unaLetra(a, b){
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0, j = 0, dif = 0;
+  while (i < a.length && j < b.length){
+    if (a[i] === b[j]){ i++; j++; continue; }
+    if (++dif > 1) return false;
+    if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+  }
+  return dif + (a.length - i) + (b.length - j) <= 1;
+}
+function coincide(q, texto){
+  const t = sinTildes(texto), palabras = t.split(/[^a-z0-9]+/).filter(Boolean);
+  return q.split(/\s+/).filter(Boolean).every(w => t.includes(w) ||
+    (w.length >= 3 && palabras.some(p => unaLetra(w, p) || (p.length > w.length && unaLetra(w, p.slice(0, w.length + 1))))));
+}
 function renderModelList(){
   modelList.innerHTML = '';
   let visibleCount = 0;
@@ -2388,7 +2420,7 @@ function renderModelList(){
   CARS.forEach((car,i)=>{
     if(!matchesFacets(i)) return;
     visibleCount++;
-    if (q && !sinTildes(car.name + ' ' + car.brand).includes(q)) return;
+    if (q && !coincide(q, car.name + ' ' + car.brand)) return;
     const img = TH_AUTO[i] && TH_AUTO[i].querySelector('img.car-photo');
     const p = SIM_PRECIO[i];
     html.push('<label class="mcard' + (modelChecked.get(i) ? ' on' : '') + '"><input type="checkbox" ' + (modelChecked.get(i) ? 'checked' : '') + ' data-idx="' + i + '">' +
@@ -3520,6 +3552,20 @@ temaBtn.addEventListener('click', () => {
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', temaPintarBoton); } catch (e) {}
 temaPintarBoton();
 
+// Deslizar con el dedo para pasar de foto: alcanza con un gesto horizontal de 40 px
+// que sea más horizontal que vertical (si no, es un scroll de la página).
+function alDeslizar(el, siguiente, anterior){
+  let x0 = null, y0 = 0;
+  el.addEventListener('touchstart', e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, {passive:true});
+  el.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) (dx < 0 ? siguiente : anterior)();
+  }, {passive:true});
+}
+alDeslizar(fotoZoom, () => { if (zFotos.length > 1){ mostrar(zIdx + 1); precargar(zIdx + 1); } }, () => { if (zFotos.length > 1) mostrar(zIdx - 1); });
+
 // ============ Página de cada auto ===========================================
 // Se abre tocando el nombre de un auto (o con ?auto=slug). Todo sale de DATA y de
 // los puestos del ranking: los puntos fuertes y débiles NO son opinión, son las
@@ -3622,6 +3668,7 @@ async function abrirFicha(i){
   document.getElementById('fichaAuto').hidden = false;
   document.body.classList.add('modal-open');
   fichaFoto(0);
+  if (fotos.length > 1) alDeslizar(hoja.querySelector('.ficha-foto'), () => fichaFoto(fichaFotoIdx + 1), () => fichaFoto(fichaFotoIdx - 1));
   document.getElementById('fichaCerrar').focus();
   urlGuardar(); actualizarTitulo();
   const fuentes = (await cargarManifiesto()).get(c.name) || [];
