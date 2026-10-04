@@ -824,6 +824,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .rk-f-top{background:var(--yes-bg)} .rk-f-top b{color:var(--yes)}
   .rk-f-bajo b{color:var(--no)}
   .rk-f-nd{color:var(--ink-3)}
+  .rk-orig.rk-incompleto{color:var(--ext-text);font-weight:600}
   .rk-pesos,.rk-gasto{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 12px;margin:0 0 12px;
     background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
   .rk-pesos label,.rk-gasto label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.72rem;color:var(--ink)}
@@ -2921,7 +2922,7 @@ function rkRenderMedida(cand){
   });
   rkOrdenar(ok, 1);
   lista.innerHTML = ok.map(r => rkItemHTML(r, 100, r.n + '<small>/100</small>',
-    '<div class="rk-orig">con ' + r.cubre + ' de ' + r.de + ' datos</div>', cand.mios)).join('') ||
+    '<div class="rk-orig' + (r.cubre < r.de ? ' rk-incompleto' : '') + '"' + (r.cubre < r.de ? ' title="Le faltan datos: su puntaje sale solo de los que tiene"' : '') + '>con ' + r.cubre + ' de ' + r.de + ' datos</div>', cand.mios)).join('') ||
     '<li class="rk-vacio">Ningún auto tiene la mitad de los datos elegidos.</li>';
   document.getElementById('rkResto').innerHTML = pocos.length ? '<section data-grupo="pocos"><h3>Con menos de la mitad de los datos (' + pocos.length + ')</h3>' +
     '<p>Con tan pocos datos un puntaje diría más de la ficha que del auto: no se ordenan.</p><ul>' +
