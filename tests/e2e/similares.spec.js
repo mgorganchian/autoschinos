@@ -183,10 +183,10 @@ test.describe('similares en el selector', () => {
     await expect(tam).toHaveAttribute('aria-pressed', 'true');
     await expect(tam).toHaveAttribute('data-tip', /largo.*doble/);
 
-    expect(largo('Omoda C5')).toBeNull();                     // sin ninguna medida cargada
+    expect(largo('Chery Tiggo 7 Pro PHEV')).toBeNull();       // Chery no publica su ficha: sin largo
     await page.click('#modelNoneBtn');
-    await page.locator(`#modelList input[data-idx="${indice('Omoda C5')}"]`).check();
-    await expect(page.locator('#simModal .sim-titulo')).toContainText('Omoda C5');
+    await page.locator(`#modelList input[data-idx="${indice('Chery Tiggo 7 Pro PHEV')}"]`).check();
+    await expect(page.locator('#simModal .sim-titulo')).toContainText('Chery Tiggo 7 Pro PHEV');
     await expect(page.locator('#simModal [data-crit="tamano"]')).toBeDisabled();
   });
 
