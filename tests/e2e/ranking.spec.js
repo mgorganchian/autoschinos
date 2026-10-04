@@ -77,7 +77,7 @@ test.describe('vista ranking', () => {
 
   test('consumo: ningún eléctrico se rankea, van a "No aplica"', async ({ page }) => {
     await abrirRanking(page);
-    await elegirFila(page, 'Consumo combustible NEDC (L/100km)');
+    await elegirFila(page, 'Consumo de combustible (L/100km)');
     const electricos = CARS.filter(c => c.type === 'ev').map(c => c.name);
     const rankeados = await enLista(page);
     expect(rankeados.filter(n => electricos.includes(n))).toEqual([]);
@@ -91,14 +91,14 @@ test.describe('vista ranking', () => {
   // un promedio), así que van aparte, sin puesto y con la cifra completa.
   test('consumo: los enchufables van aparte, sin puesto y con su cifra completa', async ({ page }) => {
     await abrirRanking(page, { todos: true });
-    await elegirFila(page, 'Consumo combustible NEDC (L/100km)');
+    await elegirFila(page, 'Consumo de combustible (L/100km)');
     const enchufables = CARS.filter(c => c.type === 'phev').map(c => c.name);
     const rankeados = await enLista(page);
     expect(rankeados.length).toBeGreaterThan(0);
     expect(rankeados.filter(n => enchufables.includes(n))).toEqual([]);
 
     const aparte = await enGrupo(page, 'enchufables');
-    const fila = filas.find(f => f[0] === 'Consumo combustible NEDC (L/100km)');
+    const fila = filas.find(f => f[0] === 'Consumo de combustible (L/100km)');
     const conCifra = CARS.map((c, i) => ({ c, v: fila[i + 1] }))
       .filter(({ c, v }) => c.type === 'phev' && !/^NR:|^ND$/.test(v)).map(({ c }) => c.name);
     expect(aparte.sort()).toEqual(conCifra.sort());
@@ -120,7 +120,7 @@ test.describe('vista ranking', () => {
 
   test('las cifras de otro ciclo o mercado van marcadas, con su explicación', async ({ page }) => {
     await abrirRanking(page);
-    await elegirFila(page, 'Autonomía EV NEDC (km)');
+    await elegirFila(page, 'Autonomía eléctrica (km)');
     const marcas = page.locator('#rkLista .rk-marca');
     expect(await marcas.count()).toBeGreaterThan(0);
     const tips = await marcas.evaluateAll(ms => ms.map(m => m.dataset.tip || ''));
@@ -156,7 +156,7 @@ test.describe('vista ranking', () => {
   test('en el celular no desborda a lo ancho', async ({ page }, info) => {
     test.skip(info.project.name !== 'celular', 'solo aplica al ancho de celular');
     await abrirRanking(page);
-    for (const nombre of ['Precio de lista (versión tope de gama de la tabla)', 'Autonomía EV NEDC (km)', 'Volumen de baúl/carga (L)']) {
+    for (const nombre of ['Precio de lista (versión tope de gama de la tabla)', 'Autonomía eléctrica (km)', 'Volumen de baúl/carga (L)']) {
       await elegirFila(page, nombre);
       const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(desborde, nombre).toBeLessThanOrEqual(0);
@@ -194,7 +194,7 @@ test.describe('ranking para elegir', () => {
 
   test('autonomía: ordena por el estimado WLTP pero muestra la cifra de la ficha con su ciclo', async ({ page }) => {
     await abrirRanking(page, { todos: true });
-    await elegirFila(page, 'Autonomía EV NEDC (km)');
+    await elegirFila(page, 'Autonomía eléctrica (km)');
     const items = await page.locator('#rkLista .rk-item').evaluateAll(ls => ls.map(l => ({
       est: Number(l.dataset.valor), ciclo: l.querySelector('.rk-ciclo')?.textContent, txt: l.querySelector('.rk-valor').textContent })));
     expect(items.length).toBeGreaterThan(5);
@@ -207,7 +207,7 @@ test.describe('ranking para elegir', () => {
     }
     // Lo que no dice su ciclo no se estima: va a su grupo, sin puesto.
     const sinCiclo = await enGrupo(page, 'ciclo');
-    const fila = filas.find(f => f[0] === 'Autonomía EV NEDC (km)');
+    const fila = filas.find(f => f[0] === 'Autonomía eléctrica (km)');
     // (no tienen un ciclo con factor: ni NEDC, ni WLTP, ni CLTC…; ej. "ciclo no informado" o "LEV2")
     for (const n of sinCiclo) expect(fila[CARS.findIndex(c => c.name === n) + 1]).not.toMatch(/\((NEDC|WLTP|WLTC|CLTC|EPA|etiqueta AR)\b/);
     await expect(page.locator('#rkSub details')).toContainText('JRC');
@@ -215,7 +215,7 @@ test.describe('ranking para elegir', () => {
 
   test('autonomía combinada: una lista por ciclo, sin estimar', async ({ page }) => {
     await abrirRanking(page, { todos: true });
-    await elegirFila(page, 'Autonomía combinada NEDC (km)');
+    await elegirFila(page, 'Autonomía combinada (km)');
     await expect(page.locator('#rkLista .rk-subtitulo').first()).toBeVisible();
     await expect(page.locator('#rkLista .rk-est')).toHaveCount(0);
   });

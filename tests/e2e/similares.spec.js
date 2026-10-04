@@ -118,7 +118,7 @@ test.describe('similares en el selector', () => {
     await expect(box.locator('[aria-pressed="true"]')).toHaveCount(1);
 
     // Lo esperado, calculado aparte: el primer número de cada celda de autonomía.
-    const fila = filas.find(f => f[0] === 'Autonomía EV NEDC (km)');
+    const fila = filas.find(f => f[0] === 'Autonomía eléctrica (km)');
     const km = i => { const v = fila[i + 1]; if (/^NR:|^ND$/.test(v)) return null; const s = v.replace(/^(NOTE|EXT):/, '').split('|')[0];
       if (/^\s*No aplica/i.test(s)) return null; const m = /\d+/.exec(s); return m ? Number(m[0]) : null; };
     const b = km(indice(base));
