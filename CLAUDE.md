@@ -171,7 +171,9 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   tildado, y habilitar su marca tildaba de rebote a sus hermanos de marca (8 autos en
   vez de 2). `tests/e2e/similares.spec.js` lo cubre.
 - **Las columnas se pueden mover** (2026-10-03): el auto de referencia (📌) va primero
-  y "Ordenar autos" reordena el resto. Se mueven los `<th>` y `<td>` en el DOM, sin
+  y "Ordenar autos" reordena el resto. **El orden por defecto es "Dimensiones"**: largo,
+  a igual largo ancho, a igual ancho alto, más grande primero (`compararDims`); así el
+  orden de `CARS` ya no importa y los autos nuevos se pueden agregar al final. Se mueven los `<th>` y `<td>` en el DOM, sin
   tocar `DATA` ni `CARS`. Por eso **nunca buscar el `<th>` de un auto por posición**:
   se usa `TH_AUTO[i]` (tomado al cargar) o `th[data-idx]`, y las celdas por
   `td[data-col]`. `tests/e2e/ux.spec.js` falla si una celda queda debajo de otro auto.

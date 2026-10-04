@@ -924,7 +924,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <div class="toolbar-row toolbar-2">
     <span class="herr-tabla" id="herrTabla">
       <label class="orden-sel"><span>Ordenar autos:</span>
-        <select id="ordenSel"><option value="">como vienen</option></select>
+        <select id="ordenSel"><option value="">Dimensiones (más grande primero)</option></select>
       </label>
       <button class="legend-toggle" id="plegarTodoBtn" type="button">⊟ Plegar todo</button>
     </span>
@@ -2664,11 +2664,23 @@ ORDEN_FILAS.forEach(o => {
   ordenSel.appendChild(op);
 });
 
+// Orden por defecto: por tamaño, más grande primero. Largo; a igual largo, ancho;
+// a igual ancho, alto. Es la regla de siempre de la tabla (CONTEXTO §3), que los
+// autos agregados al final ya no cumplían. Sin largo cargado, al final.
+const DIMS = CARS.map((_, i) => ['Longitud (mm)', 'Ancho (mm)', 'Altura (mm)'].map(n => pctlValor(FILA_POR_NOMBRE[n][i + 1], n)));
+function compararDims(a, b){
+  for (let k = 0; k < 3; k++){
+    const x = DIMS[a][k], y = DIMS[b][k];
+    if (x == null || y == null){ if (x !== y) return x == null ? 1 : -1; continue; }
+    if (x !== y) return y - x;
+  }
+  return a - b;
+}
 function ordenarColumnas(){
-  let orden = CARS.map((_, i) => i);
+  let orden = CARS.map((_, i) => i).sort(compararDims);
   const o = ORDEN_FILAS.find(x => x.clave === ordenActual);
   if (o){
-    const val = orden.map(i => valorComparable(i, o.nombre));
+    const val = CARS.map((_, i) => valorComparable(i, o.nombre));   // por índice de auto, no por posición
     // Mejor primero; los que no tienen cifra comparable, al final y en su orden de siempre.
     orden.sort((a, b) => (val[a] == null) - (val[b] == null) || (val[a] == null ? 0 : (val[b] - val[a]) * o.dir) || a - b);
   }
@@ -2823,6 +2835,7 @@ temaBtn.addEventListener('click', () => {
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', temaPintarBoton); } catch (e) {}
 temaPintarBoton();
 
+ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();
 actualizarResumen();
 

@@ -129,6 +129,21 @@ test.describe('orden de columnas', () => {
     expect(orden.slice(conPrecio.length).every(p => p == null)).toBe(true);
   });
 
+  test('por defecto, por dimensiones: largo, después ancho, después alto, y sin largo al final', async ({ page }) => {
+    await abrir(page);
+    await expect(page.locator('#ordenSel')).toHaveValue('');
+    await expect(page.locator('#ordenSel option:checked')).toHaveText(/Dimensiones/);
+    const dims = await page.evaluate(() => DIMS);
+    const orden = (await idxVisibles(page)).map(i => dims[i]);
+    const conLargo = orden.filter(d => d[0] != null);
+    for (let k = 1; k < conLargo.length; k++){
+      const [a, b] = [conLargo[k - 1], conLargo[k]];
+      const j = a.findIndex((x, n) => x !== b[n]);
+      if (j >= 0 && a[j] != null && b[j] != null) expect(a[j], `${a} antes que ${b}`).toBeGreaterThan(b[j]);
+    }
+    expect(orden.slice(conLargo.length).every(d => d[0] == null)).toBe(true);
+  });
+
   test('reordenar no desalinea: cada celda sigue debajo de su auto', async ({ page }) => {
     await abrir(page, '?autos=byd-shark,maxus-t60,jac-t8,mg-3&orden=precio-de-lista');
     const enc = await idxVisibles(page);

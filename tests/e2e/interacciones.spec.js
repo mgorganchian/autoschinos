@@ -103,7 +103,9 @@ test.describe('selector de autos', () => {
 
     await expect(page.locator('#modalOverlay')).toBeHidden();
     await expect(columnasVisibles(page)).toHaveCount(esperados.length);
-    await expect(columnasVisibles(page).first()).toContainText(esperados[0].name);
+    // Las columnas se ordenan por dimensiones, no por el orden de CARS: se compara el conjunto.
+    const vistos = await columnasVisibles(page).evaluateAll(ths => ths.map(th => +th.dataset.idx));
+    expect(vistos.map(i => CARS[i].name).sort()).toEqual(esperados.map(c => c.name).sort());
     await expect(page.locator('#summaryText')).toHaveText(`🚗 Comparando ${esperados.length} auto${esperados.length === 1 ? '' : 's'}`);
     await expect(page.locator('#mainTitle')).toBeHidden();
     // Las celdas del cuerpo acompañan al header.
@@ -150,7 +152,7 @@ test.describe('selector de autos', () => {
     await expect(page.locator('#modelDropdownBtn')).toContainText(`${N - 1} de ${N} modelos`);
     await page.click('#compareBtn');
     await expect(columnasVisibles(page)).toHaveCount(N - 1);
-    await expect(page.locator('#theadTable thead th').nth(1)).toBeHidden();
+    await expect(page.locator('#theadTable thead th[data-idx="0"]')).toBeHidden();
   });
 
   test('el filtro de Disponibilidad deja solo los autos con ese status', async ({ page }) => {
