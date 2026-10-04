@@ -150,6 +150,22 @@ test.describe('categorías plegables', () => {
     await expect(filas.first()).toBeVisible();
   });
 
+  // La celda de la categoría abarca todas las columnas (10.000 px con todos los
+  // autos): centrado, el nombre quedaba fuera de la pantalla y plegado no se veía
+  // ninguno (2026-10-03). Tiene que estar a la vista, también scrolleando al costado.
+  test('los nombres de categoría se ven en pantalla, aunque se scrollee al costado', async ({ page }) => {
+    await abrir(page);
+    await page.click('#plegarTodoBtn');
+    // Se mide el texto de cada celda, no un elemento en particular: vale para
+    // cualquier forma de armar la fila.
+    const enPantalla = () => page.locator('#mainTable tr.cat-row td').evaluateAll(tds => tds.length === 14 &&
+      tds.every(td => { const rg = document.createRange(); rg.selectNodeContents(td); const r = rg.getBoundingClientRect();
+        return r.left >= 0 && r.right <= innerWidth && r.width > 20; }));
+    expect(await enPantalla()).toBe(true);
+    await page.evaluate(() => { document.getElementById('tbodyWrap').scrollLeft = 4000; });
+    expect(await enPantalla()).toBe(true);
+  });
+
   test('"Plegar todo" deja solo los títulos de categoría', async ({ page }) => {
     await abrir(page);
     await page.click('#plegarTodoBtn');

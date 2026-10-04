@@ -808,7 +808,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .precio-sd{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--ink-2);margin-top:6px;cursor:pointer}
 
   /* ============ Categorías plegables ===================================== */
-  tr.cat-row td{cursor:pointer;user-select:none}
+  tr.cat-row td{cursor:pointer;user-select:none;text-align:left}
+  .cat-nombre{position:sticky;left:12px;display:inline-block}
   tr.cat-row td:focus-visible{outline:2px solid #fff;outline-offset:-3px}
   .cat-chev{display:inline-block;margin-right:6px;transition:transform .15s}
   tr.cat-plegada .cat-chev{transform:rotate(-90deg)}
@@ -1637,7 +1638,15 @@ const SLUG_AUTO = TH_AUTO.map(th => { const img = th.querySelector('img.car-phot
 const plegadas = new Set();
 document.querySelectorAll('#mainTable tr.cat-row').forEach(catRow => {
   const td = catRow.querySelector('td');
-  td.insertAdjacentHTML('afterbegin', '<span class="cat-chev" aria-hidden="true">▾</span>');
+  // El nombre va en su propio span pegajoso: la celda abarca TODAS las columnas
+  // (10.000 px con los 108 autos) y centrado quedaba a 5.000 px, fuera de la
+  // pantalla. Pegado a la izquierda se ve siempre, aunque se scrollee al costado.
+  const nombre = document.createElement('span');
+  nombre.className = 'cat-nombre';
+  nombre.innerHTML = '<span class="cat-chev" aria-hidden="true">▾</span>';
+  nombre.append(td.textContent);
+  td.textContent = '';
+  td.appendChild(nombre);
   td.setAttribute('role', 'button');
   td.tabIndex = 0;
   td.setAttribute('aria-expanded', 'true');
