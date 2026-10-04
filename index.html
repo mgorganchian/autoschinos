@@ -784,6 +784,52 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   #simPanel{position:fixed;z-index:70;left:50%;transform:translateX(-50%);bottom:14px;width:min(440px,calc(100vw - 24px));box-shadow:0 12px 40px rgba(0,0,0,.35)}
   .sim-cerrar{position:absolute;top:5px;right:7px;background:none;border:0;font-size:.95rem;line-height:1;padding:4px;cursor:pointer;color:var(--ink-2)}
 
+  /* ============ Ranking: filtros, estimados, gráfico, herramientas ========= */
+  .rk-filtros-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+  .rk-mios{background:var(--surface);color:var(--ink);border:1px solid var(--border-strong);border-radius:16px;padding:5px 12px;font-size:.74rem;font-weight:600;cursor:pointer}
+  .rk-mios[aria-pressed="true"]{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff}
+  .rk-filtros{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;border:0;padding:0;margin:0;min-width:0}
+  .rk-filtros[disabled]{opacity:.45}
+  .rk-sel{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--ink-2)}
+  .rk-sel select{font-size:.72rem;padding:3px 4px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);max-width:40vw}
+  .rk-check{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;color:var(--ink-2);cursor:pointer}
+  .rk-chip-herr{font-weight:600}
+  .rk-ciclo{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.3px;padding:0 4px;border-radius:4px;
+    background:var(--chip-bg);color:var(--ink-2);vertical-align:2px}
+  .rk-est{font-size:.64rem;font-weight:500;color:var(--ink-3);margin-top:1px}
+  .rk-estado{font-size:.58rem;font-weight:600;color:var(--ext-text);background:var(--ext-bg);border-radius:4px;padding:0 4px;flex-shrink:0}
+  .rk-item{cursor:pointer}
+  .rk-item:focus-visible{outline:2px solid var(--link);outline-offset:1px}
+  .rk-item.rk-mio{border-color:var(--byd-blue);box-shadow:inset 3px 0 0 var(--byd-blue)}
+  .rk-subtitulo{list-style:none;font-size:.74rem;font-weight:700;color:var(--ink-2);margin:10px 0 2px;letter-spacing:.3px}
+  .rk-como{margin-top:6px;font-size:.7rem;color:var(--ink-2)}
+  .rk-como summary{cursor:pointer;color:var(--link);font-weight:600}
+  .rk-cobertura{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--ink-2);margin:0 0 10px}
+  .rk-cobertura.baja{color:var(--ext-text)}
+  .rk-cob-barra{flex:0 0 70px;height:6px;border-radius:3px;background:var(--pct-off);overflow:hidden}
+  .rk-cob-barra i{display:block;height:100%;background:var(--bar)}
+  .rk-grafico{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 8px 4px}
+  .rk-grafico figcaption{font-size:.68rem;color:var(--ink-2);margin:0 4px 4px}
+  .rk-grafico svg{display:block;width:100%;height:auto}
+  .rk-g-grid{stroke:var(--line);stroke-width:1}
+  .rk-g-eje{fill:var(--ink-3);font-size:11px}
+  .rk-g-pt{fill:var(--bar);fill-opacity:.55;stroke:var(--surface);stroke-width:1.5;cursor:pointer}
+  .rk-g-pt.mio{fill:#e0a400;fill-opacity:1}
+  .rk-ficha{position:fixed;z-index:70;left:50%;transform:translateX(-50%);bottom:14px;width:min(440px,calc(100vw - 24px));
+    max-height:70vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+  .rk-f-sub{font-size:.68rem;color:var(--ink-2);margin:0 0 8px}
+  .rk-f-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+  .rk-f-lista li{display:flex;justify-content:space-between;gap:10px;font-size:.74rem;padding:3px 6px;border-radius:5px}
+  .rk-f-lista b{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rk-f-top{background:var(--yes-bg)} .rk-f-top b{color:var(--yes)}
+  .rk-f-bajo b{color:var(--no)}
+  .rk-f-nd{color:var(--ink-3)}
+  .rk-pesos,.rk-gasto{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 12px;margin:0 0 12px;
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+  .rk-pesos label,.rk-gasto label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.72rem;color:var(--ink)}
+  .rk-pesos select,.rk-gasto input{font-size:.74rem;padding:3px 5px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);max-width:110px}
+  .rk-gasto input{width:100px}
+
   /* ============ Barra resumen: compartir y referencia ===================== */
   .summary-txt{min-width:0}
   .summary-acciones{display:flex;gap:6px;flex-shrink:0}
@@ -1178,9 +1224,13 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
 <div class="no-results" id="noResults" style="display:none">No se encontraron características con ese término.</div>
 <div class="sim" id="simPanel" role="dialog" aria-label="Autos similares" hidden></div>
 <section class="ranking" id="rankingView" hidden>
+  <div class="rk-filtros-wrap" id="rkFiltros"></div>
   <div class="rk-head"><h2 id="rkTitulo"></h2><p id="rkSub"></p></div>
+  <div id="rkCobertura"></div>
+  <div id="rkGrafico"></div>
   <ol class="rk-lista" id="rkLista"></ol>
   <div class="rk-resto" id="rkResto"></div>
+  <div class="sim rk-ficha" id="rkFicha" role="dialog" aria-label="Puestos del auto" hidden></div>
 </section>
 <div id="tooltipBox"></div>
 
@@ -1920,6 +1970,7 @@ function simAplicar(){ aplicarSeleccion(); }
 function aplicarSeleccion(){
   colVisible = CARS.map((_, i) => matchesFacets(i) && modelChecked.get(i));
   if (refIdx !== null && !colVisible[refIdx]) refIdx = null;   // la referencia salió de la comparación
+  rkFiltro.mios = true;          // una comparación nueva: el ranking arranca con esos autos
   applyColumnVisibility();
   ordenarColumnas();
   marcarReferencia();
@@ -2489,84 +2540,474 @@ function rkDatosAutos(){
   return rkAutos;
 }
 
+// ============ Ranking: pensado para ayudar a elegir =========================
+// Decisiones del usuario (2026-10-04), en orden:
+// - Por defecto solo autos que se pueden comprar hoy; un tilde suma preventa y no lanzados.
+// - Filtros rápidos propios (carrocería, tamaño, propulsión, presupuesto). Si hay
+//   autos elegidos en la tabla, arranca con "Mis N autos"; sacándolo, se ven contra el resto.
+// - Autonomía eléctrica y consumo se ORDENAN por un estimado a WLTP, pero lo que se
+//   lee grande es la cifra de la ficha con su ciclo. Los factores y su fuente, a la vista.
+//   La autonomía combinada no tiene factor defendible: una lista por ciclo, sin estimar.
+// - Cifras de USD por kW y por km; ficha de puestos por auto; "a tu medida" sin
+//   castigar el sin dato; gasto mensual; gráfico precio vs. dato.
+const FILA_AUT = 'Autonomía EV NEDC (km)';
+const FILA_CONS = 'Consumo combustible NEDC (L/100km)';
+const FILA_COMB = 'Autonomía combinada NEDC (km)';
+const FILA_POT = 'Potencia total del sistema (kW)';
+const FILA_PRECIO = 'Precio de lista (versión tope de gama de la tabla)';
+
+// Ciclo de cada cifra: va en el valor visible, entre paréntesis, tal como lo dice su fuente.
+const CICLO_RE = /\((NEDC|WLTP|WLTC|CLTC|EPA|etiqueta AR|ciclo no informado)\b/;
+function cicloDe(v){
+  if (typeof v !== 'string') return null;
+  const m = CICLO_RE.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]);
+  return m ? m[1] : null;
+}
+// Factores a WLTP. Fuentes: JRC 2017 (Tsiakmakis y otros, EUR 28724), ICCT 2020 y 2021,
+// evdb.nz y pares de BYD con cifra oficial en dos ciclos. La etiqueta AR es NEDC
+// (Res. 85/2018). WLTC de fichas chinas o chilenas es el ciclo del WLTP (×1).
+const WLTP_AUT = { NEDC: 0.85, 'etiqueta AR': 0.85, CLTC: 0.81, WLTP: 1, WLTC: 1, EPA: 1.15 };
+const WLTP_CONS = {
+  ice:  { NEDC: 1.20, 'etiqueta AR': 1.20, WLTP: 1, WLTC: 1 },
+  mhev: { NEDC: 1.20, 'etiqueta AR': 1.20, WLTP: 1, WLTC: 1 },   // supuesto: no hay factor propio
+  hev:  { NEDC: 1.33, 'etiqueta AR': 1.33, WLTP: 1, WLTC: 1 },
+};
+const WLTP_TEXTO = {
+  [FILA_AUT]: 'Se ordena por un estimado WLTP: NEDC × 0,85; CLTC × 0,81; EPA × 1,15; WLTP y WLTC × 1. Es una estimación, no una cifra de ficha: el error típico es de 5 a 10% por auto, así que diferencias menores a eso no dicen cuál rinde más. Fuentes: JRC 2017 (EUR 28724), ICCT 2021, evdb.nz y autos de BYD con cifra oficial en dos ciclos.',
+  [FILA_CONS]: 'Se ordena por un estimado WLTP: NEDC (y la etiqueta argentina, que es NEDC) × 1,20 en nafteros y mild-hybrid, × 1,33 en híbridos; WLTP y WLTC × 1. El factor de los mild-hybrid es un supuesto (no hay uno publicado). Fuentes: JRC 2017 (EUR 28724), ICCT 2020, Res. 85/2018.',
+  [FILA_COMB]: 'La autonomía combinada no tiene un factor de conversión publicado ni defendible: cada marca la calcula distinto. Por eso no se estima: hay un ranking por ciclo.',
+};
+const redondear = (n, paso) => Math.round(n / paso) * paso;
+
+// Filas del ranking: las de PCTL_DIR, dos relaciones precio/valor y dos herramientas.
+const RK_DERIVADAS = {
+  'usd-kw': { titulo: 'USD por kW de potencia total', unidad: 'USD/kW', dir: -1,
+    sub: 'Cuánto cuesta cada kW: precio (tope de gama) dividido la potencia total del sistema.' },
+  'usd-km': { titulo: 'USD por km de autonomía', unidad: 'USD/km', dir: -1,
+    sub: 'Solo eléctricos: precio (tope de gama) dividido la autonomía estimada a WLTP.' },
+};
+const RK_HERRAMIENTAS = { '__medida': '⭐ A tu medida', '__gasto': '💸 Gasto mensual' };
+const rkEsDerivada = k => k in RK_DERIVADAS;
+const rkEsHerr = k => k in RK_HERRAMIENTAS;
+const rkDir = k => rkEsDerivada(k) ? RK_DERIVADAS[k].dir : PCTL_DIR[k];
+const rkTitulo = k => rkEsDerivada(k) ? RK_DERIVADAS[k].titulo : RK_HERRAMIENTAS[k] || rkEtiqueta(k);
+const rkUnidadDe = k => rkEsDerivada(k) ? RK_DERIVADAS[k].unidad : rkUnidad(k);
+const RK_CLAVES = [...RK_FILAS.map(f => f[0]), ...Object.keys(RK_DERIVADAS)];
+
+// Valor de un auto en una fila del ranking, ya clasificado.
+// tipo: ok | sd (sin dato) | na (no aplica) | nc (no comparable) | aparte | ciclo (sin ciclo o sin factor)
+function rkValor(i, k){
+  const car = CARS[i];
+  if (k === 'usd-kw'){
+    const p = SIM_PRECIO[i], kw = rkValor(i, FILA_POT);
+    if (p == null || kw.tipo !== 'ok') return { tipo: 'sd', motivo: p == null ? 'Sin precio en USD.' : 'Sin potencia total comparable.' };
+    return { tipo: 'ok', n: Math.round(p / kw.n), v: '' };
+  }
+  if (k === 'usd-km'){
+    if (car.type !== 'ev') return { tipo: 'na', motivo: 'Solo para autos 100% eléctricos.' };
+    const p = SIM_PRECIO[i], a = rkValor(i, FILA_AUT);
+    if (p == null || a.tipo !== 'ok') return { tipo: 'sd', motivo: p == null ? 'Sin precio en USD.' : 'Sin autonomía comparable.' };
+    return { tipo: 'ok', n: Math.round(p / a.n), v: '', est: true };
+  }
+  const v = FILA_POR_NOMBRE[k][i + 1], c = rkClasificar(v, k);
+  const aparte = RK_APARTE[k];
+  if (c.tipo === 'ok' && aparte && aparte.tipos.includes(car.type)) return { tipo: 'aparte', v };
+  if (c.tipo !== 'ok') return { tipo: c.tipo, v };
+  if (k === FILA_AUT || k === FILA_CONS){
+    const ciclo = cicloDe(v);
+    if (!ciclo || ciclo === 'ciclo no informado') return { tipo: 'ciclo', v, motivo: 'La fuente no dice en qué ciclo se midió: no se puede estimar.' };
+    const f = k === FILA_AUT ? WLTP_AUT[ciclo] : (WLTP_CONS[car.type] || {})[ciclo];
+    if (!f) return { tipo: 'ciclo', v, motivo: 'No hay factor publicado para pasar ' + ciclo + ' a WLTP.' };
+    const est = k === FILA_AUT ? redondear(c.n * f, 10) : redondear(c.n * f, 0.1);
+    return { tipo: 'ok', n: est, orig: c.n, ciclo, est: f !== 1, v };
+  }
+  if (k === FILA_COMB) return { tipo: 'ok', n: c.n, ciclo: cicloDe(v) || 'ciclo no informado', v };
+  return { tipo: 'ok', n: c.n, v };
+}
+
+// Qué autos compiten.
+let rkFiltro = { mios: true, todos: false, body: '', size: '', prop: '', precioMax: 0 };
+function rkCandidatos(){
+  const todosIdx = CARS.map((_, i) => i);
+  const mios = todosIdx.filter(i => colVisible[i]);
+  const hayMios = mios.length < CARS.length;
+  if (hayMios && rkFiltro.mios) return { lista: mios, mios, hayMios };
+  const lista = todosIdx.filter(i => {
+    const c = CARS[i];
+    if (!rkFiltro.todos && c.status !== 'venta') return false;
+    if (rkFiltro.body && c.body !== rkFiltro.body) return false;
+    if (rkFiltro.size && (SEGMENT_LABELS[c.size] || 'Sin dato') !== rkFiltro.size) return false;
+    if (rkFiltro.prop && SIM_FAMILIA[c.type] !== rkFiltro.prop) return false;
+    if (rkFiltro.precioMax && !(SIM_PRECIO[i] != null && SIM_PRECIO[i] <= rkFiltro.precioMax)) return false;
+    return true;
+  });
+  return { lista, mios: hayMios ? mios : [], hayMios };
+}
+
+// Ordena y pone puestos (los empates comparten puesto: 1, 2, 2, 4).
+function rkOrdenar(items, dir){
+  items.sort((a, b) => dir > 0 ? b.n - a.n : a.n - b.n);
+  items.forEach((r, k) => { r.pos = (k > 0 && r.n === items[k - 1].n) ? items[k - 1].pos : k + 1; });
+  return items;
+}
+// Clasifica a los candidatos en una fila: { ok, resto: {sd, na, nc, aparte, ciclo} }
+function rkClasificarFila(k, lista){
+  const ok = [], resto = { sd: [], na: [], nc: [], aparte: [], ciclo: [] };
+  for (const i of lista){
+    const r = rkValor(i, k); r.i = i;
+    (r.tipo === 'ok' ? ok : resto[r.tipo]).push(r);
+  }
+  return { ok, resto };
+}
+
 function rkChips(){
   const cont = document.getElementById('rkScroll');
-  cont.innerHTML = RK_FILAS.map(f =>
-    '<button type="button" class="cat-btn rk-chip' + (f[0] === rkActual ? ' active' : '') + '" aria-pressed="' +
-    (f[0] === rkActual) + '" data-fila="' + rkEsc(f[0]) + '">' + rkEsc(rkEtiqueta(f[0])) + '</button>').join('');
+  const chip = (k, txt, extra) => '<button type="button" class="cat-btn rk-chip' + (extra || '') + (k === rkActual ? ' active' : '') +
+    '" aria-pressed="' + (k === rkActual) + '" data-fila="' + rkEsc(k) + '">' + rkEsc(txt) + '</button>';
+  cont.innerHTML = Object.entries(RK_HERRAMIENTAS).map(([k, t]) => chip(k, t, ' rk-chip-herr')).join('') +
+    RK_FILAS.map(f => chip(f[0], rkEtiqueta(f[0]))).join('') +
+    Object.entries(RK_DERIVADAS).map(([k, d]) => chip(k, d.titulo, ' rk-chip-deriv')).join('');
+}
+
+function rkFiltrosHTML(cand){
+  const sel = (id, etiqueta, opciones, valor) => '<label class="rk-sel"><span>' + etiqueta + '</span><select id="' + id + '">' +
+    opciones.map(([v, t]) => '<option value="' + rkEsc(v) + '"' + (String(valor) === String(v) ? ' selected' : '') + '>' + rkEsc(t) + '</option>').join('') + '</select></label>';
+  const bloqueado = cand.hayMios && rkFiltro.mios;
+  const familias = [['', 'Todas'], ['combustion', 'Nafta o diésel'], ['hibrido', 'Híbridos'], ['enchufable', 'Enchufables'], ['electrico', 'Eléctricos']];
+  const topes = [[0, 'Sin límite'], ...[20000, 25000, 30000, 35000, 40000, 50000, 60000, 80000].map(n => [n, 'USD ' + n.toLocaleString('es-AR')])];
+  return (cand.hayMios ? '<button type="button" class="rk-mios" id="rkMios" aria-pressed="' + rkFiltro.mios + '">' +
+      (rkFiltro.mios ? '✓ ' : '') + 'Mis ' + cand.mios.length + ' autos</button>' : '') +
+    '<fieldset class="rk-filtros"' + (bloqueado ? ' disabled title="Sacá «Mis autos» para filtrar entre todos"' : '') + '>' +
+    sel('rkBody', 'Carrocería', [['', 'Todas'], ...BODIES.map(b => [b, b])], rkFiltro.body) +
+    sel('rkSize', 'Tamaño', [['', 'Todos'], ...SEGMENTS.filter(s => s !== 'Sin dato').map(s => [s, s])], rkFiltro.size) +
+    sel('rkProp', 'Propulsión', familias, rkFiltro.prop) +
+    sel('rkPrecio', 'Hasta', topes, rkFiltro.precioMax) +
+    '<label class="rk-check"><input type="checkbox" id="rkTodos"' + (rkFiltro.todos ? ' checked' : '') + '> Incluir preventa y no lanzados</label>' +
+    '</fieldset>';
+}
+
+function rkMarcaHTML(v){
+  if (typeof v !== 'string') return '';
+  const tip = v.includes('|') ? v.split('|')[1] : '';
+  return v.startsWith('NOTE:') ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Aclaración: métrica no directamente comparable entre estas fichas.') + '">ℹ️</span>'
+       : v.startsWith('EXT:')  ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Dato de otra fuente, no oficial de la ficha AR.') + '">🔶</span>' : '';
+}
+const rkNoVenta = i => CARS[i].status !== 'venta' ? '<span class="rk-estado">' + rkEsc(STATUS_LABELS[CARS[i].status] || CARS[i].status) + '</span>' : '';
+
+// Una fila de la lista. `valorHTML` es lo que se lee grande a la derecha.
+function rkItemHTML(r, maxN, valorHTML, extraHTML, mios){
+  const a = rkDatosAutos()[r.i];
+  return '<li class="rk-item' + (mios.includes(r.i) ? ' rk-mio' : '') + '" data-auto="' + rkEsc(a.nombre) + '" data-idx="' + r.i + '" data-valor="' + r.n + '" tabindex="0">' +
+    '<span class="rk-pos">' + (r.pos != null ? r.pos : '–') + '</span>' +
+    (a.foto ? '<img class="rk-foto" src="' + a.foto + '" alt="">' : '<span></span>') +
+    '<div class="rk-cuerpo"><div class="rk-nombre"><span>' + rkEsc(a.nombre) + '</span>' + a.iconos + rkNoVenta(r.i) + '</div>' +
+    (maxN ? '<div class="rk-barra" aria-hidden="true"><i style="width:' + Math.max(2, 100 * r.n / maxN).toFixed(1) + '%"></i></div>' : '') +
+    (extraHTML || '') + '</div><div class="rk-valor">' + valorHTML + '</div></li>';
+}
+function rkValorHTML(r, k){
+  const unidad = rkUnidadDe(k);
+  const u = unidad ? '<small>' + rkEsc(unidad) + '</small>' : '';
+  if (r.orig != null){
+    // Grande: la cifra de la ficha con su ciclo. Chico: el estimado WLTP por el que se ordena.
+    return rkNumero(r.orig, k) + u + ' <span class="rk-ciclo">' + rkEsc(r.ciclo) + '</span>' + rkMarcaHTML(r.v) +
+      (r.est ? '<div class="rk-est" title="Estimado WLTP, solo para ordenar">≈ ' + rkNumero(r.n, k) + ' WLTP est.</div>' : '');
+  }
+  return (k === 'usd-kw' || k === 'usd-km' ? 'USD ' + r.n.toLocaleString('es-AR') : rkNumero(r.n, k) + u) +
+    (k === FILA_COMB && r.ciclo ? ' <span class="rk-ciclo">' + rkEsc(r.ciclo) + '</span>' : '') + rkMarcaHTML(r.v) +
+    (r.est ? '<div class="rk-est">con autonomía estimada a WLTP</div>' : '');
+}
+function rkOrigHTML(r){
+  if (typeof r.v !== 'string' || !r.v) return '';
+  const original = (cleanVal(r.v) || '').trim();
+  const soloNumero = original.replace(/\s+/g, '') === String(r.n).replace('.', ',') || original === String(r.n);
+  return soloNumero || r.orig != null ? '' : '<div class="rk-orig" title="' + rkEsc(original) + '">' + rkEsc(original) + '</div>';
+}
+
+// Los que no entran en la lista ordenada, en grupos que no se mezclan.
+function rkRestoHTML(resto, k){
+  const aparte = RK_APARTE[k];
+  const GRUPOS = [
+    ...(aparte ? [['aparte', aparte.titulo, aparte.texto, aparte.clave]] : []),
+    ['ciclo', 'Sin ciclo o sin factor', 'Tienen cifra, pero la fuente no dice en qué ciclo se midió (o no hay un factor publicado para ese ciclo), así que no se puede estimar a WLTP ni ordenar junto a las demás.'],
+    ['nc', 'No comparable', 'Tienen cifra, pero medida de otra forma (otra unidad, con los asientos rebatidos, o una "combinada" que es la suma de los motores), así que no se pueden ordenar junto a las demás.'],
+    ['na', 'No aplica', 'Esta característica no corresponde a estos autos (por ejemplo, el consumo de nafta en un eléctrico).'],
+    ['sd', 'Sin dato', 'No hay cifra en la ficha ni en otra fuente confiable. No quiere decir que estén abajo de todo: no se sabe dónde caen.'],
+  ];
+  return GRUPOS.filter(([g]) => resto[g].length).map(([g, titulo, texto, clave]) =>
+    '<section data-grupo="' + (clave || g) + '"><h3>' + titulo + ' (' + resto[g].length + ')</h3><p>' + texto + '</p><ul>' +
+    resto[g].map(r => {
+      const nom = rkEsc(CARS[r.i].name);
+      if (g === 'sd' || g === 'na'){
+        const tip = r.motivo || (g === 'na' ? (cleanVal(r.v) || '') : (typeof r.v === 'string' && r.v.startsWith('NR:') ? r.v.split('|')[1] : ''));
+        return '<li data-auto="' + nom + '" data-idx="' + r.i + '"' + (tip ? ' data-tip="' + rkEsc(tip) + '"' : '') + '>' + nom + '</li>';
+      }
+      return '<li data-auto="' + nom + '" data-idx="' + r.i + '"' + (r.motivo ? ' data-tip="' + rkEsc(r.motivo) + '"' : '') + '>' + nom + renderVal(r.v) + '</li>';
+    }).join('') + '</ul></section>').join('');
+}
+
+// Gráfico de puntos: precio contra el dato de la fila. SVG propio, sin librerías.
+function rkGraficoHTML(ok, k, mios){
+  const pts = ok.filter(r => SIM_PRECIO[r.i] != null).map(r => ({ i: r.i, x: SIM_PRECIO[r.i], y: r.n }));
+  if (pts.length < 3) return '';
+  const W = 640, H = 230, ml = 52, mr = 12, mt = 12, mb = 34;
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const px = x => ml + (x1 === x0 ? 0.5 : (x - x0) / (x1 - x0)) * (W - ml - mr);
+  const py = y => H - mb - (y1 === y0 ? 0.5 : (y - y0) / (y1 - y0)) * (H - mt - mb);
+  const num = n => n.toLocaleString('es-AR', { maximumFractionDigits: 1 });
+  const ticks = (a, b) => [a, a + (b - a) / 2, b];
+  const unidad = rkUnidadDe(k);
+  const mejor = rkDir(k) > 0 ? 'arriba' : 'abajo';
+  return '<figure class="rk-grafico"><figcaption>Precio contra ' + rkEsc(rkTitulo(k).toLowerCase()) +
+    ': conviene estar a la izquierda (más barato) y ' + mejor + ' (mejor).' + (k === FILA_AUT || k === FILA_CONS ? ' Usa el estimado WLTP.' : '') + '</figcaption>' +
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico de precio contra ' + rkEsc(rkTitulo(k)) + '">' +
+    ticks(y0, y1).map(t => '<line class="rk-g-grid" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + py(t) + '" y2="' + py(t) + '"/><text class="rk-g-eje" x="' + (ml - 6) + '" y="' + (py(t) + 4) + '" text-anchor="end">' + num(t) + '</text>').join('') +
+    ticks(x0, x1).map(t => '<text class="rk-g-eje" x="' + px(t) + '" y="' + (H - mb + 16) + '" text-anchor="middle">' + Math.round(t / 1000) + 'k</text>').join('') +
+    '<text class="rk-g-eje" x="' + (W - mr) + '" y="' + (H - 4) + '" text-anchor="end">USD</text>' +
+    (unidad ? '<text class="rk-g-eje" x="4" y="' + (mt + 4) + '">' + rkEsc(unidad) + '</text>' : '') +
+    pts.filter(p => !mios.includes(p.i)).concat(pts.filter(p => mios.includes(p.i))).map(p =>
+      '<circle class="rk-g-pt' + (mios.includes(p.i) ? ' mio' : '') + '" cx="' + px(p.x).toFixed(1) + '" cy="' + py(p.y).toFixed(1) + '" r="' + (mios.includes(p.i) ? 6 : 4.5) +
+      '" data-idx="' + p.i + '" data-tip="' + rkEsc(CARS[p.i].name + ': USD ' + p.x.toLocaleString('es-AR') + ' · ' + num(p.y) + (unidad ? ' ' + unidad : '')) + '"/>').join('') +
+    '</svg></figure>';
+}
+
+// Cobertura: cuántos de los candidatos tienen la cifra.
+// nPublican: con cifra (se ordene o no); nAplica: a los que corresponde la fila.
+function rkCoberturaHTML(nPublican, nAplica, nRanking){
+  if (!nAplica) return '';
+  const pct = Math.round(100 * nPublican / nAplica);
+  const fuera = nPublican - nRanking;
+  return '<div class="rk-cobertura' + (pct < 50 ? ' baja' : '') + '"><div class="rk-cob-barra" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+    '<span>Publican esta cifra ' + nPublican + ' de los ' + nAplica + ' autos a los que corresponde' +
+    (fuera > 0 ? ' (' + fuera + ' no se pueden ordenar: ver abajo)' : '') +
+    (pct < 50 ? '. El 1º es el mejor <b>de los que la publican</b>, no necesariamente de todos.' : '.') + '</span></div>';
 }
 
 function renderRanking(){
   rkChips();
-  const fila = RK_FILAS.find(f => f[0] === rkActual);
-  const nombre = fila[0], dir = PCTL_DIR[nombre], unidad = rkUnidad(nombre);
-  const autos = rkDatosAutos();
-  const elegidos = CARS.map((_, i) => i).filter(i => colVisible[i]);
+  const cand = rkCandidatos();
+  document.getElementById('rkFiltros').innerHTML = rkFiltrosHTML(cand);
+  const k = rkActual;
+  if (k === '__medida') return rkRenderMedida(cand);
+  if (k === '__gasto') return rkRenderGasto(cand);
 
-  const aparte = RK_APARTE[nombre];
-  const ok = [], resto = { sd: [], na: [], nc: [] };
-  if (aparte) resto[aparte.clave] = [];
-  for (const i of elegidos){
-    const v = fila[i + 1], c = rkClasificar(v, nombre);
-    if (c.tipo === 'ok' && aparte && aparte.tipos.includes(CARS[i].type)) resto[aparte.clave].push({ i, v });
-    else if (c.tipo === 'ok') ok.push({ i, v, n: c.n });
-    else resto[c.tipo].push({ i, v });
+  const dir = rkDir(k);
+  const { ok, resto } = rkClasificarFila(k, cand.lista);
+  document.getElementById('rkTitulo').textContent = rkTitulo(k) + (rkUnidadDe(k) && !rkEsDerivada(k) ? ' (' + rkUnidadDe(k) + ')' : '');
+  const marcados = ok.filter(r => /^(NOTE|EXT):/.test(r.v || '')).length;
+  document.getElementById('rkSub').innerHTML = rkEsc((dir > 0 ? 'Mayor es mejor' : 'Menor es mejor') + ' · ' + ok.length + ' de ' + cand.lista.length +
+    ' autos con cifra para comparar' + (marcados ? ' · ' + marcados + ' con cifra de otro ciclo, otro mercado o con una aclaración (ℹ️ 🔶: tocalos para ver de dónde sale)' : '')) +
+    (rkEsDerivada(k) ? '<br>' + rkEsc(RK_DERIVADAS[k].sub) : '') +
+    (WLTP_TEXTO[k] ? '<details class="rk-como"><summary>' + (k === FILA_COMB ? '¿Por qué una lista por ciclo?' : '¿Cómo se estima?') + '</summary>' + rkEsc(WLTP_TEXTO[k]) + '</details>' : '');
+  document.getElementById('rkCobertura').innerHTML = rkCoberturaHTML(ok.length + resto.aparte.length + resto.ciclo.length + resto.nc.length, cand.lista.length - resto.na.length, ok.length);
+
+  const lista = document.getElementById('rkLista');
+  if (k === FILA_COMB){
+    // Un ranking por ciclo: solo compiten cifras medidas igual.
+    const porCiclo = {};
+    ok.forEach(r => (porCiclo[r.ciclo] = porCiclo[r.ciclo] || []).push(r));
+    const ciclos = Object.keys(porCiclo).filter(c => c !== 'ciclo no informado').sort((a, b) => porCiclo[b].length - porCiclo[a].length);
+    resto.ciclo.push(...(porCiclo['ciclo no informado'] || []));
+    lista.innerHTML = ciclos.map(c => {
+      const g = rkOrdenar(porCiclo[c], dir), max = Math.max(...g.map(r => r.n));
+      return '<li class="rk-subtitulo">' + rkEsc(c) + ' (' + g.length + ')</li>' + g.map(r => rkItemHTML(r, max, rkValorHTML(r, k), rkOrigHTML(r), cand.mios)).join('');
+    }).join('') || '<li class="rk-vacio">Ninguno de estos autos tiene esta cifra con su ciclo informado.</li>';
+    document.getElementById('rkGrafico').innerHTML = '';
+  } else {
+    rkOrdenar(ok, dir);
+    const max = ok.reduce((m, r) => Math.max(m, r.n), 0) || 1;
+    lista.innerHTML = ok.length ? ok.map(r => rkItemHTML(r, max, rkValorHTML(r, k), rkOrigHTML(r), cand.mios)).join('')
+      : '<li class="rk-vacio">Ninguno de estos autos tiene esta cifra para comparar.</li>';
+    document.getElementById('rkGrafico').innerHTML = (k === FILA_PRECIO || rkEsDerivada(k)) ? '' : rkGraficoHTML(ok, k, cand.mios);
   }
-  ok.sort((a, b) => dir > 0 ? b.n - a.n : a.n - b.n);
-  // Los empates comparten puesto: 1, 2, 2, 4.
-  ok.forEach((r, k) => { r.pos = (k > 0 && r.n === ok[k - 1].n) ? ok[k - 1].pos : k + 1; });
-  const max = ok.reduce((m, r) => Math.max(m, r.n), 0) || 1;
-  const marcados = ok.filter(r => /^(NOTE|EXT):/.test(r.v)).length;
-
-  document.getElementById('rkTitulo').textContent = rkEtiqueta(nombre) + (unidad ? ' (' + unidad + ')' : '');
-  document.getElementById('rkSub').textContent =
-    (dir > 0 ? 'Mayor es mejor' : 'Menor es mejor') + ' · ' + ok.length + ' de ' + elegidos.length +
-    ' autos con cifra para comparar' +
-    (marcados ? ' · ' + marcados + ' con cifra de otro ciclo, otro mercado o con una aclaración (ℹ️ 🔶: tocalos para ver de dónde sale)' : '');
-
-  document.getElementById('rkLista').innerHTML = ok.length ? ok.map(r => {
-    const a = autos[r.i];
-    const tip = r.v.includes('|') ? r.v.split('|')[1] : '';
-    const marca = r.v.startsWith('NOTE:') ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Aclaración: métrica no directamente comparable entre estas fichas.') + '">ℹ️</span>'
-                : r.v.startsWith('EXT:')  ? '<span class="rk-marca" data-tip="' + rkEsc(tip || 'Dato de otra fuente, no oficial de la ficha AR.') + '">🔶</span>' : '';
-    const original = (cleanVal(r.v) || '').trim();
-    // El texto de la ficha va debajo solo si dice algo más que el número.
-    const soloNumero = original.replace(/\s+/g, '') === String(r.n).replace('.', ',') || original === String(r.n);
-    return '<li class="rk-item" data-auto="' + rkEsc(a.nombre) + '" data-valor="' + r.n + '">' +
-      '<span class="rk-pos">' + r.pos + '</span>' +
-      (a.foto ? '<img class="rk-foto" src="' + a.foto + '" alt="">' : '<span></span>') +
-      '<div class="rk-cuerpo"><div class="rk-nombre"><span>' + rkEsc(a.nombre) + '</span>' + a.iconos + '</div>' +
-      '<div class="rk-barra" aria-hidden="true"><i style="width:' + (100 * r.n / max).toFixed(1) + '%"></i></div>' +
-      (soloNumero ? '' : '<div class="rk-orig" title="' + rkEsc(original) + '">' + rkEsc(original) + '</div>') + '</div>' +
-      '<div class="rk-valor">' + rkNumero(r.n, nombre) + (unidad ? '<small>' + rkEsc(unidad) + '</small>' : '') + marca + '</div>' +
-      '</li>';
-  }).join('') : '';
-  if (!ok.length) document.getElementById('rkLista').innerHTML =
-    '<li class="rk-vacio">Ninguno de los autos elegidos tiene esta cifra para comparar.</li>';
-
-  const GRUPOS = [
-    ...(aparte ? [[aparte.clave, aparte.titulo, aparte.texto]] : []),
-    ['nc', 'No comparable', 'Tienen cifra, pero medida de otra forma (otra unidad, o con los asientos rebatidos), así que no se pueden ordenar junto a las demás.'],
-    ['na', 'No aplica', 'Esta característica no corresponde a estos autos (por ejemplo, el consumo de nafta en un eléctrico).'],
-    ['sd', 'Sin dato', 'No hay cifra en la ficha ni en otra fuente confiable. No quiere decir que estén abajo de todo: no se sabe dónde caen.'],
-  ];
-  document.getElementById('rkResto').innerHTML = GRUPOS.filter(([k]) => resto[k].length).map(([k, titulo, texto]) =>
-    '<section data-grupo="' + k + '"><h3>' + titulo + ' (' + resto[k].length + ')</h3><p>' + texto + '</p><ul>' +
-    resto[k].map(r => {
-      const nom = rkEsc(autos[r.i].nombre);
-      // "Sin dato" y "No aplica": el título del grupo ya dice qué pasa, así que va
-      // solo el nombre, con el detalle en el tooltip. "No comparable" muestra la
-      // cifra, porque es justamente el motivo de que no entre.
-      if (k === 'sd' || k === 'na'){
-        const tip = k === 'na' ? (cleanVal(r.v) || '')
-                  : (typeof r.v === 'string' && r.v.startsWith('NR:') ? r.v.split('|')[1] : '');
-        return '<li data-auto="' + nom + '"' + (tip ? ' data-tip="' + rkEsc(tip) + '"' : '') + '>' + nom + '</li>';
-      }
-      // "No comparable" y los que van aparte muestran la cifra: es justamente lo
-      // que explica por qué no entran en el ranking.
-      return '<li data-auto="' + nom + '">' + nom + renderVal(r.v) + '</li>';
-    }).join('') + '</ul></section>').join('');
+  document.getElementById('rkResto').innerHTML = rkRestoHTML(resto, k);
 }
+
+// ---- Ficha de puestos de un auto (al tocarlo) ------------------------------
+function rkPuestoDe(i, k, lista){
+  const { ok, resto } = rkClasificarFila(k, lista);
+  const yo = ok.find(r => r.i === i);
+  if (!yo){
+    for (const g of ['aparte', 'ciclo', 'nc', 'na', 'sd']) if (resto[g].some(r => r.i === i))
+      return { txt: { aparte: 'aparte', ciclo: 'sin ciclo', nc: 'no comparable', na: 'no aplica', sd: 'sin dato' }[g], g };
+  }
+  if (k === FILA_COMB){
+    const mismo = ok.filter(r => r.ciclo === yo.ciclo);
+    rkOrdenar(mismo, rkDir(k));
+    return { pos: yo.pos, de: mismo.length, txt: yo.pos + 'º de ' + mismo.length + ' (' + yo.ciclo + ')' };
+  }
+  rkOrdenar(ok, rkDir(k));
+  return { pos: yo.pos, de: ok.length, txt: yo.pos + 'º de ' + ok.length };
+}
+function rkAbrirFicha(i){
+  const cand = rkCandidatos();
+  const lista = cand.lista.includes(i) ? cand.lista : [...cand.lista, i];
+  const filas = RK_CLAVES.map(k => {
+    const p = rkPuestoDe(i, k, lista);
+    const nivel = p.pos == null ? 'nd' : p.pos <= Math.max(1, Math.ceil(p.de / 4)) ? 'top' : p.pos > p.de - Math.ceil(p.de / 4) ? 'bajo' : 'medio';
+    return '<li class="rk-f-' + nivel + '"><span>' + rkEsc(rkTitulo(k)) + '</span><b>' + rkEsc(p.txt) + '</b></li>';
+  }).join('');
+  const box = document.getElementById('rkFicha');
+  box.innerHTML = '<button type="button" class="sim-cerrar" aria-label="Cerrar">✕</button><p class="sim-titulo">' + rkEsc(CARS[i].name) + ': dónde queda</p>' +
+    '<p class="rk-f-sub">Puesto en cada fila, contra ' + (cand.hayMios && rkFiltro.mios ? 'tus autos elegidos' : 'los autos de los filtros') + '. Verde: cuarto mejor; rojo: cuarto peor.</p><ul class="rk-f-lista">' + filas + '</ul>';
+  box.hidden = false;
+  box.querySelector('.sim-cerrar').focus();
+}
+function rkCerrarFicha(){ const b = document.getElementById('rkFicha'); b.hidden = true; b.innerHTML = ''; }
+
+// ---- A tu medida ------------------------------------------------------------
+// Cada fila elegida aporta el percentil del auto en esa fila (1 = el mejor), con el
+// peso que eligió la persona. Un auto se puntúa solo con las filas donde tiene cifra:
+// lo que falta no cuenta como peor. Lo que no aplica (autonomía en un naftero) no
+// cuenta. Si cubre menos de la mitad del peso elegido, va aparte, sin puesto.
+const RK_MEDIDA_FILAS = [FILA_PRECIO, FILA_POT, 'Volumen de baúl/carga (L)', 'Número de asientos', FILA_CONS, FILA_AUT, 'Aceleración 0-100 km/h (s)', 'Cantidad de parlantes', 'usd-kw'];
+const RK_NIVELES = ['Nada', 'Algo', 'Bastante', 'Mucho'];
+let rkPesos = { [FILA_PRECIO]: 3, [FILA_POT]: 2, 'Volumen de baúl/carga (L)': 2, [FILA_CONS]: 1 };
+try { const g = JSON.parse(localStorage.getItem('rkPesos') || 'null'); if (g) rkPesos = g; } catch (e) {}
+function rkPercentiles(k, lista){
+  const { ok, resto } = rkClasificarFila(k, lista);
+  const dir = rkDir(k), m = ok.length, out = new Map();
+  ok.forEach(r => {
+    if (m < 2){ out.set(r.i, 1); return; }
+    let peores = 0, empates = 0;
+    ok.forEach(o => { if (o === r) return; const d = (r.n - o.n) * dir; if (d > 0) peores++; else if (d === 0) empates++; });
+    out.set(r.i, (peores + empates / 2) / (m - 1));
+  });
+  return { pct: out, na: new Set(resto.na.map(r => r.i)) };
+}
+function rkRenderMedida(cand){
+  document.getElementById('rkTitulo').textContent = '⭐ A tu medida';
+  document.getElementById('rkSub').innerHTML = rkEsc('Elegí cuánto te importa cada cosa. Cada auto se puntúa solo con los datos que tiene (lo que falta no lo hunde) y se muestra cuántos de los elegidos cubre. Los que cubren menos de la mitad van aparte.');
+  document.getElementById('rkCobertura').innerHTML = '<div class="rk-pesos">' + RK_MEDIDA_FILAS.map(k =>
+    '<label><span>' + rkEsc(rkTitulo(k)) + '</span><select data-peso="' + rkEsc(k) + '">' + RK_NIVELES.map((t, n) =>
+      '<option value="' + n + '"' + ((rkPesos[k] || 0) === n ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>').join('') + '</div>';
+  document.getElementById('rkGrafico').innerHTML = '';
+  const elegidas = RK_MEDIDA_FILAS.filter(k => rkPesos[k] > 0);
+  const lista = document.getElementById('rkLista');
+  if (!elegidas.length){
+    lista.innerHTML = '<li class="rk-vacio">Elegí al menos una cosa que te importe.</li>';
+    document.getElementById('rkResto').innerHTML = '';
+    return;
+  }
+  const datos = Object.fromEntries(elegidas.map(k => [k, rkPercentiles(k, cand.lista)]));
+  const ok = [], pocos = [];
+  cand.lista.forEach(i => {
+    let suma = 0, pesoCon = 0, pesoTotal = 0, n = 0, total = 0;
+    elegidas.forEach(k => {
+      const d = datos[k];
+      if (d.na.has(i)) return;                     // no aplica: ni suma ni resta
+      const w = rkPesos[k]; pesoTotal += w; total++;
+      if (d.pct.has(i)){ suma += w * d.pct.get(i); pesoCon += w; n++; }
+    });
+    const r = { i, n: pesoCon ? Math.round(100 * suma / pesoCon) : 0, cubre: n, de: total, v: '' };
+    (pesoTotal && pesoCon >= pesoTotal / 2 ? ok : pocos).push(r);
+  });
+  rkOrdenar(ok, 1);
+  lista.innerHTML = ok.map(r => rkItemHTML(r, 100, r.n + '<small>/100</small>',
+    '<div class="rk-orig">con ' + r.cubre + ' de ' + r.de + ' datos</div>', cand.mios)).join('') ||
+    '<li class="rk-vacio">Ningún auto tiene la mitad de los datos elegidos.</li>';
+  document.getElementById('rkResto').innerHTML = pocos.length ? '<section data-grupo="pocos"><h3>Con menos de la mitad de los datos (' + pocos.length + ')</h3>' +
+    '<p>Con tan pocos datos un puntaje diría más de la ficha que del auto: no se ordenan.</p><ul>' +
+    pocos.map(r => '<li data-auto="' + rkEsc(CARS[r.i].name) + '" data-idx="' + r.i + '">' + rkEsc(CARS[r.i].name) + ' <small>(' + r.cubre + ' de ' + r.de + ')</small></li>').join('') + '</ul></section>' : '';
+}
+
+// ---- Gasto mensual -----------------------------------------------------------
+// Combustible con el consumo estimado a WLTP (más cerca del uso real que el NEDC).
+// Electricidad: batería dividida la autonomía estimada a WLTP, que es una aproximación
+// (no toda la batería es utilizable): va marcada. Enchufables: la parte eléctrica que
+// elija la persona (por defecto todo eléctrico, pedido del usuario); la parte a nafta
+// solo si la ficha da el consumo con la batería descargada.
+let rkGasto = { km: '', litro: '', kwh: '', electrico: 100 };
+try { const g = JSON.parse(localStorage.getItem('rkGasto') || 'null'); if (g) rkGasto = Object.assign(rkGasto, g); } catch (e) {}
+function rkGastoAuto(i){
+  const c = CARS[i], km = +rkGasto.km, litro = +rkGasto.litro, kwh = +rkGasto.kwh;
+  const bat = pctlValor(FILA_POR_NOMBRE['Capacidad de batería (kWh)'][i + 1], 'Capacidad de batería (kWh)');
+  const aut = rkValor(i, FILA_AUT);
+  const kwh100 = (bat && aut.tipo === 'ok') ? 100 * bat / aut.n : null;
+  if (c.type === 'ev'){
+    if (!kwh) return { motivo: 'Falta el precio del kWh.' };
+    if (kwh100 == null) return { motivo: 'Sin batería o autonomía para estimar el consumo eléctrico.' };
+    return { n: km / 100 * kwh100 * kwh, det: kwh100.toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' kWh/100 km (estimado)' };
+  }
+  if (c.type === 'phev'){
+    const e = rkGasto.electrico / 100;
+    let gasto = 0, det = [];
+    if (e > 0){
+      if (!kwh) return { motivo: 'Falta el precio del kWh.' };
+      if (kwh100 == null) return { motivo: 'Sin batería o autonomía eléctrica para estimar el consumo eléctrico.' };
+      gasto += km * e / 100 * kwh100 * kwh; det.push(kwh100.toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' kWh/100 km est.');
+    }
+    if (e < 1){
+      const v = FILA_POR_NOMBRE[FILA_CONS][i + 1];
+      const l = pctlValor(v, FILA_CONS);
+      if (!litro) return { motivo: 'Falta el precio del litro.' };
+      if (l == null || !/bater[ií]a (baja|vac[ií]a|descargada)/i.test(v)) return { motivo: 'La ficha no da el consumo con la batería descargada.' };
+      gasto += km * (1 - e) / 100 * l * litro; det.push(l.toLocaleString('es-AR') + ' L/100 km con batería baja');
+    }
+    return { n: gasto, det: det.join(' + ') };
+  }
+  const r = rkValor(i, FILA_CONS);
+  if (!litro) return { motivo: 'Falta el precio del litro.' };
+  if (r.tipo !== 'ok') return { motivo: r.motivo || 'Sin consumo con ciclo informado.' };
+  return { n: km / 100 * r.n * litro, det: r.n.toLocaleString('es-AR') + ' L/100 km WLTP' + (r.est ? ' est.' : '') };
+}
+function rkRenderGasto(cand){
+  document.getElementById('rkTitulo').textContent = '💸 Gasto mensual en energía';
+  document.getElementById('rkSub').innerHTML = rkEsc('Cuánto gastarías por mes en nafta o electricidad, con tus números. Usa el consumo estimado a WLTP, que se acerca más al uso real que el NEDC; aun así el real suele ser mayor. En los eléctricos el consumo sale de la batería y la autonomía: es una aproximación.');
+  const campo = (id, et, ph, val, extra) => '<label><span>' + et + '</span><input type="number" min="0" inputmode="decimal" id="' + id + '" placeholder="' + ph + '" value="' + rkEsc(val) + '"' + (extra || '') + '></label>';
+  document.getElementById('rkCobertura').innerHTML = '<div class="rk-gasto">' +
+    campo('gKm', 'Km por mes', 'ej. 1200', rkGasto.km) + campo('gLitro', '$ por litro de nafta', 'precio del litro', rkGasto.litro) +
+    campo('gKwh', '$ por kWh', 'tu tarifa', rkGasto.kwh) +
+    '<label><span>Enchufables: % eléctrico</span><input type="number" min="0" max="100" id="gElec" value="' + rkGasto.electrico + '"></label></div>';
+  document.getElementById('rkGrafico').innerHTML = '';
+  const lista = document.getElementById('rkLista');
+  if (!(+rkGasto.km > 0)){
+    lista.innerHTML = '<li class="rk-vacio">Cargá cuántos km hacés por mes y los precios para ver el gasto de cada auto.</li>';
+    document.getElementById('rkResto').innerHTML = '';
+    return;
+  }
+  const ok = [], sin = [];
+  cand.lista.forEach(i => { const g = rkGastoAuto(i); (g.n != null ? ok : sin).push(Object.assign({ i, v: '' }, g, g.n != null ? { n: Math.round(g.n) } : {})); });
+  rkOrdenar(ok, -1);
+  const max = ok.reduce((m, r) => Math.max(m, r.n), 0) || 1;
+  lista.innerHTML = ok.map(r => rkItemHTML(r, max, '$ ' + r.n.toLocaleString('es-AR') + '<small>/mes</small>', '<div class="rk-orig">' + rkEsc(r.det) + '</div>', cand.mios)).join('') ||
+    '<li class="rk-vacio">Faltan precios para calcular.</li>';
+  document.getElementById('rkResto').innerHTML = sin.length ? '<section data-grupo="sd"><h3>Sin cálculo (' + sin.length + ')</h3><p>Falta algún dato para estimar su gasto.</p><ul>' +
+    sin.map(r => '<li data-auto="' + rkEsc(CARS[r.i].name) + '" data-idx="' + r.i + '" data-tip="' + rkEsc(r.motivo) + '">' + rkEsc(CARS[r.i].name) + '</li>').join('') + '</ul></section>' : '';
+}
+
+// ---- Eventos del ranking ------------------------------------------------------
+document.getElementById('rankingView').addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'rkBody') rkFiltro.body = t.value;
+  else if (t.id === 'rkSize') rkFiltro.size = t.value;
+  else if (t.id === 'rkProp') rkFiltro.prop = t.value;
+  else if (t.id === 'rkPrecio') rkFiltro.precioMax = +t.value;
+  else if (t.id === 'rkTodos') rkFiltro.todos = t.checked;
+  else if (t.dataset.peso){ rkPesos[t.dataset.peso] = +t.value; try { localStorage.setItem('rkPesos', JSON.stringify(rkPesos)); } catch (er) {} }
+  else return;
+  renderRanking();
+});
+document.getElementById('rankingView').addEventListener('input', e => {
+  const t = e.target, map = { gKm: 'km', gLitro: 'litro', gKwh: 'kwh', gElec: 'electrico' };
+  if (!map[t.id]) return;
+  rkGasto[map[t.id]] = t.id === 'gElec' ? Math.max(0, Math.min(100, +t.value || 0)) : t.value;
+  try { localStorage.setItem('rkGasto', JSON.stringify(rkGasto)); } catch (er) {}
+  // Re-dibuja solo la lista: rehacer los campos le sacaría el foco al que se está escribiendo.
+  const foco = t.id, pos = t.selectionStart;
+  renderRanking();
+  const n = document.getElementById(foco); if (n){ n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} }
+});
+document.getElementById('rankingView').addEventListener('click', e => {
+  if (e.target.id === 'rkMios'){ rkFiltro.mios = !rkFiltro.mios; renderRanking(); return; }
+  if (e.target.closest('#rkFicha')){ if (e.target.closest('.sim-cerrar')) rkCerrarFicha(); return; }
+  const it = e.target.closest('[data-idx]');
+  if (it && !e.target.closest('.rk-marca')) rkAbrirFicha(+it.dataset.idx);
+});
+document.getElementById('rankingView').addEventListener('keydown', e => {
+  if (e.key === 'Escape') rkCerrarFicha();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.rk-item')){ e.preventDefault(); rkAbrirFicha(+e.target.dataset.idx); }
+});
 
 let rkScrollTabla = 0;
 function mostrarVista(v){
@@ -2657,11 +3098,13 @@ applyFilters();
 let refIdx = null, ordenActual = '';
 const FILA_POR_NOMBRE = Object.fromEntries(DATA.flatMap(c => c[1]).map(f => [f[0], f]));
 const ordenClave = nombre => rkEtiqueta(nombre).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const ORDEN_FILAS = RK_FILAS.map(f => ({ clave: ordenClave(f[0]), nombre: f[0], dir: PCTL_DIR[f[0]] }));
+const ORDEN_FILAS = RK_FILAS.filter(f => f[0] !== FILA_COMB).map(f => ({ clave: ordenClave(f[0]), nombre: f[0], dir: PCTL_DIR[f[0]] }));
 function valorComparable(i, nombre){
-  const aparte = RK_APARTE[nombre];
-  if (aparte && aparte.tipos.includes(CARS[i].type)) return null;
-  return pctlValor(FILA_POR_NOMBRE[nombre][i + 1], nombre);
+  // El mismo criterio que el ranking: autonomía y consumo por su estimado WLTP, y la
+  // combinada no se compara entre autos de distinto ciclo, así que acá no entra.
+  if (nombre === FILA_COMB) return null;
+  const r = rkValor(i, nombre);
+  return r.tipo === 'ok' ? r.n : null;
 }
 
 const ordenSel = document.getElementById('ordenSel');
