@@ -53,7 +53,7 @@ Foton Tunland V9	foton-tunland-v9-naftera-v3.pdf	https://foton.com.ar/wp-content
 Maxus eTerron	maxus-eterron9.pdf	https://maxus.com.ar/documents/Maxus_FT_eTerron9_OCT25.pdf	556e2c85bb6419c917c4deb7db6513fe289908278495df03ffc9e68b9d94cb55	2026-09-24
 
 # SIN URL REGISTRADA — hay que redescubrirla antes de poder detectar cambios:
-#   Poer 4WD, JAC T9, GAC S7, BJ40 Pro, BJ40 Plus (brochure BAIC)
+#   JAC T9, GAC S7, BJ40 Pro, BJ40 Plus (brochure BAIC). (Poer 4WD: recuperada el 2026-10-04.)
 #
 # ⚠️ DFSK publica DOS fichas del E5 y son versiones distintas: E5 PHEV (dic-2025,
 # 12,3", 4 airbags, cámara trasera) y E5 Plus (jun-2026 y ago-2026: 15,6", 6 airbags,
@@ -203,6 +203,16 @@ Omoda E5	omoda-5-ev.pdf	https://www.omodajaecoo.com.ar/omoda5-ev.pdf	c9bcef179ba
 # Leapmotor C10/B10: las fichas de octubre 2026 reemplazan a las de julio (solo cambian
 #   los espejos). Omoda E5: la ficha AR parece un borrador ("QR ficha completa" sin completar).
 # Ya no está pendiente el Omoda E5: su columna sale de la ficha AR (omoda5-ev.pdf).
+
+# --- 2026-10-04: garantía y origen (las garantías salen sobre todo de sitios y prensa: ver cada celda):
+Chery (garantía)	chery-certificado-garantia.pdf	https://chery.com.ar/wp-content/uploads/2026/03/20260223_Certificado-de-garantia-CHERY-ARGENTINA_compressed.pdf	2b979ccd6de60ce311de61d26f13583bade1270711d6f7c3ef7c071be3f05b71	2026-10-04
+Chery Tiggo 7 Pro PHEV	chery-tiggo-7-csh-phev.pdf	https://chery.com.ar/wp-content/uploads/2026/07/Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf	e72527a47664ef49d083a7a11c4d6c16c7a05147291c19daaad2af667b0a594c	2026-10-04
+Chery Tiggo 8 Pro	chery-tiggo-8-pro-my25.pdf	https://chery.com.ar/wp-content/uploads/2025/12/MY25_TIGGO_8_PRO.pdf	c1b034fabcc1192e66848f6ab18b970959be691177ee02e0d8d5bfe23581dd15	2026-10-04
+Poer 4WD	gwm-poer-luxury.pdf	https://gwm.com.ar/FT-Poer-Luxury.pdf	40c300d2d02fb8598d374ce97d523df74b0d8ce2d668a3edee4230800d770a69	2026-10-04
+# ⚠️ El Tiggo 7 Pro PHEV SÍ tiene ficha AR (Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf, julio 2026):
+#   su columna todavía sale solo de la lista de precios N° 12. Pendiente completarla.
+# ⚠️ El campo "Origen" del catálogo de Autocosmos NO sirve: pone el país de la marca
+#   ("Hecho en Gran Bretaña" en todos los MG), no el de la planta.
 
 # Stelato S9: SIN ficha argentina. BAIC lo exhibió en la Expo Auto Chino 2026 sin
 # fecha de venta; la columna sale del mercado chino (versión eléctrica AWD) y va
