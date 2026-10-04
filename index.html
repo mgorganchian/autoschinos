@@ -1430,14 +1430,15 @@ function renderVal(v){
 // Reproduce 24 de los 27 que ya estaban (no coinciden los dos BJ30, "compact" con
 // 4730 mm, y el Lynk & Co 08, "xl" con 4820 mm: clasificados antes con otro
 // criterio). Se probó sumar ancho y distancia entre ejes y reproducía solo 13 de 27.
-// Las pickups (5,3 a 5,6 m) quedan "xl" por medidas, aunque el mercado las llame
-// medianas. Sin largo cargado quedan "nd": hoy el Tiggo 7 Pro PHEV y la JMC Grand
+// "Muy grande" (xl) desde el 2026-10-04 pide además 6+ asientos o ser pickup (pedido
+// del usuario): un sedán de 5,16 m de 5 plazas es "grande", no "muy grande". Los de 7
+// asientos de menos de 4825 mm siguen en "grande". El Lynk & Co 08 dejó de ser excepción. Sin largo cargado quedan "nd": hoy el Tiggo 7 Pro PHEV y la JMC Grand
 // Avenue Pro. El test de invariantes falla si un auto con largo queda sin segmento.
 // Metadata per column, en el mismo orden que las columnas del thead (108 autos)
 const CARS = [
   {name:"BAIC BJ60", short:"BJ60", type:"mhev", size:"xl", brand:"BAIC", body:"SUV", status:"venta"},
-  {name:"BYD Sealion 7", short:"Sealion 7", type:"ev", size:"xl", brand:"BYD", body:"Crossover", status:"nolanzado"},
-  {name:"Lynk & Co 08", short:"Lynk 08", type:"phev", size:"xl", brand:"Lynk & Co", body:"SUV", status:"venta"},
+  {name:"BYD Sealion 7", short:"Sealion 7", type:"ev", size:"big", brand:"BYD", body:"Crossover", status:"nolanzado"},
+  {name:"Lynk & Co 08", short:"Lynk 08", type:"phev", size:"big", brand:"Lynk & Co", body:"SUV", status:"venta"},
   {name:"Arcfox S5", short:"Arcfox S5", type:"ev", size:"big", brand:"Arcfox", body:"Sedán", status:"venta"},
   {name:"BAIC BJ40 Pro", short:"BJ40 Pro", type:"ice", size:"big", brand:"BAIC", body:"SUV", status:"venta"},
   {name:"Seal 5 DM-i", short:"Seal 5", type:"phev", size:"big", brand:"BYD", body:"Sedán", status:"preventa"},
@@ -1470,7 +1471,7 @@ const CARS = [
   {name:"Geely EX5", short:"EX5", type:"ev", size:"mid", brand:"Geely", body:"SUV", status:"venta"},
   {name:"JAC T9", short:"T9", type:"ice", size:"xl", brand:"JAC", body:"Pickup", status:"venta"},
   {name:"Jetour T2", short:"T2", type:"ice", size:"big", brand:"Jetour", body:"SUV", status:"venta"},
-  {name:"GAC S7", short:"S7", type:"phev", size:"xl", brand:"GAC", body:"Sedán", status:"venta"},
+  {name:"GAC S7", short:"S7", type:"phev", size:"big", brand:"GAC", body:"Sedán", status:"venta"},
   {name:"Kaiyi X7", short:"X7", type:"ice", size:"mid", brand:"Kaiyi", body:"SUV", status:"venta"},
   {name:"Forthing U-Tour", short:"U-Tour", type:"hev", size:"xl", brand:"Forthing", body:"SUV", status:"venta"},
   {name:"Skywell ET5", short:"ET5", type:"ev", size:"big", brand:"Skywell", body:"SUV", status:"venta"},
@@ -1483,7 +1484,7 @@ const CARS = [
   {name:"JMEV Easy 3", short:"Easy 3", type:"ev", size:"mini", brand:"JMEV", body:"Hatchback", status:"venta"},
   {name:"Chery Arrizo 8", short:"Arrizo 8", type:"phev", size:"big", brand:"Chery", body:"Sedán", status:"venta"},
   {name:"MG Cyberster", short:"Cyberster", type:"ev", size:"mid", brand:"MG", body:"Convertible", status:"venta"},
-  {name:"Stelato S9", short:"S9", type:"ev", size:"xl", brand:"Stelato", body:"Sedán", status:"nolanzado"},
+  {name:"Stelato S9", short:"S9", type:"ev", size:"big", brand:"Stelato", body:"Sedán", status:"nolanzado"},
   {name:"Chery Himla", short:"Himla", type:"ice", size:"xl", brand:"Chery", body:"Pickup", status:"venta"},
   {name:"Chery Tiggo 2 Pro Max", short:"Tiggo 2 Pro Max", type:"ice", size:"compact", brand:"Chery", body:"SUV", status:"venta"},
   {name:"Chery Tiggo 4 Hybrid", short:"Tiggo 4 Hybrid", type:"hev", size:"compact", brand:"Chery", body:"SUV", status:"venta"},
@@ -1499,7 +1500,7 @@ const CARS = [
   {name:"Dongfeng Huge", short:"Huge", type:"hev", size:"big", brand:"Dongfeng", body:"SUV", status:"venta"},
   {name:"Dongfeng Mage", short:"Mage", type:"hev", size:"mid", brand:"Dongfeng", body:"SUV", status:"venta"},
   {name:"Forthing Friday REEV", short:"Friday REEV", type:"phev", size:"mid", brand:"Forthing", body:"SUV", status:"venta"},
-  {name:"Forthing S7 REEV", short:"S7 REEV", type:"phev", size:"xl", brand:"Forthing", body:"Sedán", status:"preventa"},
+  {name:"Forthing S7 REEV", short:"S7 REEV", type:"phev", size:"big", brand:"Forthing", body:"Sedán", status:"preventa"},
   {name:"Forthing T5 EVO", short:"T5 EVO", type:"ice", size:"mid", brand:"Forthing", body:"SUV", status:"venta"},
   {name:"Foton Tunland G7", short:"Tunland G7", type:"ice", size:"xl", brand:"Foton", body:"Pickup", status:"venta"},
   {name:"GAC Aion V", short:"Aion V", type:"ev", size:"mid", brand:"GAC", body:"SUV", status:"venta"},
@@ -2209,7 +2210,7 @@ function submarcaDe(i){
 const infoMarca = i => MARCAS_INFO[submarcaDe(i)] || null;
 const grupoDe = i => (infoMarca(i) || {}).grupo || 'Sin dato';
 const BRANDS = [...new Set(CARS.map(c=>c.brand))];
-const SEGMENT_LABELS = {xl:"Grande", big:"Grande", mid:"Mediano", compact:"Compacto", mini:"Chico", nd:"Sin dato"};
+const SEGMENT_LABELS = {xl:"Muy grande", big:"Grande", mid:"Mediano", compact:"Compacto", mini:"Chico", nd:"Sin dato"};
 const SEGMENTS = [...new Set(CARS.map(c=>SEGMENT_LABELS[c.size]||"Sin dato"))];
 const BODIES = [...new Set(CARS.map(c=>c.body))];
 const PROP_LABELS = {phev:"Híbrido enchufable (PHEV)", hev:"Híbrido (HEV)", mhev:"Mild-Hybrid", ev:"100% Eléctrico", ice:"100% Nafta", tbd:"Aún no disponible"};

@@ -72,9 +72,17 @@ test.describe('invariantes del index.html', () => {
     const m = /\d+/.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]);
     return m ? Number(m[0]) : null;
   };
-  const SEGMENTO_POR_LARGO = l => l < 4150 ? 'mini' : l < 4515 ? 'compact' : l < 4714 ? 'mid' : l < 4825 ? 'big' : 'xl';
+  const asientosDe = i => {
+    const v = filas.find(f => f[0] === 'Número de asientos')[i + 1];
+    if (/^NR:|^ND$/.test(v)) return null;
+    const m = /\d+/.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]);
+    return m ? Number(m[0]) : null;
+  };
+  // Muy grande (xl): 4825 mm o más Y (6+ asientos o pickup). Decisión del usuario, 2026-10-04.
+  const SEGMENTO = (l, i) => l < 4150 ? 'mini' : l < 4515 ? 'compact' : l < 4714 ? 'mid'
+    : (l >= 4825 && ((asientosDe(i) || 0) >= 6 || CARS[i].body === 'Pickup')) ? 'xl' : 'big';
   // Clasificados antes de la regla con otro criterio; queda a decisión del usuario.
-  const EXCEPCIONES = ['BAIC BJ30 4x2', 'BAIC BJ30 4x4', 'Lynk & Co 08'];
+  const EXCEPCIONES = ['BAIC BJ30 4x2', 'BAIC BJ30 4x4'];
 
   test('ningún auto con largo cargado queda sin segmento', () => {
     const sinSegmento = CARS.filter((c, i) => c.size === 'nd' && largoDe(i) !== null).map(c => c.name);
@@ -83,8 +91,9 @@ test.describe('invariantes del index.html', () => {
 
   test('el segmento sigue la regla de largo, salvo las excepciones anotadas', () => {
     const distintos = CARS.map((c, i) => ({ c, l: largoDe(i) }))
-      .filter(({ c, l }) => l !== null && c.size !== 'nd' && !EXCEPCIONES.includes(c.name) && SEGMENTO_POR_LARGO(l) !== c.size)
-      .map(({ c, l }) => `${c.name}: ${l} mm figura "${c.size}", por largo sería "${SEGMENTO_POR_LARGO(l)}"`);
+      .map((x, i) => ({ ...x, i }))
+      .filter(({ c, l, i }) => l !== null && c.size !== 'nd' && !EXCEPCIONES.includes(c.name) && SEGMENTO(l, i) !== c.size)
+      .map(({ c, l, i }) => `${c.name}: ${l} mm figura "${c.size}", por la regla sería "${SEGMENTO(l, i)}"`);
     expect(distintos).toEqual([]);
   });
 

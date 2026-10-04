@@ -51,11 +51,13 @@ de `CARS`.
 | `status` | `venta` `preventa` `nolanzado` `discontinuado` |
 
 **`size` (segmento) se asigna por el largo**, con los umbrales anotados arriba de `CARS`
-(chico < 4150 mm ≤ compacto < 4515 ≤ mediano < 4714 ≤ grande < 4825 ≤ muy grande). Al
+(chico < 4150 mm ≤ compacto < 4515 ≤ mediano < 4714 ≤ grande; **muy grande** = 4825 mm o
+más **y además 6+ asientos o pickup**, pedido del usuario del 2026-10-04: un sedán largo
+de 5 plazas es "grande"). Al
 agregar un auto con largo cargado, su segmento sale de ahí, no "a ojo". `nd` solo si
 no hay largo. Sumar ancho y distancia entre ejes se probó y clasificaba peor (13 de 27
-contra 24 de 27). Tres autos clasificados antes no siguen la regla (los dos BJ30 y el
-Lynk & Co 08) y están listados como excepción en `tests/e2e/invariantes.spec.js`.
+contra 24 de 27). Dos autos clasificados antes no siguen la regla (los dos BJ30) y están
+listados como excepción en `tests/e2e/invariantes.spec.js`.
 
 ---
 
