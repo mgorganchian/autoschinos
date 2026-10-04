@@ -2,7 +2,7 @@
 // "Similares" de cada auto de la tabla. Lo que más importa: que sumar un auto
 // sume ESE auto y no otros, y que los criterios hagan lo que dicen.
 const { test, expect } = require('@playwright/test');
-const { leerIndex, vigilarErrores, FILAS_DATOS } = require('./helpers');
+const { leerIndex, vigilarErrores, FILAS_DATOS, N_FILAS } = require('./helpers');
 
 const { CARS, filas } = leerIndex();
 const N = CARS.length;
@@ -15,7 +15,7 @@ let errores;
 test.beforeEach(async ({ page }) => {
   errores = vigilarErrores(page);
   await page.goto('/index.html');
-  await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 });
 test.afterEach(() => expect(errores).toEqual([]));
 

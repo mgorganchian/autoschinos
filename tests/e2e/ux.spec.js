@@ -4,7 +4,7 @@
 // la referencia compare solo lo comparable, y que reordenar columnas no desalinee
 // ninguna celda respecto de su auto.
 const { test, expect } = require('@playwright/test');
-const { leerIndex, vigilarErrores, FILAS_DATOS } = require('./helpers');
+const { leerIndex, vigilarErrores, FILAS_DATOS, N_FILAS } = require('./helpers');
 
 const { CARS } = leerIndex();
 const indice = nombre => CARS.findIndex(c => c.name === nombre);
@@ -20,7 +20,7 @@ test.afterEach(() => expect(errores).toEqual([]));
 
 async function abrir(page, query = ''){
   await page.goto('/index.html' + query);
-  await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 }
 
 test.describe('link compartible', () => {
@@ -36,7 +36,7 @@ test.describe('link compartible', () => {
     const url = page.url();
 
     await page.goto(url);
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
     expect((await idxVisibles(page)).sort((a, b) => a - b)).toEqual(elegidos.sort((a, b) => a - b));
     await expect(page.locator('#summaryText')).toHaveText('🚗 Comparando 3 autos');
     await expect(page.locator('#mainTitle')).toBeHidden();       // como después de "Comparar"

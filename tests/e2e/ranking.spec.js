@@ -2,7 +2,7 @@
 // PCTL_DIR. Lo que más importa es que nunca rankee algo que no es comparable:
 // un eléctrico en consumo de nafta, una pickup con el baúl en kg.
 const { test, expect } = require('@playwright/test');
-const { leerIndex, vigilarErrores, FILAS_DATOS } = require('./helpers');
+const { leerIndex, vigilarErrores, FILAS_DATOS, N_FILAS } = require('./helpers');
 
 const { CARS, PCTL_DIR, filas } = leerIndex();
 const N = CARS.length;
@@ -12,7 +12,7 @@ let errores;
 test.beforeEach(async ({ page }) => {
   errores = vigilarErrores(page);
   await page.goto('/index.html');
-  await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 });
 test.afterEach(() => expect(errores).toEqual([]));
 
@@ -28,16 +28,16 @@ const enLista = page => page.locator('#rkLista .rk-item').evaluateAll(ls => ls.m
 const enGrupo = (page, g) => page.locator(`#rkResto section[data-grupo="${g}"] li`).evaluateAll(ls => ls.map(l => l.dataset.auto));
 
 test.describe('vista ranking', () => {
-  test('muestra las 14 filas comparables y vuelve a la tabla', async ({ page }) => {
+  test('muestra las 15 filas comparables y vuelve a la tabla', async ({ page }) => {
     await abrirRanking(page);
     await expect(page.locator('#rkScroll .rk-chip')).toHaveCount(FILAS_RANKING.length);
-    expect(FILAS_RANKING).toHaveLength(14);
+    expect(FILAS_RANKING).toHaveLength(15);   // 14 + Potencia total (2026-10-04)
     await expect(page.locator('#tbodyWrap')).toBeHidden();
     await expect(page.locator('#search')).toBeHidden();
 
     await page.click('#vistaTabla');
     await expect(page.locator('#rankingView')).toBeHidden();
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
     await expect(page.locator('#search')).toBeVisible();
   });
 
@@ -140,7 +140,7 @@ test.describe('vista ranking', () => {
     expect(antes).toBeGreaterThan(0);
     await abrirRanking(page);
     await page.click('#vistaTabla');
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
     expect(await page.locator('#tbodyWrap').evaluate(el => el.scrollLeft)).toBe(antes);
     expect(await page.locator('#theadWrap').evaluate(el => el.scrollLeft)).toBe(antes);
   });

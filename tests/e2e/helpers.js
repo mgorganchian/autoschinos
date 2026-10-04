@@ -47,4 +47,8 @@ function vigilarErrores(page) {
 const FILAS_DATOS = '#mainTable tbody tr:not(.cat-row):not(.hidden)';
 const FILAS_CAT = '#mainTable tbody tr.cat-row:not(.hidden)';
 
-module.exports = { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT };
+// Cantidad de filas de datos, leída de DATA: las specs de comportamiento no la
+// fijan a mano (invariantes.spec.js sí, porque ahí es justamente lo que se controla).
+const N_FILAS = leerIndex().filas.length;
+
+module.exports = { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT, N_FILAS };

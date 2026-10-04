@@ -1,7 +1,7 @@
 // Render real: con el script roto la tabla queda en 0 filas y el HTML igual
 // "parece" bien, así que se cuenta lo que el navegador dibuja.
 const { test, expect } = require('@playwright/test');
-const { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT } = require('./helpers');
+const { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT, N_FILAS } = require('./helpers');
 
 const { CARS, PCTL_DIR } = leerIndex();
 const N = CARS.length;
@@ -19,8 +19,8 @@ test.describe('render de la tabla', () => {
     expect(errores).toEqual([]);
   });
 
-  test('dibuja 92 filas de datos en 14 categorías, cada una con N+1 celdas', async ({ page }) => {
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+  test('dibuja todas las filas de datos en 14 categorías, cada una con N+1 celdas', async ({ page }) => {
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
     await expect(page.locator(FILAS_CAT)).toHaveCount(14);
     const celdas = await page.locator(FILAS_DATOS).evaluateAll(trs => [...new Set(trs.map(tr => tr.cells.length))]);
     expect(celdas).toEqual([N + 1]);

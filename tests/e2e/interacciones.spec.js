@@ -1,7 +1,7 @@
 // Interacciones de la página: búsqueda, categorías, solo diferencias,
 // referencias, selector de autos, tooltips y zoom de fotos.
 const { test, expect } = require('@playwright/test');
-const { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT } = require('./helpers');
+const { leerIndex, vigilarErrores, FILAS_DATOS, FILAS_CAT, N_FILAS } = require('./helpers');
 
 const { DATA, CARS } = leerIndex();
 const N = CARS.length;
@@ -11,7 +11,7 @@ let errores;
 test.beforeEach(async ({ page }) => {
   errores = vigilarErrores(page);
   await page.goto('/index.html');
-  await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 });
 test.afterEach(() => expect(errores).toEqual([]));
 
@@ -30,7 +30,7 @@ test.describe('filtros de la tabla', () => {
     await expect(page.locator(FILAS_CAT)).toHaveCount(0);
     await expect(page.locator('#noResults')).toBeVisible();
     await page.fill('#search', '');
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   });
 
   test('los botones de categoría muestran solo esa categoría y "Todas" vuelve', async ({ page }) => {
@@ -42,7 +42,7 @@ test.describe('filtros de la tabla', () => {
     await expect(page.locator(FILAS_CAT)).toHaveCount(1);
     await expect(botones.filter({ hasText: nombre }).first()).toHaveClass(/active/);
     await botones.filter({ hasText: 'Todas' }).click();
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   });
 
   test('"Solo diferencias" esconde las filas iguales entre los autos elegidos', async ({ page }) => {
@@ -50,9 +50,9 @@ test.describe('filtros de la tabla', () => {
     await page.check('#diffOnly');
     const conTodos = await page.locator(FILAS_DATOS).count();
     expect(conTodos).toBeGreaterThan(0);
-    expect(conTodos).toBeLessThanOrEqual(92);
+    expect(conTodos).toBeLessThanOrEqual(N_FILAS);
     await page.uncheck('#diffOnly');
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   });
 
   test('las referencias se abren y se cierran', async ({ page }) => {
@@ -173,7 +173,7 @@ test.describe('selector de autos', () => {
     await page.locator('#modelList input[data-idx="0"]').check();
     await page.click('#compareBtn');
     await page.check('#diffOnly');
-    await expect(page.locator(FILAS_DATOS)).toHaveCount(92);
+    await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   });
 });
 
