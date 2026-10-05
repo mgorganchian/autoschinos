@@ -309,11 +309,13 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   col.col-feat{width:var(--ancho-feat);}
   col.col-data{width:var(--ancho-col);}
 
-  /* Tablet y escritorio: columnas más anchas para que la foto de cada auto se vea grande
-     (pedido del usuario, 2026-10-05). La miniatura embebida mide 300 px: hasta ~150 px de
-     ancho se ve nítida incluso en pantallas retina; más grande se vería borrosa. */
+  /* Tablet y escritorio: como máximo 6 autos por pantalla, para que la foto de cada uno se
+     vea grande (pedido del usuario, 2026-10-05). En pantallas angostas cada columna queda en
+     144 px y entran menos. Con más de ~150 px la miniatura embebida (300 px) se vería borrosa:
+     el script la cambia por la portada de fotos/ (900 px) cuando hace falta. */
   @media (min-width: 768px){
-    :root{--ancho-feat:128px;--ancho-col:144px;}
+    :root{--ancho-feat:128px;--ancho-col:max(144px, calc((100vw - 128px - 8px) / 6));}
+    .car-photo{max-width:100%}
   }
 
   @media (max-width: 600px) and (orientation: portrait){
@@ -2023,14 +2025,15 @@ DATA.forEach((cat,ci)=>{
 const TH_AUTO = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
 TH_AUTO.forEach((th, i) => { th.dataset.idx = i; });
 const SLUG_AUTO = TH_AUTO.map(th => { const img = th.querySelector('img.car-photo'); return img ? img.dataset.slug : ''; });
-// En celulares con pantalla de alta densidad la miniatura embebida (300 px) se ve blanda al
-// ancho de columna del celular: se cambia por la portada de fotos/ cuando el auto entra en
-// pantalla. Si la portada no carga, queda la miniatura.
-if (window.matchMedia('(max-width: 767px)').matches && (window.devicePixelRatio || 1) > 1.5 && 'IntersectionObserver' in window) {
+// La miniatura embebida mide 300 px. Si la foto se dibuja con más píxeles que eso (columnas
+// anchas en escritorio, o pantallas de alta densidad), se cambia por la portada de fotos/
+// (900 px) cuando el auto entra en pantalla. Si la portada no carga, queda la miniatura.
+if ('IntersectionObserver' in window) {
   const obs = new IntersectionObserver(entradas => entradas.forEach(en => {
     if (!en.isIntersecting) return;
     const img = en.target; obs.unobserve(img);
     if (!(FOTOS_POR_AUTO[img.dataset.slug] > 0)) return;   // FOTOS_POR_AUTO se declara más abajo: leerlo recién acá
+    if (img.getBoundingClientRect().width * (window.devicePixelRatio || 1) <= 310) return;   // la miniatura alcanza
     const hd = new Image();
     hd.onload = () => { img.src = hd.src; };
     hd.src = 'fotos/' + img.dataset.slug + '-1.jpg';

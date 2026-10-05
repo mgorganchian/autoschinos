@@ -128,10 +128,11 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   fusionarlas.**
 - **En portrait se muestran 3 columnas** (característica + 2 autos): `col-feat 20vw`,
   `col-data 38vw`. Fue un pedido explícito. **No "arreglarlo" a 4 columnas.** La de
-  características es angosta para que la foto se vea grande (2026-10-05); en tablet y
-  escritorio (≥768 px) las columnas son de 144 px por lo mismo. La miniatura embebida
-  mide 300 px: más ancha se ve borrosa. En celulares de alta densidad se cambia por la
-  portada de `fotos/` cuando entra en pantalla.
+  características es angosta para que la foto se vea grande (2026-10-05). En tablet y
+  escritorio (≥768 px) entran **como máximo 6 autos por pantalla** (pedido del usuario):
+  cada columna mide un sexto del ancho, y nunca menos de 144 px. La miniatura embebida
+  mide 300 px; cuando la foto se dibuja con más píxeles, el script la cambia por la
+  portada de `fotos/` (900 px) al entrar en pantalla.
 - **Nombres cortos de características** (`ETIQUETA_CORTA`): la columna muestra el corto y
   el tooltip, el nombre completo más la explicación de `GLOSSARY`. **El nombre de `DATA`
   sigue siendo la clave de todo**: el código busca filas por `tr.dataset.nombre`, nunca
