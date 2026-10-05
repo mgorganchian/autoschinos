@@ -106,7 +106,7 @@ test.describe('selector de autos', () => {
     // Las columnas se ordenan por dimensiones, no por el orden de CARS: se compara el conjunto.
     const vistos = await columnasVisibles(page).evaluateAll(ths => ths.map(th => +th.dataset.idx));
     expect(vistos.map(i => CARS[i].name).sort()).toEqual(esperados.map(c => c.name).sort());
-    await expect(page.locator('#summaryText')).toHaveText(`🚗 Comparando ${esperados.length} auto${esperados.length === 1 ? '' : 's'}`);
+    await expect(page.locator('#summaryText')).toHaveText(`Comparando ${esperados.length} auto${esperados.length === 1 ? '' : 's'}`);
     await expect(page.locator('#mainTitle')).toBeHidden();
     // Las celdas del cuerpo acompañan al header.
     const celdas = await page.locator(FILAS_DATOS).first().locator('td[data-col]:not(.col-hidden)').count();

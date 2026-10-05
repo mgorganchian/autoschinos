@@ -173,7 +173,7 @@ test.describe('similares en el selector', () => {
     const tres = await sugeridos(page.locator('#simModal'));
     expect(tres).toHaveLength(3);
     for (const n of tres) expect(Math.abs(largo(n) - largo('BYD Sealion 7')), n).toBeLessThan(300);
-    await expect(page.locator('#simModal .sim-lista li small').first()).toContainText(' m ·');
+    await expect(page.locator('#simModal .sim-lista li small').first()).toContainText(' m,');
   });
 
   test('Tamaño usa el largo y lo dice; sin largo cargado se apaga', async ({ page }) => {
@@ -217,7 +217,7 @@ test.describe('similares en la tabla', () => {
     await panel.locator('.sim-todos').click();
     await expect(columnasVisibles(page)).toHaveCount(4);
     expect((await nombresVisibles(page)).sort()).toEqual([base, ...tres].sort());
-    await expect(page.locator('#summaryText')).toHaveText('🚗 Comparando 4 autos');
+    await expect(page.locator('#summaryText')).toHaveText('Comparando 4 autos');
 
     // El selector quedó igual: al abrirlo están tildados esos 4 y nada más.
     await page.click('#openModalBtn');

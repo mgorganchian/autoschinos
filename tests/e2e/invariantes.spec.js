@@ -99,7 +99,8 @@ test.describe('invariantes del index.html', () => {
 
   test('los tres conteos en texto coinciden con N', () => {
     expect(html).toContain(`<p id="headerSubtitle">${N} autos`);
-    expect(html).toContain(`<span id="summaryText">${N} autos · todos incluidos`);
+    expect(html).toContain(`<span id="summaryText">${N} autos, todos incluidos`);
+    expect(html).toContain(`<div class="cota" aria-hidden="true"><span>${N} autos</span>`);
     expect(html).toMatch(new RegExp(`\\(${N} autos\\)\\s*\\n\\s*const CARS`));
   });
 });

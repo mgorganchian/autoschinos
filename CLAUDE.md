@@ -231,6 +231,24 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   los links a fuentes oficiales. **No renombrar ni mover ese archivo** (lo sirve Vercel).
 - `og.jpg` (vista previa al compartir) se genera con fotos oficiales sin créditos de Commons.
 
+## Diseño: ficha técnica oficial (2026-10-04)
+
+Rediseño con la skill frontend-design, dirección elegida por el usuario. Para no deshacerlo:
+- **Tipografía**: Barlow (texto), Barlow Semi Condensed (tabla y números, cifras
+  tabulares), Barlow Condensed (títulos, nombres de autos, categorías). **Embebidas en
+  base64** al principio del `<style>`: no cargar Google Fonts (el archivo es autocontenido).
+- **Color**: papel frío `--paper`, tinta `--byd-blue-dark` (el nombre es histórico) y la
+  escala A–E de la etiqueta de eficiencia (`--etq-a`…`--etq-e`) **solo para codificar
+  información**: percentil (`.pct.n0`…`n4`) y origen del dato. Nada de colores fijos nuevos.
+- **Lo memorable es la franja de origen** a la izquierda de cada celda: ámbar = otro
+  mercado o prensa (EXT), gris azulado = aclaración (NOTE), rayado = sin dato (NR). Los
+  emojis 🔶 ℹ️ ya no se usan; el texto para lectores de pantalla va en `.sr`, anclado a su
+  celda (un `.sr` suelto estiró la página a 15.000 px en el celular: lo cubre un test).
+- **Sin chrome de plantilla**: nada de emojis en botones ni títulos, etiquetas en
+  mayúsculas, separadores "·" en textos de estado, ni flechas "➜". Radios por jerarquía
+  (3px chips, 4px botones, 6px paneles, 2px fotos); ranking y ficha como planilla con
+  reglas, no tarjetas con sombra.
+
 ## Editar `DATA`
 
 Es una sola línea de ~480 KB, así que reemplazar por línea no sirve. Tratarlo como JSON:

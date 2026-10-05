@@ -39,7 +39,7 @@ test.describe('link compartible', () => {
     await page.goto(url);
     await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
     expect((await idxVisibles(page)).sort((a, b) => a - b)).toEqual(elegidos.sort((a, b) => a - b));
-    await expect(page.locator('#summaryText')).toHaveText('🚗 Comparando 3 autos');
+    await expect(page.locator('#summaryText')).toHaveText('Comparando 3 autos');
     await expect(page.locator('#mainTitle')).toBeHidden();       // como después de "Comparar"
     await expect(page.locator('#shareBtn')).toBeVisible();
   });
@@ -188,7 +188,7 @@ test.describe('categorías plegables', () => {
     await expect(page.locator('#mainTable tbody tr:not(.cat-row):visible')).toHaveCount(0);
     await expect(page.locator('#mainTable tbody tr.cat-row:visible')).toHaveCount(14);
     await expect(page.locator('#noResults')).toBeHidden();
-    await expect(page.locator('#plegarTodoBtn')).toHaveText('⊞ Desplegar todo');
+    await expect(page.locator('#plegarTodoBtn')).toHaveText('Desplegar todo');
   });
 });
 
@@ -198,11 +198,11 @@ test.describe('modo oscuro', () => {
     await abrir(page);
     const fondo = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const oscuro = await fondo();
-    expect(oscuro).not.toBe('rgb(246, 247, 249)');
+    expect(oscuro).not.toBe('rgb(238, 241, 238)');
     await page.click('#temaBtn');
-    await expect.poll(fondo).toBe('rgb(246, 247, 249)');
+    await expect.poll(fondo).toBe('rgb(238, 241, 238)');
     await page.reload();
-    await expect.poll(fondo).toBe('rgb(246, 247, 249)');           // quedó guardado
+    await expect.poll(fondo).toBe('rgb(238, 241, 238)');           // quedó guardado
   });
 });
 
@@ -397,4 +397,12 @@ test.describe('deslizar', () => {
     await page.fill('#modelBuscar', 'lync 900');
     await expect(page.locator('#modelList .mcard b')).toHaveText(['900']);
   });
+});
+
+test('la página nunca es más ancha que la pantalla (la tabla scrollea adentro)', async ({ page }) => {
+  // Pasó en el rediseño: un texto oculto con position:absolute se escapaba del
+  // contenedor con scroll y la página medía 15.000 px en el celular.
+  await abrir(page);
+  const r = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, vw: innerWidth }));
+  expect(r.doc).toBeLessThanOrEqual(r.vw);
 });
