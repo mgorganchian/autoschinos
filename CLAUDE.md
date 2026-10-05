@@ -347,6 +347,9 @@ portada primero y el resto en el orden de las vistas.
   2026-10-05 se pasó de 259 a 154 fotos: 51 casi repetidas y el resto de otra versión o
   generación (Yuan Pro 2021, Song Pro pre-restyling, T2 i-DM…), con volante a la derecha,
   taxis o ploteo, o con otro auto pegado. Todas quedaron en `fotos-descartadas.tsv`.
+  Ese mismo día una búsqueda completa (727 candidatas) sumó 60 vistas nuevas y llevó el
+  total a 214. Commons casi no tiene interiores ni perfiles de la versión argentina: el
+  hueco grande sigue siendo cabina, baúl y plazas traseras.
 - **Volante a la derecha = otro mercado**: no va, aunque sea el mismo modelo.
 
 **Las fotos se agregan con `herramientas-fotos.py`, nunca a mano**: `buscar` baja y
