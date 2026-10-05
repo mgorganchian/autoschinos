@@ -1,9 +1,10 @@
 # autoschinos — reglas del proyecto
 
 Comparativo de **108 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
-Todo vive en un único `index.html` autocontenido de ~600 KB: sin CSS, JS ni imágenes
-externas. Ese principio es deliberado — **no agregar dependencias externas ni partir el
-archivo.**
+Todo vive en un único `index.html` autocontenido: sin CSS, JS ni imágenes externas.
+Ese principio es deliberado — **no agregar dependencias externas ni partir el
+archivo.** Las únicas excepciones, servidas junto a la página y bajadas cuando hacen
+falta: `fotos/`, `og.jpg`, `fichas-fuentes.tsv` y `concesionarios.json`.
 
 El contexto largo (el *porqué* de cada decisión, orden de columnas, estado del research,
 metodología de búsqueda de fichas) está en **`CONTEXTO_PROYECTO_AUTOSCHINOS.md`**.
@@ -230,6 +231,34 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **Página de cada auto** (`?auto=slug`): lee `fichas-fuentes.tsv` del propio sitio para
   los links a fuentes oficiales. **No renombrar ni mover ese archivo** (lo sirve Vercel).
 - `og.jpg` (vista previa al compartir) se genera con fotos oficiales sin créditos de Commons.
+
+## Concesionarios (2026-10-05)
+
+- **`concesionarios.json`** va aparte, como las fotos: la página lo baja recién al abrir la
+  vista "Concesionarios" o "Dónde verlo" en la página de un auto. **No renombrarlo ni
+  moverlo** (lo sirve Vercel). Si falta, la página avisa y no rompe.
+- **Solo la red oficial** que publica cada marca o su importador en su sitio (buscador,
+  API o JSON que la página carga). Nada de directorios, Maps ni listados de terceros.
+  Muchas redes cargan los datos por JS: la URL de esos datos va en `fuente` junto a la
+  página.
+- **Solo datos de empresa**: un mail con nombre de persona (`juan.perez@…`) no se carga.
+  Una razón social con nombre propio ("Darío Gordo S.A.") sí.
+- **Esquema**: `marcas[marca] = {fuente_red[], total, nota, aviso}` y cada local
+  `{nombre, marcas[], provincia, ciudad, direccion, telefono, whatsapp, email, web,
+  horarios, servicios[venta|posventa], fuente[], consultado, nota?}`. `provincia` es una
+  de las 24 con nombre oficial (CABA como "Ciudad Autónoma de Buenos Aires"). `fuente`
+  es **siempre una lista de URLs**. `nota` es trazabilidad (contradicciones de la fuente)
+  y no se muestra. Una marca sin red lleva `aviso`, que sí se muestra.
+- Un local que está en la red de varias marcas va **una sola vez** con todas. Si cada
+  red publica otro teléfono o mail, el campo los lleva con la marca adelante
+  ("GWM: …; Changan: …"); la tarjeta hace link de cada número por separado.
+- **WhatsApp es link solo si viene en formato internacional (54…)**: pasar un número
+  local a internacional sería adivinar.
+- Deepal publica la red de Changan; Arcfox, la de BAIC; los talleres de Jetour son la red
+  de servicio de Famly, su importador. Omoda/Jaecoo, SWM, Skywell y Stelato no publican red.
+- `tests/e2e/concesionarios.spec.js` falla si una marca de la tabla no figura, si un
+  total no coincide, si un local no tiene fuente https o provincia normalizada, o si hay
+  locales repetidos.
 
 ## Diseño: ficha técnica oficial (2026-10-04)
 

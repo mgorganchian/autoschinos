@@ -953,6 +953,28 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .ficha-ver-grupo{font-size:.68rem;padding:0 2px;color:var(--link);text-transform:none;letter-spacing:0}
   @media print{ #gruposVista{display:none !important} }
 
+  /* ============ Concesionarios ============================================ */
+  .cc-filtros{display:flex;flex-wrap:wrap;gap:8px 14px;margin:6px 0 10px}
+  .cc-filtros input{font-size:.78rem;padding:3px 6px;border-radius:4px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-family:var(--fuente-tabla)}
+  .cc-total{font-family:var(--fuente-tabla);font-size:.86rem;margin:6px 0 10px}
+  .cc-prov h3{font-family:var(--fuente-titulo);font-size:1.15rem;border-bottom:1px solid var(--ink);padding-bottom:3px;margin:16px 0 0}
+  .cc-prov h3 small{font-family:var(--fuente-tabla);font-size:.74rem;color:var(--ink-3);font-weight:500}
+  .cc-lista{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:0 22px}
+  .cc{border-bottom:1px solid var(--line);padding:9px 0}
+  .cc-cab{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+  .cc-cab b{font-family:var(--fuente-tabla);font-size:.92rem}
+  .cc-serv{font-family:var(--fuente-tabla);font-size:.62rem;font-weight:700;border:1px solid var(--line);border-radius:3px;padding:0 5px;color:var(--ink-2)}
+  .cc-marcas{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0}
+  .cc-marcas span{font-family:var(--fuente-tabla);font-size:.66rem;background:var(--chip-bg);border-radius:3px;padding:0 6px}
+  .cc-linea{margin:2px 0;font-size:.76rem;line-height:1.4;color:var(--ink)}
+  .cc-linea a,.cc-links a{color:var(--link)}
+  .cc-links{display:flex;flex-wrap:wrap;gap:4px 12px;margin:3px 0 0;font-size:.74rem}
+  .cc-links .cc-fuente-n{margin-left:-8px}
+  .cc-fuente{color:var(--ink-3) !important}
+  .cc-lista.compacta{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px}
+  .ficha-donde .rk-sel{margin-top:2px}
+  @media print{ #concesVista{display:none !important} }
+
   /* ============ Mayores diferencias ======================================== */
   .dif{display:flex;flex-wrap:wrap;gap:8px 24px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);font-size:.74rem;color:var(--ink)}
   .dif[hidden]{display:none}      /* el display:flex de arriba le ganaba al atributo hidden */
@@ -1251,6 +1273,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       <button class="legend-toggle" id="plegarTodoBtn" type="button">Plegar todo</button>
     </span>
     <span class="herr-gral">
+      <button class="legend-toggle" id="concesBtn" type="button" title="Dónde ver y comprar cada marca">Concesionarios</button>
       <button class="legend-toggle" id="gruposBtn" type="button" title="Qué grupo automotriz está detrás de cada marca">Grupos</button>
       <button class="legend-toggle" id="imprimirBtn" type="button" title="Imprimir o guardar como PDF lo que estás viendo">Imprimir o PDF</button>
       <button class="legend-toggle" id="temaBtn" type="button" aria-label="Cambiar entre modo claro y oscuro"></button>
@@ -1518,6 +1541,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <div class="rk-resto" id="rkResto"></div>
   <div class="sim rk-ficha" id="rkFicha" role="dialog" aria-label="Puestos del auto" hidden></div>
 </section>
+<div class="ficha-overlay" id="concesVista" role="dialog" aria-modal="true" aria-labelledby="concesTitulo" hidden><div class="ficha-hoja" id="concesHoja"></div></div>
 <div class="ficha-overlay" id="gruposVista" role="dialog" aria-modal="true" aria-labelledby="gruposTitulo" hidden><div class="ficha-hoja" id="gruposHoja"></div></div>
 <div class="ficha-overlay" id="fichaAuto" role="dialog" aria-modal="true" aria-labelledby="fichaNombre" hidden><div class="ficha-hoja" id="fichaHoja"></div></div>
 <div id="tooltipBox"></div>
@@ -3823,6 +3847,7 @@ async function abrirFicha(i){
         '<span><b>' + rkEsc(CARS[s.i].name) + '</b><small>' + rkEsc(simResumen(s.i, i)) + '</small></span></button>' +
         '<button type="button" class="ficha-btn" data-comparar="' + s.i + '">Comparar</button></li>';
     }).join('') + '</ul></section>' : '') +
+    '<section class="ficha-donde"><h3>Dónde verlo</h3><div id="fichaDonde"><p class="ficha-vacio">Cargando la red de concesionarios…</p></div></section>' +
     '<section class="ficha-fuentes"><h3>Fuentes oficiales</h3><p id="fichaFuentes" class="ficha-vacio">Cargando…</p></section>';
   document.getElementById('fichaAuto').hidden = false;
   document.body.classList.add('modal-open');
@@ -3830,6 +3855,7 @@ async function abrirFicha(i){
   if (fotos.length > 1) alDeslizar(hoja.querySelector('.ficha-foto'), () => fichaFoto(fichaFotoIdx + 1), () => fichaFoto(fichaFotoIdx - 1));
   document.getElementById('fichaCerrar').focus();
   urlGuardar(); actualizarTitulo();
+  pintarDondeVerlo(i);
   const fuentes = (await cargarManifiesto()).get(c.name) || [];
   if (fichaActual !== i) return;
   document.getElementById('fichaFuentes').outerHTML = fuentes.length
@@ -3958,6 +3984,159 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && grupoAbierto) cerrarGrupos(); });
+
+
+// ============ Concesionarios ===============================================
+// La red oficial que publica cada marca o su importador, en concesionarios.json (aparte,
+// como las fotos: se baja recién cuando alguien la abre). Solo datos de empresa. Se ve en
+// la vista "Concesionarios" y en "Dónde verlo" de la página de cada auto.
+let concesDatos = null;
+async function cargarConces(){
+  if (concesDatos) return concesDatos;
+  try {
+    const r = await fetch('concesionarios.json', { cache: 'no-cache' });
+    if (!r.ok) throw new Error(r.status);
+    concesDatos = await r.json();
+  } catch (e) { concesDatos = { error: true, marcas: {}, concesionarios: [] }; }
+  return concesDatos;
+}
+const concesEsc = s => rkEsc(s == null ? '' : s);
+function concesMapa(c){
+  const q = [c.nombre, c.direccion, c.ciudad, c.provincia, 'Argentina'].filter(Boolean).join(', ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+// WhatsApp solo con link si el número ya viene en formato internacional (54…):
+// convertir un número local a internacional sería adivinar.
+function concesWa(n){
+  const d = String(n || '').replace(/\D/g, '');
+  return d.startsWith('54') && d.length >= 12 ? 'https://wa.me/' + d : '';
+}
+// Un local puede publicar varios números, mails o webs ("Ventas: … / Postventa: …",
+// "GWM: …; Changan: …"): se muestra el texto tal cual y se hace link cada valor que haya adentro.
+const CC_TEL = /\+?\(?\d[\d\s().-]{6,}\d/g, CC_MAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, CC_WEB = /(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s;]*)?/gi;
+const concesLinks = (txt, re, href) => { let out = '', i = 0; String(txt).replace(re, (m, pos) => { out += concesEsc(txt.slice(i, pos)) + '<a href="' + concesEsc(href(m)) + '"' + (/^https?:/.test(href(m)) ? ' target="_blank" rel="noopener"' : '') + '>' + concesEsc(m) + '</a>'; i = pos + m.length; return m; }); return out + concesEsc(String(txt).slice(i)); };
+const concesTel = t => concesLinks(t, CC_TEL, m => 'tel:' + m.replace(/[^\d+]/g, ''));
+const concesWaTxt = t => concesLinks(t, CC_TEL, m => concesWa(m) || 'tel:' + m.replace(/[^\d+]/g, ''));
+function concesTarjetaHTML(c, compacta){
+  const tel = c.telefono ? concesTel(c.telefono) : '';
+  const wa = c.whatsapp ? 'WhatsApp ' + concesWaTxt(c.whatsapp) : '';
+  const serv = (c.servicios || []).map(s => '<span class="cc-serv">' + (s === 'posventa' ? 'Service' : 'Venta') + '</span>').join('');
+  const fuentes = [].concat(c.fuente || []);
+  const lineas = [
+    c.direccion ? concesEsc(c.direccion) + (c.ciudad ? ', ' + concesEsc(c.ciudad) : '') : concesEsc(c.ciudad),
+    tel, wa,
+    compacta ? '' : (c.email ? concesLinks(c.email, CC_MAIL, m => 'mailto:' + m) : ''),
+    compacta ? '' : (c.horarios ? concesEsc(c.horarios) : ''),
+    c.web ? concesLinks(c.web, CC_WEB, m => /^https?:/.test(m) ? m : 'https://' + m) : '',
+  ].filter(Boolean);
+  return '<li class="cc"><div class="cc-cab"><b>' + concesEsc(c.nombre) + '</b>' + serv + '</div>' +
+    (compacta ? '' : '<p class="cc-marcas">' + (c.marcas || []).map(m => '<span>' + concesEsc(m) + '</span>').join('') + '</p>') +
+    lineas.map(l => '<p class="cc-linea">' + l + '</p>').join('') +
+    '<p class="cc-links"><a href="' + concesMapa(c) + '" target="_blank" rel="noopener">Ver en el mapa</a>' +
+      (compacta ? '' : fuentes.map((u, k) => '<a class="cc-fuente' + (k ? ' cc-fuente-n' : '') + '" title="' + (k ? 'Otra página de la red oficial' : 'Página de la red oficial') + '" href="' + concesEsc(u) + '" target="_blank" rel="noopener">' + (k ? (k + 1) : 'Fuente: red oficial') + '</a>').join('')) + '</p></li>';
+}
+const PROV_ORDEN = (a, b) => a.localeCompare(b, 'es');
+
+// --- Vista completa -------------------------------------------------------------
+let concesFiltro = { provincia: '', marca: '', grupo: '', q: '' };
+try { const g = JSON.parse(localStorage.getItem('concesProv') || 'null'); if (g) concesFiltro.provincia = g; } catch (e) {}
+let concesAbierta = false;
+const grupoDeMarca = m => { const i = CARS.findIndex(c => c.brand === m); return i >= 0 ? grupoDe(i) : 'Sin dato'; };
+async function abrirConces(){
+  const hoja = document.getElementById('concesHoja');
+  hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="concesCerrar" aria-label="Cerrar">✕</button><h2 id="concesTitulo" class="grupos-titulo">Concesionarios</h2><p class="ficha-vacio">Cargando la red oficial…</p>';
+  document.getElementById('concesVista').hidden = false;
+  document.body.classList.add('modal-open');
+  concesAbierta = true;
+  document.getElementById('concesCerrar').focus();
+  await cargarConces();
+  if (concesAbierta) pintarConces();
+}
+function pintarConces(){
+  const d = concesDatos, hoja = document.getElementById('concesHoja');
+  if (d.error){ hoja.querySelector('.ficha-vacio').textContent = 'No se pudo cargar la red de concesionarios. Probá recargar la página.'; return; }
+  const todos = d.concesionarios;
+  const provincias = [...new Set(todos.map(c => c.provincia))].filter(Boolean).sort(PROV_ORDEN);
+  const marcas = [...new Set(todos.flatMap(c => c.marcas))].sort(PROV_ORDEN);
+  const grupos = [...new Set(marcas.map(grupoDeMarca))].sort(PROV_ORDEN);
+  const f = concesFiltro;
+  const lista = todos.filter(c => (!f.provincia || c.provincia === f.provincia) && (!f.marca || c.marcas.includes(f.marca)) &&
+    (!f.grupo || c.marcas.some(m => grupoDeMarca(m) === f.grupo)) && (!f.q || coincide(sinTildes(f.q), [c.nombre, c.ciudad, c.direccion].join(' '))));
+  const sel = (id, et, ops, v) => '<label class="rk-sel"><span>' + et + '</span><select id="' + id + '"><option value="">Todas</option>' +
+    ops.map(o => '<option' + (o === v ? ' selected' : '') + '>' + concesEsc(o) + '</option>').join('') + '</select></label>';
+  const porProv = new Map();
+  lista.forEach(c => { if (!porProv.has(c.provincia)) porProv.set(c.provincia, []); porProv.get(c.provincia).push(c); });
+  const sinRed = Object.entries(d.marcas || {}).filter(([, m]) => !m.total).map(([k, m]) => k + (m.aviso ? ' (' + m.aviso + ')' : ''));
+  hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="concesCerrar" aria-label="Cerrar">✕</button>' +
+    '<h2 id="concesTitulo" class="grupos-titulo">Concesionarios</h2>' +
+    '<p class="ficha-nota">La red oficial que publica cada marca o su importador en su sitio, consultada el ' + concesEsc(d.fecha || '') + '. Antes de ir, conviene llamar: las redes cambian seguido.</p>' +
+    '<div class="cc-filtros">' + sel('ccProv', 'Provincia', provincias, f.provincia) + sel('ccMarca', 'Marca', marcas, f.marca) + sel('ccGrupo', 'Grupo', grupos, f.grupo) +
+      '<label class="rk-sel"><span>Buscar</span><input type="search" id="ccQ" placeholder="Ciudad o nombre" value="' + concesEsc(f.q) + '"></label></div>' +
+    '<p class="cc-total"><b>' + lista.length + '</b> concesionario' + (lista.length === 1 ? '' : 's') + (f.provincia ? ' en ' + concesEsc(f.provincia) : ' en ' + porProv.size + ' provincias') + '</p>' +
+    [...porProv.keys()].sort(PROV_ORDEN).map(p => '<section class="cc-prov"><h3>' + concesEsc(p) + ' <small>' + porProv.get(p).length + '</small></h3><ul class="cc-lista">' +
+      porProv.get(p).sort((a, b) => PROV_ORDEN(a.ciudad || '', b.ciudad || '') || PROV_ORDEN(a.nombre, b.nombre)).map(c => concesTarjetaHTML(c, false)).join('') + '</ul></section>').join('') +
+    (lista.length ? '' : '<p class="ficha-vacio">Ningún concesionario con esos filtros.</p>') +
+    (sinRed.length ? '<p class="ficha-nota">Sin red publicada todavía: ' + concesEsc(sinRed.join('; ')) + '.</p>' : '');
+}
+function cerrarConces(){
+  if (!concesAbierta) return;
+  concesAbierta = false;
+  document.getElementById('concesVista').hidden = true;
+  document.getElementById('concesHoja').innerHTML = '';
+  if (fichaActual === null && !grupoAbierto) document.body.classList.remove('modal-open');
+}
+document.getElementById('concesBtn').addEventListener('click', abrirConces);
+document.getElementById('concesVista').addEventListener('change', e => {
+  const m = { ccProv: 'provincia', ccMarca: 'marca', ccGrupo: 'grupo' }[e.target.id];
+  if (!m) return;
+  concesFiltro[m] = e.target.value;
+  if (m === 'provincia'){ try { localStorage.setItem('concesProv', JSON.stringify(e.target.value)); } catch (er) {} }
+  pintarConces();
+});
+document.getElementById('concesVista').addEventListener('input', e => {
+  if (e.target.id !== 'ccQ') return;
+  concesFiltro.q = e.target.value;
+  const pos = e.target.selectionStart;
+  pintarConces();
+  const n = document.getElementById('ccQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {}
+});
+document.addEventListener('click', e => {
+  if (!concesAbierta) return;
+  if (e.target === document.getElementById('concesVista') || (e.target.closest && e.target.closest('#concesCerrar'))) cerrarConces();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && concesAbierta) cerrarConces(); });
+
+// --- "Dónde verlo" en la página de cada auto -----------------------------------------
+async function pintarDondeVerlo(i){
+  const box = document.getElementById('fichaDonde');
+  if (!box) return;
+  const d = await cargarConces();
+  if (fichaActual !== i) return;
+  const marca = CARS[i].brand;
+  const red = (d.concesionarios || []).filter(c => c.marcas.includes(marca));
+  const info = (d.marcas || {})[marca];
+  if (d.error){ box.innerHTML = '<p class="ficha-vacio">No se pudo cargar la red de concesionarios.</p>'; return; }
+  if (!red.length){ box.innerHTML = '<p class="ficha-vacio">' + concesEsc(marca) + ' no publica todavía una red de concesionarios' + (info && info.aviso ? ': ' + concesEsc(info.aviso) + '.' : '.') + '</p>'; return; }
+  const provincias = [...new Set(red.map(c => c.provincia))].sort(PROV_ORDEN);
+  const prov = provincias.includes(concesFiltro.provincia) ? concesFiltro.provincia : '';
+  const lista = red.filter(c => !prov || c.provincia === prov);
+  box.innerHTML = '<p class="cc-total"><b>' + red.length + '</b> concesionario' + (red.length === 1 ? '' : 's') + ' de ' + concesEsc(marca) + ' en ' + provincias.length + ' provincia' + (provincias.length === 1 ? '' : 's') + '</p>' +
+    '<label class="rk-sel"><span>Provincia</span><select id="fichaProv"><option value="">Todas</option>' + provincias.map(p => '<option' + (p === prov ? ' selected' : '') + '>' + concesEsc(p) + '</option>').join('') + '</select></label>' +
+    '<ul class="cc-lista compacta">' + lista.slice(0, prov ? 60 : 8).map(c => concesTarjetaHTML(c, true)).join('') + '</ul>' +
+    (!prov && lista.length > 8 ? '<p class="ficha-vacio">Elegí tu provincia para ver todos, o <button type="button" class="mini-btn ficha-ver-conces">abrí la lista completa</button>.</p>' : '');
+}
+document.addEventListener('change', e => {
+  if (e.target.id !== 'fichaProv' || fichaActual === null) return;
+  concesFiltro.provincia = e.target.value;
+  try { localStorage.setItem('concesProv', JSON.stringify(e.target.value)); } catch (er) {}
+  pintarDondeVerlo(fichaActual);
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('.ficha-ver-conces') : null;
+  if (!b || fichaActual === null) return;
+  concesFiltro.marca = CARS[fichaActual].brand;
+  cerrarFicha(); abrirConces();
+});
 
 ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();
