@@ -333,9 +333,21 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 ## Fotos
 
 Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura base64
-embebida en el `<th>`) y, si hay material, hasta 6 más en un carrusel (tope 7, de las
-cuales 2 interiores como mucho). `FOTOS_POR_AUTO` dice cuántas tiene cada uno; los
-archivos van numerados **sin huecos** desde 1.
+embebida en el `<th>`) y, si hay material, más fotos en un carrusel: **a lo sumo una por
+vista** (12 vistas: tres cuartos delantero, frente, perfiles izquierdo y derecho, tres
+cuartos trasero, atrás, baúl abierto, tablero, instrumentos, consola central, asientos
+delanteros y plazas traseras; pedido del usuario del 2026-10-05: dos fotos casi iguales no
+suman). `FOTOS_POR_AUTO` dice cuántas tiene cada uno, `VISTAS_POR_FOTO` la vista de cada
+una (se muestra en el pie de foto); los archivos van numerados **sin huecos** desde 1, la
+portada primero y el resto en el orden de las vistas.
+
+- **La vista se decide mirando la foto**, no por el nombre del archivo. Lado del perfil =
+  lado del AUTO: si la trompa apunta a la izquierda de la imagen, es el perfil izquierdo.
+- `reorganizar PLAN.tsv` cambia vistas, quita repetidas y reordena lo instalado. El
+  2026-10-05 se pasó de 259 a 154 fotos: 51 casi repetidas y el resto de otra versión o
+  generación (Yuan Pro 2021, Song Pro pre-restyling, T2 i-DM…), con volante a la derecha,
+  taxis o ploteo, o con otro auto pegado. Todas quedaron en `fotos-descartadas.tsv`.
+- **Volante a la derecha = otro mercado**: no va, aunque sea el mismo modelo.
 
 **Las fotos se agregan con `herramientas-fotos.py`, nunca a mano**: `buscar` baja y
 procesa candidatas de Commons a `.fotos-candidatas/`, `instalar ID…` agrega las

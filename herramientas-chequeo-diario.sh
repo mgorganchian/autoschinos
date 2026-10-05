@@ -13,7 +13,7 @@
 #   1. Compara el hash de cada ficha oficial contra fichas-hashes.tsv
 #   2. Le pasa a Claude, en modo headless, una pasada completa: corregir lo que
 #      contradigan las fichas que cambiaron, completar datos faltantes y sumar
-#      fotos (interiores primero). Claude corre la suite de tests antes de commitear.
+#      fotos (una por vista). Claude corre la suite de tests antes de commitear.
 #   3. Si todas las fichas se pudieron verificar, actualiza la "Fecha de consulta"
 #      del pie de la página
 #   4. Si publicó algo, lo verifica contra el sitio en vivo
@@ -133,28 +133,35 @@ TAREA+="B) DATOS FALTANTES: buscá fichas o fuentes oficiales argentinas para lo
 más celdas en NR y cargá lo que encuentres. Si no encontrás nada confiable, no cargues
 nada y decilo en el resumen.
 
-C) FOTOS, INTERIORES PRIMERO:
+C) FOTOS, UNA POR VISTA:
+Cada auto lleva a lo sumo una foto por vista: tres-cuartos-delantero, frente,
+perfil-izquierdo, perfil-derecho, tres-cuartos-trasero, trasera, baul-abierto, tablero,
+instrumentos, consola-central, asientos-delanteros, asientos-traseros. Dos fotos casi
+iguales no suman. La vista de cada foto instalada está en VISTAS_POR_FOTO.
 1. Corré: python3 herramientas-fotos.py buscar
-   Deja candidatas en .fotos-candidatas/. Cada una tiene ID.jpg (recortada con Vision)
-   y, si el nombre del archivo no decía interior, también ID.int.jpg (sin recortar).
+   Deja candidatas en .fotos-candidatas/ para los autos con vistas faltantes. Cada una
+   tiene ID.jpg (recortada con Vision sobre blanco) e ID.int.jpg (sin recortar).
 2. MIRÁ CADA CANDIDATA con Read antes de decidir. Sin excepción: el tamaño y el nombre
-   del archivo no delatan los casos malos. Si ID.jpg es un volante o una pantalla
-   flotando en blanco, mirá ID.int.jpg: suele ser una cabina entera que sí sirve.
-3. Instalá las que sirven: python3 herramientas-fotos.py instalar ID [ID...]
-   Usá ID:interior cuando la que sirve sea la versión sin recortar de una cabina.
+   del archivo no delatan los casos malos, y la vista se decide mirando, no por el nombre.
+   Lado del perfil = lado del AUTO: si la trompa apunta a la izquierda de la imagen, es
+   perfil-izquierdo.
+3. Instalá solo las que llenan una vista que el auto NO tiene, la mejor de cada vista:
+   python3 herramientas-fotos.py instalar ID:VISTA [ID:VISTA...]
+   Las vistas de cabina usan solas la versión sin recortar. Para un exterior que Vision
+   recortó mal, agregá ! al final (ID:baul-abierto!) y se instala sin recortar.
 4. Descartá las demás, con el motivo: python3 herramientas-fotos.py descartar ID \"motivo\"
-   Se descartan: volantes o pantallas sueltos, recortes que dejan algo cortado flotando,
-   autos con ploteo (alquiler, concesionaria, exposición), prototipos camuflados, fotos
-   con más de un modelo, fotos de noche o ilegibles, detalles sueltos (una consola, un
-   logo), y la misma foto que ya es la portada del auto.
+   Se descartan: volantes o pantallas sueltos flotando en blanco, recortes que dejan algo
+   cortado, autos con ploteo (alquiler, concesionaria, exposición), prototipos camuflados,
+   fotos con más de un modelo, fotos de noche o ilegibles, detalles sueltos (un logo, una
+   llanta, un faro), y fotos casi iguales a una ya instalada.
    El modelo tiene que llamarse EXACTAMENTE igual que en la tabla. Si el nombre trae un
    calificador de versión (facelift, II, GT, EV, SHS, Shanhai, EM-P, EREV…), fijate en las
    filas Tipo de propulsión y Precio si es la misma versión que la de la tabla. Si no se
    puede confirmar, descartala con ese motivo.
-5. Nunca edites a mano FOTOS_POR_AUTO, CREDITOS_POR_FOTO, fotos-fuentes.tsv ni
-   fotos-descartadas.tsv: los escribe la herramienta, y los tests verifican que coincidan.
-Si una candidata sirve pero es casi igual a una que ya instalaste, dejala sin instalar ni
-descartar: puede entrar otra semana."
+5. Nunca edites a mano FOTOS_POR_AUTO, CREDITOS_POR_FOTO, VISTAS_POR_FOTO,
+   fotos-fuentes.tsv ni fotos-descartadas.tsv: los escribe la herramienta, y los tests
+   verifican que coincidan.
+Si una candidata sirve para una vista que el auto ya tiene, dejala sin instalar ni descartar."
 
 log "invocando a Claude…"
 PROMPT="Sos el mantenimiento automático semanal del comparativo de autos chinos. Corrés sin

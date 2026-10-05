@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """Fotos del carrusel desde Wikimedia Commons, en tres pasos.
 
-    python3 herramientas-fotos.py buscar            # baja y procesa candidatas
-    python3 herramientas-fotos.py instalar ID...    # agrega las aprobadas
+    python3 herramientas-fotos.py buscar [SLUG...]        # baja y procesa candidatas
+    python3 herramientas-fotos.py instalar ID:VISTA...    # agrega las aprobadas, con su vista
     python3 herramientas-fotos.py descartar ID "motivo"
+    python3 herramientas-fotos.py reorganizar PLAN.tsv    # vistas, repetidas y orden de lo instalado
+
+Cada auto tiene a lo sumo UNA foto por vista (VISTAS, abajo): frente, perfiles, cola,
+baúl abierto, tablero, instrumentos, consola, asientos. Dos fotos casi iguales no suman
+(pedido del usuario, 2026-10-05). La vista se decide MIRANDO la foto, no por el nombre
+del archivo: `instalar` la pide explícita. Lado del perfil = lado del AUTO: si la trompa
+apunta a la izquierda de la imagen, se ve el lado izquierdo.
 
 Entre `buscar` e `instalar` hay que MIRAR cada candidata (.fotos-candidatas/ID.jpg).
 No hay forma de saltear ese paso: en el lote del 2026-09-22 hubo que descartar 8
@@ -39,9 +46,17 @@ CAND = os.path.join(RAIZ, '.fotos-candidatas')      # está en .gitignore
 SWIFT = os.path.join(RAIZ, 'herramientas-recortar-fotos.swift')
 UA = 'autoschinos-comparativo/1.0 (https://github.com/mgorganchian/autoschinos)'
 
-MAX_TOTAL = 7        # portada + 6
-MAX_INTERIOR = 2
-POR_CORRIDA = 4      # candidatas por auto y por corrida, para que revisar sea viable
+# Una foto por vista, en este orden en el carrusel (la portada queda siempre primera).
+VISTAS = [('tres-cuartos-delantero', 'Tres cuartos delantero'), ('frente', 'Frente'),
+          ('perfil-izquierdo', 'Perfil izquierdo'), ('perfil-derecho', 'Perfil derecho'),
+          ('tres-cuartos-trasero', 'Tres cuartos trasero'), ('trasera', 'Atrás'),
+          ('baul-abierto', 'Baúl abierto'), ('tablero', 'Tablero'), ('instrumentos', 'Instrumentos'),
+          ('consola-central', 'Consola central'), ('asientos-delanteros', 'Asientos delanteros'),
+          ('asientos-traseros', 'Plazas traseras')]
+CLAVES = [v for v, _ in VISTAS]
+INTERIORES = {'tablero', 'instrumentos', 'consola-central', 'asientos-delanteros', 'asientos-traseros'}
+MAX_TOTAL = len(VISTAS)
+POR_CORRIDA = 14     # candidatas por auto y por corrida: después se elige una por vista
 
 # Nombre con el que Commons conoce al auto cuando difiere del argentino.
 # Verificados a mano: Skywell BE11 = Skyworth EV6; Omoda C5 = Omoda 5 (NO el Omoda E5).
@@ -127,53 +142,69 @@ def procesar(crudo, salida, es_interior):
     return r.returncode == 0 and os.path.getsize(salida) > 0 if os.path.exists(salida) else False
 
 
-def buscar():
+def vistas_actuales(html):
+    """VISTAS_POR_FOTO: por auto, la vista de cada foto en orden (la 0 es la portada)."""
+    m = re.search(r'const VISTAS_POR_FOTO\s*=\s*(\{.*?\});', html, re.S)
+    return json.loads(m.group(1)) if m else {}
+
+
+def categorias(modelo):
+    """Categorías de Commons cuyo nombre trae todos los tokens del modelo, y sus archivos."""
+    try:
+        d = api(gsrsearch=modelo, gsrnamespace='14', gsrlimit='10', prop='info')
+    except Exception:
+        return []
+    cats = [p['title'] for p in (d.get('query', {}).get('pages') or {}).values() if coincide(p['title'][9:], modelo)]
+    archivos = []
+    for c in cats[:3]:
+        p = {'action': 'query', 'format': 'json', 'generator': 'categorymembers', 'gcmtitle': c, 'gcmtype': 'file',
+             'gcmlimit': '200', 'prop': 'imageinfo', 'iiprop': 'extmetadata|url|size',
+             'iiextmetadatafilter': 'LicenseShortName|Artist'}
+        req = urllib.request.Request('https://commons.wikimedia.org/w/api.php?' + urllib.parse.urlencode(p), headers={'User-Agent': UA})
+        try: archivos += list((json.load(urllib.request.urlopen(req, timeout=45)).get('query', {}).get('pages') or {}).values())
+        except Exception: pass
+        time.sleep(0.35)
+    return archivos
+
+
+def buscar(solo=()):
     html = leer_index()
     _, fpa = mapa(html, 'FOTOS_POR_AUTO')
-    man = filas_tsv(MANIFIESTO)
-    interiores = {}
-    for c in man:
-        if c[1] == 'interior':
-            s = c[0].rsplit('-', 1)[0]; interiores[s] = interiores.get(s, 0) + 1
+    vpf = vistas_actuales(html)
     vistos = ya_vistos()
     shutil.rmtree(CAND, ignore_errors=True); os.makedirs(CAND)
-    # Primero los autos sin ningún interior: es el hueco más grande del carrusel.
-    orden = sorted(autos(html), key=lambda a: (interiores.get(a[0], 0) > 0, fpa.get(a[0], 1)))
     elegidas = []
-    for slug, nombre in orden:
-        tiene, ints = fpa.get(slug, 1), interiores.get(slug, 0)
-        lugar = MAX_TOTAL - tiene
-        if lugar <= 0: continue
+    for slug, nombre in autos(html):
+        if solo and slug not in solo: continue
+        faltan = [v for v in CLAVES if v not in vpf.get(slug, [])]
+        if not faltan or fpa.get(slug, 1) >= MAX_TOTAL: continue
         modelo = ALIAS.get(nombre, nombre)
         hallados = {}
-        for q in (modelo + ' interior', modelo):
-            try: d = api(gsrsearch=q)
-            except Exception as e:
-                print(f'# {nombre}: Commons no respondió ({e})', file=sys.stderr); continue
-            for p in (d.get('query', {}).get('pages') or {}).values():
-                t = p['title'][5:]
-                if t in vistos or t in hallados: continue
-                if not re.search(r'\.(jpe?g|png)$', t, re.I) or DETALLE.search(t): continue
-                if not coincide(t, modelo): continue
-                ii = p['imageinfo'][0]
-                if ii['width'] < 1100: continue
-                em = ii.get('extmetadata', {})
-                lic = em.get('LicenseShortName', {}).get('value', '')
-                if not lic or 'fair use' in lic.lower(): continue
-                autor = re.sub(r'<[^>]+>', '', em.get('Artist', {}).get('value', '')).strip()
-                autor = re.sub(r'\s+', ' ', autor)[:60]
-                if not autor: continue      # sin autor no se puede atribuir
-                hallados[t] = (vista(t), lic, autor, ii['width'] * ii['height'])
+        paginas = []
+        for q in (modelo, modelo + ' interior', modelo + ' rear', modelo + ' dashboard'):
+            try: paginas += list((api(gsrsearch=q).get('query', {}).get('pages') or {}).values())
+            except Exception as e: print(f'# {nombre}: Commons no respondió ({e})', file=sys.stderr)
             time.sleep(0.35)
-        ints_nuevos = 0
-        # interiores primero, después lo más grande
-        for t, (v, lic, autor, area) in sorted(hallados.items(), key=lambda kv: (kv[1][0] != 'interior', -kv[1][3])):
-            if lugar <= 0 or len([e for e in elegidas if e[1] == slug]) >= POR_CORRIDA: break
-            if v == 'interior':
-                if ints + ints_nuevos >= MAX_INTERIOR: continue
-                ints_nuevos += 1
+        de_categoria = categorias(modelo)
+        for p in paginas + de_categoria:
+            t = p['title'][5:]
+            if t in vistos or t in hallados: continue
+            if not re.search(r'\.(jpe?g|png)$', t, re.I) or DETALLE.search(t): continue
+            # Por búsqueda, el modelo tiene que estar en el nombre del archivo; por categoría
+            # alcanza con la categoría (muchos archivos se llaman IMG_1234.jpg). La versión
+            # se verifica igual al mirar la foto.
+            if p not in de_categoria and not coincide(t, modelo): continue
+            ii = (p.get('imageinfo') or [{}])[0]
+            if ii.get('width', 0) < 1100: continue
+            em = ii.get('extmetadata', {})
+            lic = em.get('LicenseShortName', {}).get('value', '')
+            if not lic or 'fair use' in lic.lower(): continue
+            autor = re.sub(r'<[^>]+>', '', em.get('Artist', {}).get('value', '')).strip()
+            autor = re.sub(r'\s+', ' ', autor)[:60]
+            if not autor: continue      # sin autor no se puede atribuir
+            hallados[t] = (vista(t), lic, autor, ii['width'] * ii['height'])
+        for t, (v, lic, autor, area) in sorted(hallados.items(), key=lambda kv: -kv[1][3])[:POR_CORRIDA]:
             elegidas.append((f'{slug}~{len(elegidas):03d}', slug, v, t, lic, autor))
-            lugar -= 1
     listas = []
     for cid, slug, v, t, lic, autor in elegidas:
         crudo = os.path.join(CAND, cid + '.orig')
@@ -184,19 +215,16 @@ def buscar():
                 f.write(r.read())
         except Exception as e:
             print(f'# {cid}: no se pudo bajar ({e})', file=sys.stderr); continue
-        if procesar(crudo, os.path.join(CAND, cid + '.jpg'), v == 'interior'):
+        # Dos versiones: recortada por Vision sobre blanco (exteriores) y sin recorte
+        # (interiores: Vision deja el volante flotando). La vista decide cuál se instala.
+        if procesar(crudo, os.path.join(CAND, cid + '.jpg'), False) | procesar(crudo, os.path.join(CAND, cid + '.int.jpg'), True):
             listas.append((cid, slug, v, t, lic, autor))
-            # Muchas fotos de cabina no dicen "interior" en el nombre y Vision las
-            # destruye: deja el volante flotando en blanco. Se guarda también la
-            # versión sin recorte, que es la que usa "instalar ID:interior".
-            if v != 'interior':
-                procesar(crudo, os.path.join(CAND, cid + '.int.jpg'), True)
         os.remove(crudo)
     with open(os.path.join(CAND, 'candidatas.tsv'), 'w', encoding='utf-8') as f:
         for fila in listas: f.write('\t'.join(fila) + '\n')
-    print(f'{len(listas)} candidatas en {CAND}/ — mirá cada .jpg antes de instalar o descartar:')
+    print(f'{len(listas)} candidatas en {CAND}/ — mirá cada una antes de instalar o descartar:')
     for cid, slug, v, t, lic, autor in listas:
-        print(f'  {cid}  {v:<9} {t}  ({lic}, {autor})')
+        print(f'  {cid}  {t}  ({lic}, {autor})')
 
 
 def candidatas():
@@ -205,40 +233,129 @@ def candidatas():
     return {c[0]: c for c in filas_tsv(ruta)}
 
 
+def estado(html):
+    """Por auto, la lista de fotos instaladas: [{archivo, vista, cred, fila}] (la 0 es la portada)."""
+    _, fpa = mapa(html, 'FOTOS_POR_AUTO')
+    _, cred = mapa(html, 'CREDITOS_POR_FOTO')
+    vpf = vistas_actuales(html)
+    man = {c[0]: c for c in filas_tsv(MANIFIESTO)}
+    out = {}
+    for slug, _ in autos(html):
+        n = fpa.get(slug, 1)
+        vs = vpf.get(slug) or []
+        out[slug] = [{'archivo': f'{slug}-{k + 1}.jpg', 'vista': vs[k] if k < len(vs) else 'sin-vista',
+                      'cred': (cred.get(slug) or [''] * n)[k] if k < len(cred.get(slug) or []) else '',
+                      'fila': man.get(f'{slug}-{k + 1}.jpg')} for k in range(n)]
+    return out
+
+
+def escribir(html, cambios, nuevas_descartadas=()):
+    """Reescribe, para los autos de `cambios`, los archivos de fotos/, FOTOS_POR_AUTO,
+    CREDITOS_POR_FOTO, VISTAS_POR_FOTO y fotos-fuentes.tsv, todo junto. Cada foto se
+    ubica por el orden de VISTAS (la portada queda primera). Valida antes de escribir."""
+    _, fpa = mapa(html, 'FOTOS_POR_AUTO')
+    _, cred = mapa(html, 'CREDITOS_POR_FOTO')
+    vpf = vistas_actuales(html)
+    man = filas_tsv(MANIFIESTO)
+    cab = [l for l in open(MANIFIESTO, encoding='utf-8') if l.startswith('#')]
+    renombres = []
+    for slug, fotos in cambios.items():
+        portada, resto = fotos[0], fotos[1:]
+        for f in fotos:
+            if f['vista'] not in CLAVES: sys.exit(f'{slug}: vista desconocida {f["vista"]!r}')
+        if len({f['vista'] for f in fotos}) != len(fotos): sys.exit(f'{slug}: dos fotos con la misma vista')
+        if len(fotos) > MAX_TOTAL: sys.exit(f'{slug}: más de {MAX_TOTAL} fotos')
+        resto.sort(key=lambda f: CLAVES.index(f['vista']))
+        orden = [portada] + resto
+        for k, f in enumerate(orden):
+            destino = f'{slug}-{k + 1}.jpg'
+            renombres.append((f.get('origen') or os.path.join(FOTOS, f['archivo']), destino, f))
+        fpa[slug] = len(orden)
+        if len(orden) > 1: cred[slug] = [''] + [f['cred'] for f in resto]
+        else: cred.pop(slug, None)
+        vpf[slug] = [f['vista'] for f in orden]
+    tocados = set(cambios)
+    # Copiar primero a temporales: renombrar en el lugar pisaría fotos que todavía no se movieron.
+    tmp = os.path.join(FOTOS, '.reorganizar'); os.makedirs(tmp, exist_ok=True)
+    for i, (origen, destino, f) in enumerate(renombres): shutil.copyfile(origen, os.path.join(tmp, f'{i}.jpg'))
+    for slug in tocados:
+        for a in os.listdir(FOTOS):
+            if re.fullmatch(re.escape(slug) + r'-\d+\.jpg', a): os.remove(os.path.join(FOTOS, a))
+    for i, (origen, destino, f) in enumerate(renombres): shutil.move(os.path.join(tmp, f'{i}.jpg'), os.path.join(FOTOS, destino))
+    os.rmdir(tmp)
+    # Manifiesto: fuera las filas de los autos tocados, adentro las nuevas en orden.
+    filas = [c for c in man if c[0].rsplit('-', 1)[0] not in tocados]
+    for origen, destino, f in renombres:
+        if f['fila'] and not destino.endswith('-1.jpg'): filas.append([destino, f['vista']] + f['fila'][2:])
+    filas.sort(key=lambda c: (c[0].rsplit('-', 1)[0], int(c[0].rsplit('-', 1)[1][:-4])))
+    with open(MANIFIESTO, 'w', encoding='utf-8') as fh:
+        fh.writelines(cab); fh.writelines('\t'.join(c) + '\n' for c in filas)
+    for nombre, valor in (('FOTOS_POR_AUTO', fpa), ('CREDITOS_POR_FOTO', cred)):
+        m, _ = mapa(html, nombre)
+        html = html[:m.start(2)] + json.dumps(valor, ensure_ascii=False, separators=(',', ':')) + html[m.end(2):]
+    js = 'const VISTAS_POR_FOTO = ' + json.dumps(vpf, ensure_ascii=False, separators=(',', ':')) + ';'
+    m = re.search(r'const VISTAS_POR_FOTO\s*=\s*\{.*?\};', html, re.S)
+    if m: html = html[:m.start()] + js + html[m.end():]
+    else:
+        m, _ = mapa(html, 'FOTOS_POR_AUTO')
+        fin = html.index('\n', m.end())
+        html = html[:fin + 1] + '// Vista de cada foto, en orden (la 0 es la portada). La escribe herramientas-fotos.py.\n' + js + '\n' + html[fin + 1:]
+    open(INDEX, 'w', encoding='utf-8').write(html)
+    if nuevas_descartadas:
+        with open(DESCARTADAS, 'a', encoding='utf-8') as fh:
+            for fila in nuevas_descartadas: fh.write('\t'.join(fila) + '\n')
+
+
 def instalar(ids):
     cands = candidatas()
     html = leer_index()
-    m_fpa, fpa = mapa(html, 'FOTOS_POR_AUTO')
-    _, cred = mapa(html, 'CREDITOS_POR_FOTO')
-    nuevas = []
+    est = estado(html)
+    cambios = {}
     for arg in ids:
-        cid, _, forzada = arg.partition(':')
+        cid, _, v = arg.partition(':')
+        sin_recorte = v.endswith('!'); v = v.rstrip('!')
         if cid not in cands: sys.exit(f'{cid}: no es una candidata de esta corrida')
-        _, slug, v, t, lic, autor = cands[cid]
-        v = forzada or v
-        n = fpa.get(slug, 1) + 1
-        if n > MAX_TOTAL: sys.exit(f'{cid}: {slug} ya tiene {MAX_TOTAL} fotos')
-        destino = f'{slug}-{n}.jpg'
-        if os.path.exists(os.path.join(FOTOS, destino)): sys.exit(f'{destino} ya existe y FOTOS_POR_AUTO no lo cuenta')
-        fpa[slug] = n
-        lista = cred.get(slug) or [''] * (n - 1)
-        lista += [''] * (n - 1 - len(lista))
-        cred[slug] = lista[:n - 1] + [f'Foto: {autor} · {lic} · Wikimedia Commons']
+        if v not in CLAVES: sys.exit(f'{cid}: falta la vista o no existe ({v!r}); usar ID:VISTA con una de {", ".join(CLAVES)}')
+        _, slug, _, t, lic, autor = cands[cid]
+        fotos = cambios.setdefault(slug, [dict(f) for f in est[slug]])
+        if any(f['vista'] == v for f in fotos): sys.exit(f'{cid}: {slug} ya tiene una foto de {v}')
         pagina = 'https://commons.wikimedia.org/wiki/File:' + urllib.parse.quote(t.replace(' ', '_'), safe="(),'!_-.~")
-        nuevas.append((cid, destino, [destino, v, t, lic, autor, pagina]))
-    # Todo validado: recién ahora se escribe, y todo junto.
-    for cid, destino, fila in nuevas:
-        sin_recorte = os.path.join(CAND, cid + '.int.jpg')
-        origen = sin_recorte if fila[1] == 'interior' and os.path.exists(sin_recorte) else os.path.join(CAND, cid + '.jpg')
-        shutil.copyfile(origen, os.path.join(FOTOS, destino))
-    html = html[:m_fpa.start(2)] + json.dumps(fpa, ensure_ascii=False, separators=(',', ':')) + html[m_fpa.end(2):]
-    m_cred, _ = mapa(html, 'CREDITOS_POR_FOTO')
-    html = html[:m_cred.start(2)] + json.dumps(cred, ensure_ascii=False, separators=(',', ':')) + html[m_cred.end(2):]
-    open(INDEX, 'w', encoding='utf-8').write(html)
-    with open(MANIFIESTO, 'a', encoding='utf-8') as f:
-        for _, _, fila in nuevas: f.write('\t'.join(fila) + '\n')
-    for cid, destino, fila in nuevas:
-        print(f'instalada {destino}  ({fila[1]}, {fila[4]}, {fila[3]})')
+        origen = os.path.join(CAND, cid + ('.int.jpg' if v in INTERIORES or sin_recorte else '.jpg'))
+        if not os.path.exists(origen): sys.exit(f'{cid}: falta {origen}')
+        fotos.append({'archivo': None, 'origen': origen, 'vista': v, 'cred': f'Foto: {autor} · {lic} · Wikimedia Commons',
+                      'fila': ['', v, t, lic, autor, pagina]})
+    escribir(html, cambios)
+    for slug, fotos in cambios.items(): print(f'{slug}: {len(fotos)} fotos')
+
+
+def reorganizar(plan):
+    """PLAN.tsv: archivo <TAB> vista <TAB> queda|quita <TAB> motivo. Una fila por foto de
+    cada auto que se toque. Las que se quitan van a fotos-descartadas.tsv con su motivo."""
+    html = leer_index()
+    est = estado(html)
+    por_auto, descartes = {}, []
+    for c in filas_tsv(plan):
+        archivo, v, accion = c[0], c[1], c[2]
+        motivo = c[3] if len(c) > 3 else ''
+        slug = archivo.rsplit('-', 1)[0]
+        f = next((x for x in est[slug] if x['archivo'] == archivo), None)
+        if not f: sys.exit(f'{archivo}: no está instalada')
+        por_auto.setdefault(slug, {})[archivo] = (v, accion, motivo)
+    cambios = {}
+    for slug, decis in por_auto.items():
+        if set(decis) != {f['archivo'] for f in est[slug]}: sys.exit(f'{slug}: el plan tiene que traer TODAS sus fotos')
+        fotos = []
+        for f in est[slug]:
+            v, accion, motivo = decis[f['archivo']]
+            if accion == 'quita':
+                if f['archivo'].endswith('-1.jpg'): sys.exit(f'{f["archivo"]}: la portada no se quita desde acá')
+                if f['fila']: descartes.append([f['fila'][2], slug, motivo or 'repetida', date.today().isoformat()])
+                continue
+            if accion != 'queda': sys.exit(f'{f["archivo"]}: acción {accion!r} (queda o quita)')
+            fotos.append(dict(f, vista=v))
+        cambios[slug] = fotos
+    escribir(html, cambios, descartes)
+    print(f'{len(cambios)} autos reorganizados; {len(descartes)} fotos quitadas')
 
 
 def descartar(cid, motivo):
@@ -255,7 +372,8 @@ def descartar(cid, motivo):
 
 if __name__ == '__main__':
     a = sys.argv[1:]
-    if a[:1] == ['buscar']: buscar()
+    if a[:1] == ['buscar']: buscar(set(a[1:]))
     elif a[:1] == ['instalar'] and len(a) > 1: instalar(a[1:])
+    elif a[:1] == ['reorganizar'] and len(a) == 2: reorganizar(a[1])
     elif a[:1] == ['descartar'] and len(a) == 3: descartar(a[1], a[2])
     else: sys.exit(__doc__)

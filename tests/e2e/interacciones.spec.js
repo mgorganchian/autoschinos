@@ -197,7 +197,7 @@ test.describe('tooltips y fotos', () => {
 
   test('el zoom de la foto abre, pasa de foto con su crédito y cierra con Escape', async ({ page }, info) => {
     test.skip(info.project.name === 'celular', 'el teclado solo aplica en escritorio');
-    const slug = 'byd-sealion-7';   // 6 fotos, créditos distintos por foto
+    const slug = 'byd-sealion-7';   // varias fotos, créditos distintos por foto
     const creditos = await page.evaluate(s => window.CREDITOS_POR_FOTO[s], slug);
     const foto = page.locator(`img.car-photo[data-slug="${slug}"]`);
     await foto.scrollIntoViewIfNeeded();
@@ -206,11 +206,13 @@ test.describe('tooltips y fotos', () => {
     const zoom = page.locator('#fotoZoom');
     await expect(zoom).toBeVisible();
     await expect(zoom.locator('.puntos i')).toHaveCount(await page.evaluate(s => window.FOTOS_POR_AUTO[s], slug));
-    await expect(zoom.locator('.credito')).toHaveText(await foto.getAttribute('data-credito'));
+    // El pie dice la vista de la foto y su crédito.
+    await expect(zoom.locator('.credito')).toContainText(await foto.getAttribute('data-credito'));
+    await expect(zoom.locator('.credito .foto-vista')).not.toHaveText('');
 
     await zoom.locator('.sig').click();
     await expect(zoom.locator('.puntos i').nth(1)).toHaveClass(/on/);
-    await expect(zoom.locator('.credito')).toHaveText(creditos[1]);
+    await expect(zoom.locator('.credito')).toContainText(creditos[1]);
     await expect(zoom.locator('img')).toHaveAttribute('src', `fotos/${slug}-2.jpg`);
 
     await page.keyboard.press('Escape');
