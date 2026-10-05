@@ -37,6 +37,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     --byd-blue-dark:#17211D; /* (nombre histórico) tinta: encabezados y bandas */
     --ink:#17211D;
     --paper:#EEF1EE;
+    --logo-fondo:#fff;          /* igual en los dos temas, como el fondo de las fotos */
+    --logo-fondo-osc:#2b2f2d;   /* para los logos blancos (Soueast) */
     --line:#CBD3CE;
     --yes:#00843D;
     --no:#C21D15;
@@ -957,6 +959,17 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .grupo-marca{border-top:1px solid var(--line);padding:8px 0 4px}
   .grupo-marca p{margin:0 0 4px}
   .grupo-marca-cab b{font-size:.86rem}
+  /* Logos (logos/, de Wikimedia Commons): sobre una placa blanca en los dos temas, como las
+     fotos, porque casi todos son de color oscuro o rojo pensados para fondo claro. */
+  .logo{display:inline-flex;align-items:center;justify-content:center;background:var(--logo-fondo);
+    border-radius:3px;padding:3px 6px;vertical-align:middle;flex:none}
+  .logo.osc{background:var(--logo-fondo-osc)}
+  .logo img{display:block;height:100%;width:auto;max-width:100%;object-fit:contain}
+  .logo-grupo{height:30px;max-width:140px}
+  .logo-marca{height:20px;max-width:100px;margin-right:4px}
+  .logo-hueco{display:inline-flex;align-items:center;width:72px;margin:0 6px 0 2px;vertical-align:middle}  /* mismo lugar con o sin logo: los nombres quedan alineados */
+  .logo-lista{height:16px;max-width:72px;padding:2px 4px}
+  .grupo-marca-cab{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
   .grupo-rel{font-size:.66rem;font-weight:700;background:var(--chip-bg);color:var(--ink-2);border-radius:10px;padding:1px 8px;vertical-align:1px}
   .grupo-det,.grupo-imp{font-size:.74rem;line-height:1.45;color:var(--ink)}
   .grupo-det small,.grupo-imp small{display:block;color:var(--ink-3);font-size:.66rem}
@@ -2569,6 +2582,19 @@ function setupToggleDropdown(btnId, panelId){
   });
 }
 
+// Logos de marcas y grupos (2026-10-05). Solo de Wikimedia Commons con licencia libre y
+// vigentes; el respaldo de cada uno está en logos-fuentes.tsv. Una marca o grupo sin logo
+// libre y vigente se muestra solo con el nombre: nunca armar ni recortar un logo a mano.
+const LOGOS = {"grupo-baic": {"f": "logos/grupo-baic.png", "t": "Logo: Wikimedia Commons, dominio público"}, "foton": {"f": "logos/foton.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "byd": {"f": "logos/byd.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "lynk-co": {"f": "logos/lynk-co.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "geely": {"f": "logos/geely.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "chery": {"f": "logos/chery.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "jetour": {"f": "logos/jetour.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "omoda": {"f": "logos/omoda.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "jaecoo": {"f": "logos/jaecoo.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "soueast": {"f": "logos/soueast.png", "t": "Logo: Wikimedia Commons, dominio público", "osc": 1}, "haval": {"f": "logos/haval.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "tank": {"f": "logos/tank.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "ora": {"f": "logos/ora.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "gwm": {"f": "logos/gwm.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "mg": {"f": "logos/mg.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "grupo-saic": {"f": "logos/grupo-saic.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "deepal": {"f": "logos/deepal.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "jac": {"f": "logos/jac.png", "t": "Logo: Wikimedia Commons, dominio público"}, "kaiyi": {"f": "logos/kaiyi.png", "t": "Logo: Wikimedia Commons, dominio público"}, "dongfeng": {"f": "logos/dongfeng.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "grupo-skyworth": {"f": "logos/grupo-skyworth.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "leapmotor": {"f": "logos/leapmotor.svg", "t": "Logo: Wikimedia Commons, dominio público"}, "grupo-seres": {"f": "logos/grupo-seres.svg", "t": "Logo: Wikimedia Commons, dominio público"}};
+// Clave del logo por marca (la submarca de submarcaDe o el brand de CARS) y por grupo (grupoDe).
+// Un grupo usa el logo de su marca solo si es el mismo logo (BYD, Chery, GWM, Dongfeng...).
+const LOGO_MARCA = {"Foton":"foton","BYD":"byd","Lynk & Co":"lynk-co","Geely":"geely","Chery":"chery","Jetour":"jetour","Omoda":"omoda","Jaecoo":"jaecoo","Soueast":"soueast","Haval":"haval","Tank":"tank","Ora":"ora","GWM":"gwm","MG":"mg","Deepal":"deepal","JAC":"jac","Kaiyi":"kaiyi","Dongfeng":"dongfeng","Leapmotor":"leapmotor"};
+const LOGO_GRUPO = {"BAIC":"grupo-baic","BYD":"byd","Chery":"chery","Great Wall Motor (GWM)":"gwm","SAIC":"grupo-saic","Kaiyi":"kaiyi","Dongfeng":"dongfeng","Skywell (Skyworth Auto)":"grupo-skyworth","Leapmotor":"leapmotor","Seres":"grupo-seres"};
+function logoHTML(clave, clase, nombre){
+  const l = LOGOS[clave];
+  if (!l) return '';
+  return '<span class="logo ' + clase + (l.osc ? ' osc' : '') + '" title="' + l.t + '"><img src="' + l.f + '" alt="' + (nombre || '').replace(/"/g, '&quot;') + '" loading="lazy" decoding="async"></span>';
+}
 // ---- Dropdown 1: Marca (multi-selección) ----
 setupToggleDropdown('brandDropdownBtn', 'brandPanel');
 const brandList = document.getElementById('brandList');
@@ -2576,7 +2602,7 @@ function renderBrandList(){
   brandList.innerHTML = '';
   BRANDS.forEach(b=>{
     const row = document.createElement('label');
-    row.innerHTML = '<input type="checkbox" '+(selectedBrands.has(b)?'checked':'')+' data-val="'+b+'"> '+b;
+    row.innerHTML = '<input type="checkbox" '+(selectedBrands.has(b)?'checked':'')+' data-val="'+b+'"> '+'<span class="logo-hueco">'+logoHTML(LOGO_MARCA[b], 'logo-lista', '')+'</span>'+b;
     brandList.appendChild(row);
   });
 }
@@ -3979,11 +4005,11 @@ function abrirGrupos(enfocar){
     grupos.map(g => {
       const marcas = [...porGrupo.get(g).entries()];
       const idx = marcas.flatMap(([, a]) => a);
-      return '<section class="grupo" data-grupo="' + rkEsc(g) + '"><div class="grupo-cabeza"><h3>' + rkEsc(g) + '</h3><span>' + idx.length + ' auto' + (idx.length === 1 ? '' : 's') + '</span>' +
+      return '<section class="grupo" data-grupo="' + rkEsc(g) + '"><div class="grupo-cabeza">' + logoHTML(LOGO_GRUPO[g], 'logo-grupo', 'Logo de ' + g) + '<h3>' + rkEsc(g) + '</h3><span>' + idx.length + ' auto' + (idx.length === 1 ? '' : 's') + '</span>' +
         '<button type="button" class="ficha-btn" data-comparar-grupo="' + rkEsc(g) + '">Comparar ' + (idx.length === 1 ? 'su auto' : (idx.length <= 6 ? 'sus ' + idx.length + ' autos' : 'sus autos')) + '</button></div>' +
         marcas.map(([s, autos]) => {
           const m = MARCAS_INFO[s] || {};
-          return '<div class="grupo-marca"><p class="grupo-marca-cab"><b>' + rkEsc(s) + '</b> <span class="grupo-rel">' + rkEsc(m.relacion || 's/d') + '</span></p>' +
+          return '<div class="grupo-marca"><p class="grupo-marca-cab">' + (LOGO_MARCA[s] !== LOGO_GRUPO[g] ? logoHTML(LOGO_MARCA[s], 'logo-marca', 'Logo de ' + s) : '') + '<b>' + rkEsc(s) + '</b> <span class="grupo-rel">' + rkEsc(m.relacion || 's/d') + '</span></p>' +
             (m.detalle ? '<p class="grupo-det">' + rkEsc(m.detalle) + (m.fuentes_grupo ? ' <small>Fuentes: ' + links(m.fuentes_grupo) + '</small>' : '') + '</p>' : '') +
             '<p class="grupo-imp"><span>Importador en Argentina:</span> <b>' + rkEsc(m.importador_ar || 'sin dato') + '</b>' +
               (m.detalle_importador ? ' <small>' + rkEsc(m.detalle_importador) + (m.fuentes_importador ? ' Fuentes: ' + links(m.fuentes_importador) : '') + '</small>' : '') + '</p>' +

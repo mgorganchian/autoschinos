@@ -4,7 +4,8 @@ Comparativo de **108 autos** chinos/electrificados vendidos (o por llegar) en Ar
 Todo vive en un único `index.html` autocontenido: sin CSS, JS ni imágenes externas.
 Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.** Las únicas excepciones, servidas junto a la página y bajadas cuando hacen
-falta: `fotos/`, `og.jpg`, `fichas-fuentes.tsv` y `concesionarios.json`.
+falta: `fotos/`, `logos/`, `og.jpg`, `fichas-fuentes.tsv`, `logos-fuentes.tsv` y
+`concesionarios.json`.
 
 El contexto largo (el *porqué* de cada decisión, orden de columnas, estado del research,
 metodología de búsqueda de fichas) está en **`CONTEXTO_PROYECTO_AUTOSCHINOS.md`**.
@@ -269,6 +270,23 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - `tests/e2e/concesionarios.spec.js` falla si una marca de la tabla no figura, si un
   total no coincide, si un local no tiene fuente https o provincia normalizada, o si hay
   locales repetidos.
+
+## Logos (2026-10-05)
+
+- En la vista Grupos (grupo y cada marca) y en el filtro de Marca. Archivos en `logos/`,
+  el respaldo de cada uno (archivo de Commons, licencia, autor, página) en
+  `logos-fuentes.tsv`, y en el script `LOGOS`, `LOGO_MARCA` y `LOGO_GRUPO`.
+- **Solo Wikimedia Commons, con licencia libre y el logo vigente.** Nada de sitios de
+  logos ni de fair use de en.wikipedia. Una marca sin logo así va solo con el nombre:
+  **nunca armar, recortar ni redibujar un logo** (el de BAIC marca saldría de recortar el
+  del grupo: no). Quedaron afuera por licencia endeble Arcfox, GAC y Shineray (subidos
+  como "obra propia"), el de Geely Holding por fecha dudosa y el de JMC porque no se pudo
+  confirmar que sea el vigente. Changan y Maxus solo tienen en Commons el logo anterior.
+- Un grupo usa el logo de su marca solo si es el mismo logo. Los logos van sobre placa
+  blanca en los dos temas (`--logo-fondo`); los blancos (Soueast), sobre `--logo-fondo-osc`.
+- Un SVG sin `viewBox` no escala dentro de `<img>`: se le agrega con su ancho y alto.
+  `tests/e2e/logos.spec.js` falla si un logo no está anotado, si un SVG trae scripts o
+  recursos externos, o si alguno queda roto en pantalla.
 
 ## Diseño: ficha técnica oficial (2026-10-04)
 
