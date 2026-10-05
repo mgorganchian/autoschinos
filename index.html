@@ -302,23 +302,36 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
 
   /* ---- Modo retrato en celulares angostos: fuerza EXACTAMENTE 3 columnas visibles
      (características + 2 autos), usando % del ancho de pantalla en vez de píxeles fijos,
-     para que funcione igual sin importar el modelo de celular. 24+36+36 = 96vw: el 4%
-     que sobra deja asomar la columna siguiente, como pista de que se scrollea al costado ---- */
+     para que funcione igual sin importar el modelo de celular. 20+38+38 = 96vw: el 4%
+     que sobra deja asomar la columna siguiente, como pista de que se scrollea al costado.
+     La de características es angosta para que la foto de cada auto se vea grande: por eso
+     los nombres van cortos (ETIQUETA_CORTA) y cortan en sílabas ---- */
   col.col-feat{width:var(--ancho-feat);}
   col.col-data{width:var(--ancho-col);}
 
+  /* Tablet y escritorio: columnas más anchas para que la foto de cada auto se vea grande
+     (pedido del usuario, 2026-10-05). La miniatura embebida mide 300 px: hasta ~150 px de
+     ancho se ve nítida incluso en pantallas retina; más grande se vería borrosa. */
+  @media (min-width: 768px){
+    :root{--ancho-feat:128px;--ancho-col:144px;}
+  }
+
   @media (max-width: 600px) and (orientation: portrait){
     thead th.feat-col, tbody td.feat{
-      width:24vw !important;
-      min-width:24vw !important;
-      max-width:24vw !important;
+      width:20vw !important;
+      min-width:20vw !important;
+      max-width:20vw !important;
     }
     thead th:not(.feat-col), tbody td:not(.feat){
-      width:36vw !important;
-      min-width:36vw !important;
-      max-width:36vw !important;
+      width:38vw !important;
+      min-width:38vw !important;
+      max-width:38vw !important;
     }
-    :root{--ancho-feat:24vw;--ancho-col:36vw;}
+    :root{--ancho-feat:20vw;--ancho-col:38vw;}
+    tbody td.feat{font-size:.78rem;line-height:1.3;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+    tbody td.feat .feat-icon{display:none}
+    thead th:not(.feat-col){padding-left:2px !important;padding-right:2px !important}
+    .car-photo{max-width:none}
     col.col-feat{width:var(--ancho-feat);}
     col.col-data{width:var(--ancho-col);}
   }
@@ -1735,6 +1748,10 @@ let colVisible = CARS.map(()=>true);
 // Glosario: qué significa cada característica (tooltip al pasar el mouse sobre el nombre)
 // Icono por caracteristica; la clave es la etiqueta exacta de DATA.
 const FEAT_ICONS = {"Precio de lista (versión tope de gama de la tabla)":"f-precio","Longitud (mm)":"f-largo","Ancho (mm)":"f-ancho","Altura (mm)":"f-alto","Distancia entre ejes (mm)":"f-ejes","Peso en vacío (kg)":"f-peso","Peso bruto (kg)":"f-pesobruto","Volumen de baúl/carga (L)":"f-baul","Número de asientos":"f-nasientos","Radio de giro mínimo (m)":"f-giro","Medida de neumáticos":"f-neumatico","Tipo de propulsión":"f-propulsion","Potencia total del sistema (kW)":"f-motor-kw","Motor a combustión — potencia (kW)":"f-motor-kw","Motor a combustión — par (N·m)":"f-motor-nm","Motor eléctrico — potencia máx. (kW)":"f-emotor-kw","Motor eléctrico — par máx. (N·m)":"f-emotor-nm","Aceleración 0-100 km/h (s)":"f-0100","Velocidad máxima (km/h)":"f-vmax","Consumo de combustible (L/100km)":"f-consumo","Autonomía eléctrica (km)":"f-auto-ev","Autonomía combinada (km)":"f-auto-comb","Capacidad de batería (kWh)":"f-bateria-kwh","Batería Blade / tecnología de batería":"f-bateria-blade","Puerto de carga AC":"f-ac","Puerto de carga DC (rápida)":"f-dc","Cargador integrado (OBC)":"f-obc","Carga portátil 3 a 7A":"f-portatil","Función descarga V2L (VTOL)":"f-v2l","Carga programada":"f-carga-prog","Sistema de calefacción/enfriamiento de batería":"f-bateria-temp","Techo solar/corredizo panorámico":"f-techo-solar","Antena tipo aleta de tiburón":"f-antena","Apertura eléctrica del baúl/portón":"f-porton","Barras de techo integradas":"f-barras-techo","Material del volante":"f-volante","Panel de instrumentos digital":"f-cluster","Pantalla central multimedia":"f-pantalla","Cargador de celular inalámbrico":"f-cargador-inal","Estuche para lentes en techo":"f-lentes","Apoyabrazos central trasero con portavasos":"f-apoyabrazos","Suspensión delantera":"f-susp-del","Suspensión trasera":"f-susp-tras","Tipo de llave":"f-llave","Entrada y arranque sin llave":"f-keyless","Estacionamiento electrónico (EPB)":"f-epb","Auto Hold (AVH)":"f-autohold","Modos de conducción seleccionables":"f-modos","Airbags frontales (conductor + pasajero)":"f-airbag-front","Airbags laterales delanteros":"f-airbag-lat","Airbags de cortina":"f-airbag-cortina","ABS (frenos antibloqueo)":"f-abs","Control electrónico de estabilidad (ESC)":"f-esc","Control de tracción (TCS)":"f-tcs","Cámara 360°/panorámica":"f-camara360","Anclajes ISO-FIX":"f-isofix","Control crucero adaptativo (ACC)":"f-acc","Frenado automático de emergencia (AEB)":"f-aeb","Alerta de colisión frontal (FCW)":"f-fcw","Alerta de colisión trasera (RCW)":"f-rcw","Detección de punto ciego (BSD)":"f-bsd","Asistente de mantenimiento de carril (LKA)":"f-lka","Reconocimiento de señales de tránsito (TSR)":"f-tsr","Alerta de tráfico cruzado (RCTA/FCTA)":"f-rcta","Head-Up Display (HUD)":"f-hud","Sensores de estacionamiento":"f-sensores","Ajuste asiento conductor":"f-asiento-cond","Ajuste asiento pasajero delantero":"f-asiento-pas","Ventilación de asientos":"f-asiento-vent","Asientos traseros plegables":"f-asiento-plega","Sistema de cabina inteligente / multimedia propio":"f-cabina","CarPlay / Android Auto":"f-carplay","Ecosistema Google integrado (Maps y apps)":"f-google","Navegación GPS":"f-gps","WiFi en el vehículo":"f-wifi","Conexión 4G":"f-4g","Actualización remota OTA":"f-ota","Servicio de nube / telemetría propia":"f-nube","Función Karaoke":"f-karaoke","Cantidad de parlantes":"f-parlantes","Faros LED":"f-faros-led","Luces diurnas LED (DRL)":"f-drl","Encendido automático de faros":"f-faros-auto","Función \"Follow me home\"":"f-followme","Luz de bienvenida dinámica":"f-bienvenida","Limpiaparabrisas trasero":"f-limpia-tras","Sensor de lluvia":"f-sensor-lluvia","Espejos exteriores plegables eléctricos":"f-espejos","Espejo retrovisor antideslumbrante":"f-retrovisor","Aire acondicionado automático":"f-aa-auto","Climatización de doble zona":"f-doble-zona","Filtro de aire de alta eficiencia (PM2.5/CN95)":"f-filtro","Calefacción por bomba de calor":"f-bomba-calor"};
+// Nombre corto que se ve en la columna de características (pedido del usuario, 2026-10-05).
+// El nombre completo de DATA sigue siendo la clave de todo (PCTL_DIR, GLOSSARY, ranking,
+// tests, rutina) y aparece en el tooltip junto con la explicación. Nunca renombrar DATA.
+const ETIQUETA_CORTA = {"Longitud (mm)": "Largo (mm)", "Altura (mm)": "Alto (mm)", "Peso en vacío (kg)": "Peso vacío (kg)", "Precio de lista (versión tope de gama de la tabla)": "Precio de lista", "Garantía general": "Garantía", "Garantía de la batería de alto voltaje": "Garantía de batería", "Grupo automotriz": "Grupo", "Importador en Argentina": "Importador", "Distancia entre ejes (mm)": "Entre ejes (mm)", "Volumen de baúl/carga (L)": "Baúl (L)", "Número de asientos": "Asientos", "Radio de giro mínimo (m)": "Radio de giro (m)", "Medida de neumáticos": "Neumáticos", "Tipo de propulsión": "Propulsión", "Potencia total del sistema (kW)": "Potencia total (kW)", "Motor a combustión — potencia (kW)": "Motor a nafta/diésel (kW)", "Motor a combustión — par (N·m)": "Par a nafta/diésel (N·m)", "Motor eléctrico — potencia máx. (kW)": "Motor eléctrico (kW)", "Motor eléctrico — par máx. (N·m)": "Par eléctrico (N·m)", "Aceleración 0-100 km/h (s)": "0 a 100 km/h (s)", "Velocidad máxima (km/h)": "Vel. máxima (km/h)", "Consumo de combustible (L/100km)": "Consumo (L/100km)", "Capacidad de batería (kWh)": "Batería (kWh)", "Batería Blade / tecnología de batería": "Tipo de batería", "Puerto de carga AC": "Carga AC", "Puerto de carga DC (rápida)": "Carga rápida DC", "Cargador integrado (OBC)": "Cargador a bordo", "Carga portátil 3 a 7A": "Cargador portátil", "Función descarga V2L (VTOL)": "Descarga V2L", "Sistema de calefacción/enfriamiento de batería": "Climatización de batería", "Techo solar/corredizo panorámico": "Techo panorámico", "Antena tipo aleta de tiburón": "Antena tiburón", "Apertura eléctrica del baúl/portón": "Portón eléctrico", "Barras de techo integradas": "Barras de techo", "Material del volante": "Volante", "Panel de instrumentos digital": "Tablero digital", "Pantalla central multimedia": "Pantalla central", "Cargador de celular inalámbrico": "Carga inalámbrica", "Estuche para lentes en techo": "Portaanteojos", "Apoyabrazos central trasero con portavasos": "Apoyabrazos trasero", "Entrada y arranque sin llave": "Arranque sin llave", "Estacionamiento electrónico (EPB)": "Freno de mano eléctrico", "Modos de conducción seleccionables": "Modos de manejo", "Airbags frontales (conductor + pasajero)": "Airbags frontales", "Airbags laterales delanteros": "Airbags laterales", "ABS (frenos antibloqueo)": "ABS", "Control electrónico de estabilidad (ESC)": "Estabilidad (ESC)", "Control de tracción (TCS)": "Tracción (TCS)", "Cámara 360°/panorámica": "Cámara 360°", "Control crucero adaptativo (ACC)": "Crucero adaptativo", "Frenado automático de emergencia (AEB)": "Frenado autónomo", "Alerta de colisión frontal (FCW)": "Alerta de choque frontal", "Alerta de colisión trasera (RCW)": "Alerta de choque trasero", "Detección de punto ciego (BSD)": "Punto ciego", "Asistente de mantenimiento de carril (LKA)": "Asistente de carril", "Reconocimiento de señales de tránsito (TSR)": "Lectura de señales", "Alerta de tráfico cruzado (RCTA/FCTA)": "Tráfico cruzado", "Head-Up Display (HUD)": "Head-Up Display", "Ajuste asiento conductor": "Asiento del conductor", "Ajuste asiento pasajero delantero": "Asiento del acompañante", "Ventilación de asientos": "Asientos ventilados", "Asientos traseros plegables": "Traseros rebatibles", "Sistema de cabina inteligente / multimedia propio": "Sistema multimedia", "Ecosistema Google integrado (Maps y apps)": "Google integrado", "WiFi en el vehículo": "WiFi", "Actualización remota OTA": "Actualización remota", "Servicio de nube / telemetría propia": "App y telemetría", "Cantidad de parlantes": "Parlantes", "Luces diurnas LED (DRL)": "Luces diurnas LED", "Encendido automático de faros": "Faros automáticos", "Función \"Follow me home\"": "Follow me home", "Luz de bienvenida dinámica": "Luz de bienvenida", "Limpiaparabrisas trasero": "Limpialuneta", "Espejos exteriores plegables eléctricos": "Espejos rebatibles", "Espejo retrovisor antideslumbrante": "Espejo antideslumbrante", "Aire acondicionado automático": "Aire automático", "Climatización de doble zona": "Climatizador bizona", "Filtro de aire de alta eficiencia (PM2.5/CN95)": "Filtro PM2.5", "Calefacción por bomba de calor": "Bomba de calor"};
 const GLOSSARY = {
   "Precio de lista (versión tope de gama de la tabla)": "El precio sugerido al público (0km) de la versión específica representada en esta tabla para ese modelo — la más cara/completa de su gama, indicada entre paréntesis (por ejemplo, GS en el caso del Song Pro). No incluye patentamiento, flete ni accesorios. Todas las marcas de la tabla cotizan en dólares estadounidenses.",
   "Longitud (mm)": "Medida del auto de adelante hacia atrás (parachoques a parachoques).",
@@ -1986,12 +2003,14 @@ DATA.forEach((cat,ci)=>{
     const pctl = pctlFila(row);
     const tr=document.createElement('tr');
     tr.dataset.cat=ci;
-    tr.dataset.search=row[0].toLowerCase();
+    const corta = ETIQUETA_CORTA[row[0]];
+    tr.dataset.nombre=row[0];
+    tr.dataset.search=(row[0] + (corta ? ' ' + corta : '')).toLowerCase();
     const featIco = FEAT_ICONS[row[0]]
       ? '<svg class="feat-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#'+FEAT_ICONS[row[0]]+'"/></svg>'
       : '';
     tr.dataset.vals=JSON.stringify(row.slice(1));
-    tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+(GLOSSARY[row[0]]||'').replace(/"/g,'&quot;')+'">'+row[0]+'</span></td>' +
+    tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+((corta ? row[0] + '. ' : '') + (GLOSSARY[row[0]]||'')).replace(/"/g,'&quot;')+'">'+(corta||row[0])+'</span></td>' +
       row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+(pctl?pctlHTML(pctl[i]):'')+'</td>').join('');
     tbody.appendChild(tr);
     allRows.push(tr);
@@ -2004,6 +2023,20 @@ DATA.forEach((cat,ci)=>{
 const TH_AUTO = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
 TH_AUTO.forEach((th, i) => { th.dataset.idx = i; });
 const SLUG_AUTO = TH_AUTO.map(th => { const img = th.querySelector('img.car-photo'); return img ? img.dataset.slug : ''; });
+// En celulares con pantalla de alta densidad la miniatura embebida (300 px) se ve blanda al
+// ancho de columna del celular: se cambia por la portada de fotos/ cuando el auto entra en
+// pantalla. Si la portada no carga, queda la miniatura.
+if (window.matchMedia('(max-width: 767px)').matches && (window.devicePixelRatio || 1) > 1.5 && 'IntersectionObserver' in window) {
+  const obs = new IntersectionObserver(entradas => entradas.forEach(en => {
+    if (!en.isIntersecting) return;
+    const img = en.target; obs.unobserve(img);
+    if (!(FOTOS_POR_AUTO[img.dataset.slug] > 0)) return;   // FOTOS_POR_AUTO se declara más abajo: leerlo recién acá
+    const hd = new Image();
+    hd.onload = () => { img.src = hd.src; };
+    hd.src = 'fotos/' + img.dataset.slug + '-1.jpg';
+  }), { rootMargin: '0px 400px' });
+  TH_AUTO.forEach(th => { const img = th.querySelector('img.car-photo'); if (img && img.dataset.slug) obs.observe(img); });
+}
 
 // Categorías plegables: tocar la fila de la categoría esconde sus filas. Es aparte
 // de 'hidden' (búsqueda, diferencias, chips), para que una categoría plegada siga
@@ -2415,7 +2448,7 @@ const STATUS_ORDER = ["venta","preventa","nolanzado","discontinuado"];
 const STATUSES = STATUS_ORDER.filter(s=>CARS.some(c=>c.status===s));
 
 // Asientos: se calculan a partir de la fila "Número de asientos" ya cargada en la tabla
-const seatsDataRow = allRows.find(r => r.dataset.search === "número de asientos");
+const seatsDataRow = allRows.find(r => r.dataset.nombre === "Número de asientos");
 let seatOfCar = CARS.map(()=> 's/d');
 if(seatsDataRow){
   const vals = JSON.parse(seatsDataRow.dataset.vals);
@@ -3543,7 +3576,7 @@ function marcarReferencia(){
   TH_AUTO[refIdx].classList.add('col-ref');
   allRows.forEach(tr => {
     tr.querySelector('td[data-col="' + refIdx + '"]').classList.add('col-ref');
-    const nombre = tr.querySelector('.feat-label').textContent;
+    const nombre = tr.dataset.nombre;
     const dir = PCTL_DIR[nombre];
     if (!dir) return;
     const base = valorComparable(refIdx, nombre);
@@ -3580,7 +3613,7 @@ function renderDiferencias(){
     const dir = PCTL_DIR[nombre], max = Math.max(...vals.map(x => x.n));
     const mejor = dir > 0 ? max : Math.min(...vals.map(x => x.n));
     if (!(max > 0)) return;
-    const tr = document.querySelector('#mainTable tr[data-search="' + CSS.escape(nombre.toLowerCase()) + '"]');
+    const tr = document.querySelector('#mainTable tr[data-nombre="' + CSS.escape(nombre) + '"]');
     vals.forEach(x => {
       const td = tr && tr.querySelector('td[data-col="' + x.i + '"]');
       if (td) td.insertAdjacentHTML('beforeend', '<span class="cmp-barra' + (x.n === mejor ? ' mejor' : '') +
@@ -3597,7 +3630,7 @@ function renderDiferencias(){
     if (mejor === peor) return;
     vals.filter(x => x.n === mejor).forEach(x => {
       gana.set(x.i, gana.get(x.i) + 1);
-      const td = document.querySelector('#mainTable tr[data-search="' + CSS.escape(nombre.toLowerCase()) + '"] td[data-col="' + x.i + '"]');
+      const td = document.querySelector('#mainTable tr[data-nombre="' + CSS.escape(nombre) + '"] td[data-col="' + x.i + '"]');
       if (td) td.insertAdjacentHTML('beforeend', '<span class="mejor-sel" title="El mejor de los elegidos en esta fila" aria-label="el mejor de los elegidos">★</span>');
     });
     const a = Math.max(mejor, peor), b = Math.min(mejor, peor);

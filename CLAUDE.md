@@ -126,8 +126,17 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   `position:sticky` en `<th>` no funciona si la misma `<table>` tiene scroll horizontal.
   Usan `border-collapse:separate` porque `collapse` rompía el sticky. **No volver a
   fusionarlas.**
-- **En portrait se muestran 3 columnas** (característica + 2 autos): `col-feat 28vw`,
-  `col-data 34vw`. Fue un pedido explícito. **No "arreglarlo" a 4 columnas.**
+- **En portrait se muestran 3 columnas** (característica + 2 autos): `col-feat 20vw`,
+  `col-data 38vw`. Fue un pedido explícito. **No "arreglarlo" a 4 columnas.** La de
+  características es angosta para que la foto se vea grande (2026-10-05); en tablet y
+  escritorio (≥768 px) las columnas son de 144 px por lo mismo. La miniatura embebida
+  mide 300 px: más ancha se ve borrosa. En celulares de alta densidad se cambia por la
+  portada de `fotos/` cuando entra en pantalla.
+- **Nombres cortos de características** (`ETIQUETA_CORTA`): la columna muestra el corto y
+  el tooltip, el nombre completo más la explicación de `GLOSSARY`. **El nombre de `DATA`
+  sigue siendo la clave de todo**: el código busca filas por `tr.dataset.nombre`, nunca
+  por el texto visible ni por `data-search` (que suma el corto para la búsqueda). El
+  filtro de asientos dejó de andar en silencio cuando se buscaba por `data-search`.
 - **La barra resumen NO es sticky** — decisión explícita del usuario.
 - **El header grande se oculta** tras el primer "Comparar" (`hasComparedOnce`).
 - **Dropdown de Marca/Modelo en `position:static`**, no `absolute` (quedaba recortado).

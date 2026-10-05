@@ -274,3 +274,32 @@ test.describe('tooltips y fotos', () => {
     expect(faltantes).toEqual([]);
   });
 });
+
+test.describe('nombres de características', () => {
+  test('se ven cortos, con el nombre completo y la explicación en el tooltip', async ({ page }) => {
+    const completo = 'Precio de lista (versión tope de gama de la tabla)';
+    const label = page.locator(`#mainTable tr[data-nombre="${completo}"] .feat-label`);
+    await expect(label).toHaveText('Precio de lista');
+    expect(await label.getAttribute('data-tip')).toMatch(/^Precio de lista \(versión tope de gama de la tabla\)\. \S/);
+    // Toda clave de ETIQUETA_CORTA es una fila de DATA (si se renombra una fila, el corto no se pierde en silencio).
+    const huerfanas = await page.evaluate(() => { const n = new Set(DATA.flatMap(([, f]) => f.map(r => r[0]))); return Object.keys(ETIQUETA_CORTA).filter(k => !n.has(k)); });
+    expect(huerfanas).toEqual([]);
+    // El código busca filas por su nombre completo (data-nombre), nunca por el texto visible.
+    expect(await page.evaluate(() => !!seatsDataRow)).toBe(true);
+  });
+
+  test('la búsqueda encuentra una fila también por su nombre corto', async ({ page }) => {
+    await page.fill('#search', 'limpialuneta');
+    await expect(page.locator(`${FILAS_DATOS}`)).toHaveCount(1);
+    await expect(page.locator(`${FILAS_DATOS}`)).toHaveAttribute('data-nombre', 'Limpiaparabrisas trasero');
+  });
+});
+
+test.describe('fotos en celular', () => {
+  test.use({ deviceScaleFactor: 3 });
+  test('en pantallas de alta densidad la portada en alta reemplaza a la miniatura', async ({ page }, info) => {
+    test.skip(info.project.name !== 'celular', 'solo en celular');
+    const img = page.locator('#theadTable th:not(.feat-col):not(.col-hidden) img.car-photo').first();
+    await expect(img).toHaveAttribute('src', /\/fotos\/[a-z0-9-]+-1\.jpg$/);
+  });
+});

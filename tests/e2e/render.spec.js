@@ -41,7 +41,7 @@ test.describe('render de la tabla', () => {
 
   test('el indicador de percentiles aparece solo en las filas de PCTL_DIR', async ({ page }) => {
     const conIndicador = await page.locator(FILAS_DATOS).evaluateAll(trs =>
-      trs.filter(tr => tr.querySelector('.pct')).map(tr => tr.querySelector('.feat-label').textContent));
+      trs.filter(tr => tr.querySelector('.pct')).map(tr => tr.dataset.nombre));
     const esperadas = Object.keys(PCTL_DIR);
     // Toda fila con indicador está en PCTL_DIR (las dimensiones no, a propósito).
     for (const f of conIndicador) expect(esperadas, f).toContain(f);
@@ -68,6 +68,6 @@ test('en celular portrait se ven 3 columnas: característica + 2 autos', async (
   await page.goto('/index.html');
   const anchos = await page.locator('#theadTable thead th').evaluateAll(ths => ths.slice(0, 3).map(t => t.getBoundingClientRect().width));
   const vw = page.viewportSize().width;
-  expect(anchos[0] / vw).toBeCloseTo(0.28, 1);   // col-feat 28vw
-  expect(anchos[1] / vw).toBeCloseTo(0.34, 1);   // col-data 34vw
+  expect(anchos[0] / vw).toBeCloseTo(0.20, 1);   // col-feat 20vw
+  expect(anchos[1] / vw).toBeCloseTo(0.38, 1);   // col-data 38vw
 });
