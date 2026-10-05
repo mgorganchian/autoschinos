@@ -172,10 +172,16 @@ def buscar(solo=()):
     _, fpa = mapa(html, 'FOTOS_POR_AUTO')
     vpf = vistas_actuales(html)
     vistos = ya_vistos()
-    shutil.rmtree(CAND, ignore_errors=True); os.makedirs(CAND)
+    # Sin autos pedidos, corrida completa desde cero. Con autos pedidos, se suman a las
+    # candidatas que ya había (así se puede buscar por tandas sin perder lo anterior).
+    if not solo: shutil.rmtree(CAND, ignore_errors=True)
+    os.makedirs(CAND, exist_ok=True)
+    ruta = os.path.join(CAND, 'candidatas.tsv')
+    previas = [c for c in filas_tsv(ruta) if c[1] not in solo] if solo else []
     elegidas = []
     for slug, nombre in autos(html):
         if solo and slug not in solo: continue
+        n_auto = 0
         faltan = [v for v in CLAVES if v not in vpf.get(slug, [])]
         if not faltan or fpa.get(slug, 1) >= MAX_TOTAL: continue
         modelo = ALIAS.get(nombre, nombre)
@@ -204,7 +210,7 @@ def buscar(solo=()):
             if not autor: continue      # sin autor no se puede atribuir
             hallados[t] = (vista(t), lic, autor, ii['width'] * ii['height'])
         for t, (v, lic, autor, area) in sorted(hallados.items(), key=lambda kv: -kv[1][3])[:POR_CORRIDA]:
-            elegidas.append((f'{slug}~{len(elegidas):03d}', slug, v, t, lic, autor))
+            elegidas.append((f'{slug}~{n_auto:02d}', slug, v, t, lic, autor)); n_auto += 1
     listas = []
     for cid, slug, v, t, lic, autor in elegidas:
         crudo = os.path.join(CAND, cid + '.orig')
@@ -220,8 +226,8 @@ def buscar(solo=()):
         if procesar(crudo, os.path.join(CAND, cid + '.jpg'), False) | procesar(crudo, os.path.join(CAND, cid + '.int.jpg'), True):
             listas.append((cid, slug, v, t, lic, autor))
         os.remove(crudo)
-    with open(os.path.join(CAND, 'candidatas.tsv'), 'w', encoding='utf-8') as f:
-        for fila in listas: f.write('\t'.join(fila) + '\n')
+    with open(ruta, 'w', encoding='utf-8') as f:
+        for fila in previas + listas: f.write('\t'.join(fila) + '\n')
     print(f'{len(listas)} candidatas en {CAND}/ — mirá cada una antes de instalar o descartar:')
     for cid, slug, v, t, lic, autor in listas:
         print(f'  {cid}  {t}  ({lic}, {autor})')
