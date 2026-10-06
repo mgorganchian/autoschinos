@@ -183,10 +183,10 @@ test.describe('similares en el selector', () => {
     await expect(tam).toHaveAttribute('aria-pressed', 'true');
     await expect(tam).toHaveAttribute('data-tip', /largo.*doble/);
 
-    expect(largo('Chery Tiggo 7 Pro PHEV')).toBeNull();       // Chery no publica su ficha: sin largo
+    expect(largo('JMC Grand Avenue Pro')).toBeNull();         // JMC dice "5,5 m" sin la cifra exacta: sin largo
     await page.click('#modelNoneBtn');
-    await page.locator(`#modelList input[data-idx="${indice('Chery Tiggo 7 Pro PHEV')}"]`).check();
-    await expect(page.locator('#simModal .sim-titulo')).toContainText('Chery Tiggo 7 Pro PHEV');
+    await page.locator(`#modelList input[data-idx="${indice('JMC Grand Avenue Pro')}"]`).check();
+    await expect(page.locator('#simModal .sim-titulo')).toContainText('JMC Grand Avenue Pro');
     await expect(page.locator('#simModal [data-crit="tamano"]')).toBeDisabled();
   });
 

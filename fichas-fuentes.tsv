@@ -92,9 +92,9 @@ Chery Tiggo 7 Pro MHEV	chery-tiggo-7-pro-hybrid.pdf	https://chery.com.ar/wp-cont
 Chery Tiggo 7 Pro MHEV	chery-tiggo-7-pro-hybrid-adas.pdf	https://chery.com.ar/wp-content/uploads/2026/09/MY26-TIGGO7ProHybrid_ADAS.pdf	53b57384ba0d5a07a3b7903cd36b6d01f341420c84e13492fb311fdbddaae7ce	2026-10-03
 Chery Himla	chery-himla.pdf	https://chery.com.ar/wp-content/uploads/2026/10/Ficha_Tecnica_Himla.pdf	cefc463f064cd3d6fc53602385d783f4f8779993e386c22c4168423f447e0ecf	2026-10-03
 Chery (precios)	chery-precios-sep26.pdf	https://chery.com.ar/wp-content/uploads/2026/09/20260904_CHERY-SEP-26.pdf	5ba0f1d94b5264b457f9a69b89bd0a2ceb45a5d67626ae2f7748baf01bf70265	2026-10-03
-# Chery Tiggo 7 Pro PHEV: SIN ficha argentina. Chery publica solo la del MHEV;
-# la columna del PHEV sale de la lista de precios oficial N° 12 (fila "Chery (precios)")
-# y el resto queda sin dato a propósito. La lista también fija los precios de
+# Chery Tiggo 7 Pro PHEV: su columna sale de la ficha AR Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf
+# (fila más abajo, 2026-10-04) y el precio, de la lista de precios oficial N° 12
+# (fila "Chery (precios)"). La lista también fija los precios de
 # Tiggo 2 Pro Max, Tiggo 4 Hybrid, Tiggo 7 Pro MHEV/PHEV, Tiggo 8 Pro y Arrizo 8 Comfort.
 # Tiggo 4 Pro e Himla: ficha oficial, pero el precio es EXT (prensa, Expo Auto Chino 2026).
 
@@ -209,8 +209,8 @@ Chery (garantía)	chery-certificado-garantia.pdf	https://chery.com.ar/wp-content
 Chery Tiggo 7 Pro PHEV	chery-tiggo-7-csh-phev.pdf	https://chery.com.ar/wp-content/uploads/2026/07/Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf	e72527a47664ef49d083a7a11c4d6c16c7a05147291c19daaad2af667b0a594c	2026-10-04
 Chery Tiggo 8 Pro	chery-tiggo-8-pro-my25.pdf	https://chery.com.ar/wp-content/uploads/2025/12/MY25_TIGGO_8_PRO.pdf	c1b034fabcc1192e66848f6ab18b970959be691177ee02e0d8d5bfe23581dd15	2026-10-04
 Poer 4WD	gwm-poer-luxury.pdf	https://gwm.com.ar/FT-Poer-Luxury.pdf	40c300d2d02fb8598d374ce97d523df74b0d8ce2d668a3edee4230800d770a69	2026-10-04
-# ⚠️ El Tiggo 7 Pro PHEV SÍ tiene ficha AR (Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf, julio 2026):
-#   su columna todavía sale solo de la lista de precios N° 12. Pendiente completarla.
+# El Tiggo 7 Pro PHEV SÍ tiene ficha AR (Ficha_Tecnica_Tiggo7_CSH_PHEV.pdf, julio 2026,
+#   versión 1.5T PHEV Premium, la de la tabla): la columna se completó desde ella el 2026-10-05.
 # ⚠️ El campo "Origen" del catálogo de Autocosmos NO sirve: pone el país de la marca
 #   ("Hecho en Gran Bretaña" en todos los MG), no el de la planta.
 
