@@ -47,6 +47,10 @@ Leapmotor C10	leapmotor-c10-ft-ar.pdf	https://www.leapmotor.com.ar/content/dam/l
 Leapmotor B10	leapmotor-b10-ft-ar.pdf	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/fichas-tecnicas/b10/20260724-ft-b10.pdf	verificado-igual	2026-09-21
 Lynk & Co 01	lynkco-01-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-01.pdf	ficha-MY2026	2026-09-21
 Lynk & Co 06	lynkco-06-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-06.pdf	ficha-MY2026	2026-09-21
+# Lynk & Co 06: la vigente es la v2 de lynkcoar.com.ar ("Ficha Técnica 06 v2", 24/09/2026, 3DHT Evo).
+#   Cambia par (445 N·m), autonomías (105/925 km WLTC), consumo, suspensión trasera y carga DC;
+#   las celdas afectadas son NOTE con la cifra anterior. La de CITYDRIVE queda como referencia.
+Lynk & Co 06	lynk-co-06-v2-lynkcoar.pdf	https://www.lynkcoar.com.ar/fichas/ficha-lynk-co-06.pdf	38aafc4650247b565a5887feee4fc802acebeb742cb23e6098e836c0b2d4e603	2026-10-06
 Lynk & Co 08	lynkco-08-citydrive-2026-05.pdf	https://citydrive.com.ar/wp-content/uploads/2026/05/Ficha-tecnica-Lynk-Co-08.pdf	ficha-MY2026	2026-09-21
 Forthing U-Tour	forthing-u-tour-hev.pdf	https://forthing.com.ar/wp-content/uploads/2026/06/Ficha-tecnica-U-TOUR-HEV.pdf	ficha-U-Tour-HEV-Exclusive-04-26	2026-09-22
 Foton Tunland V9	foton-tunland-v9-naftera-v3.pdf	https://foton.com.ar/wp-content/uploads/2026/03/FTN-005-Ficha-Tecnica-TUNLAND-V9-NAFTERA-v3.pdf	ficha-4x4-AT-Pro-Sport-TUV9N-DIC25-002	2026-09-22
