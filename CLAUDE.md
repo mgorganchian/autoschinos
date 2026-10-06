@@ -364,6 +364,13 @@ portada primero y el resto en el orden de las vistas.
   total a 214. Commons casi no tiene interiores ni perfiles de la versión argentina: el
   hueco grande sigue siendo cabina, baúl y plazas traseras.
 - **Volante a la derecha = otro mercado**: no va, aunque sea el mismo modelo.
+- **La portada tiene que ser la versión que vende el importador argentino** (frente,
+  rótulos, generación): se compara con la tapa de la ficha AR o el sitio oficial AR. Se
+  cambia con `herramientas-fotos.py portada SLUG …`, que reescribe juntos la foto 1, la
+  miniatura base64 del `<th>`, su `data-credito`, `VISTAS_POR_FOTO` y la fila de la
+  portada en `fichas-fuentes.tsv`. El 2026-10-06 se cambiaron 7 (Jetour T2, Omoda 5,
+  Lynk & Co 06 y 01, Tiggo 8 Pro, BAIC X35 y Jolion Pro HEV). Sigue pendiente el Jaecoo 7:
+  la portada parece el naftero, pero no hay foto oficial AR del PHEV para comparar.
 
 **Las fotos se agregan con `herramientas-fotos.py`, nunca a mano**: `buscar` baja y
 procesa candidatas de Commons a `.fotos-candidatas/`, `instalar ID…` agrega las

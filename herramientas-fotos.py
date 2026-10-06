@@ -5,6 +5,9 @@
     python3 herramientas-fotos.py instalar ID:VISTA...    # agrega las aprobadas, con su vista
     python3 herramientas-fotos.py descartar ID "motivo"
     python3 herramientas-fotos.py reorganizar PLAN.tsv    # vistas, repetidas y orden de lo instalado
+    python3 herramientas-fotos.py portada SLUG carrusel N VISTA
+    python3 herramientas-fotos.py portada SLUG IMAGEN VISTA "crédito" "fila de fichas-fuentes.tsv" [sin-recorte]
+                                                          # cambia la portada (foto 1, miniatura y crédito)
 
 Cada auto tiene a lo sumo UNA foto por vista (VISTAS, abajo): frente, perfiles, cola,
 baúl abierto, tablero, instrumentos, consola, asientos. Dos fotos casi iguales no suman
@@ -364,6 +367,59 @@ def reorganizar(plan):
     print(f'{len(cambios)} autos reorganizados; {len(descartes)} fotos quitadas')
 
 
+def portada(slug, args):
+    """Cambia la portada: fotos/<slug>-1.jpg, la miniatura base64 del <th>, su data-credito,
+    VISTAS_POR_FOTO[slug][0] y la fila de la portada en fichas-fuentes.tsv, todo junto.
+    Con "carrusel N" sube la foto N del carrusel (sale del carrusel); si no, procesa IMAGEN."""
+    import base64, tempfile
+    html = leer_index()
+    nombre = dict(autos(html))[slug]
+    est = estado(html)[slug]
+    if args[0] == 'carrusel':
+        n, v = int(args[1]), args[2]
+        f = est[n - 1]
+        if not f['fila']: sys.exit(f'{slug}-{n}.jpg no tiene fila en fotos-fuentes.tsv')
+        origen = os.path.join(FOTOS, f['archivo'])
+        credito = f['cred']
+        fila = [nombre] + f['fila'][2:]                          # archivo de Commons, licencia, autor, página
+        resto = [x for k, x in enumerate(est[1:], start=2) if k != n]
+    else:
+        img, v, credito, fila_txt = args[0], args[1], args[2], args[3]
+        origen = os.path.join(CAND, 'portada-' + slug + '.jpg'); os.makedirs(CAND, exist_ok=True)
+        if not procesar(img, origen, len(args) > 4 and args[4] == 'sin-recorte'): sys.exit('no se pudo procesar ' + img)
+        fila = fila_txt.split('\t')
+        if fila[0] != nombre: sys.exit(f'la fila tiene que empezar con el nombre exacto: {nombre!r}')
+        resto = est[1:]
+    if v not in CLAVES: sys.exit(f'vista desconocida {v!r}')
+    if any(x['vista'] == v for x in resto): sys.exit(f'{slug}: el carrusel ya tiene una foto de {v}; sacala antes con reorganizar')
+    tmp = tempfile.mkdtemp()
+    shutil.copyfile(origen, os.path.join(tmp, 'p.jpg'))
+    miniatura = os.path.join(tmp, 'm.jpg')
+    subprocess.run(['sips', '-s', 'format', 'jpeg', '-s', 'formatOptions', '70', '-z', '190', '300',
+                    os.path.join(tmp, 'p.jpg'), '--out', miniatura], check=True, capture_output=True)
+    b64 = base64.b64encode(open(miniatura, 'rb').read()).decode()
+    m = re.search(r'<img class="car-photo" data-slug="%s"[^>]*>' % re.escape(slug), html)
+    if not m: sys.exit('no encontré la miniatura de ' + slug)
+    tag = re.sub(r' data-credito="[^"]*"', '', m.group(0))
+    tag = re.sub(r'src="data:image/[a-z]+;base64,[^"]+"', 'src="data:image/jpeg;base64,' + b64 + '"', tag)
+    if credito: tag = tag.replace(' alt=""', ' alt="" data-credito="' + credito.replace('"', '&quot;') + '"', 1)
+    html = html[:m.start()] + tag + html[m.end():]
+    open(INDEX, 'w', encoding='utf-8').write(html)
+    # La portada nueva entra como foto 1; el carrusel se reescribe sin la que subió.
+    nueva = {'archivo': None, 'origen': os.path.join(tmp, 'p.jpg'), 'vista': v, 'cred': '', 'fila': None}
+    escribir(html, {slug: [nueva] + [dict(x) for x in resto]})
+    # fichas-fuentes.tsv: fuera la fila de la portada vieja, adentro la nueva.
+    lineas = open(PORTADAS, encoding='utf-8').read().split('\n')
+    es_portada = lambda c: len(c) > 1 and c[0] == nombre and re.search(r'\.(jpe?g|png|webp)$|^tapa de |^página |^foto del auto', c[1], re.I)
+    quedan = [l for l in lineas if not es_portada(l.split('\t'))]
+    while quedan and not quedan[-1].strip(): quedan.pop()
+    if '# PORTADAS CAMBIADAS DESPUÉS (herramientas-fotos.py portada)' not in quedan:
+        quedan += ['', '# PORTADAS CAMBIADAS DESPUÉS (herramientas-fotos.py portada)']
+    quedan.append('\t'.join(fila))
+    open(PORTADAS, 'w', encoding='utf-8').write('\n'.join(quedan) + '\n')
+    print(f'{slug}: portada nueva ({v}); {len(lineas) - len(quedan) + 1 + (0 if len(lineas) else 0)} fila(s) de portada vieja quitadas')
+
+
 def descartar(cid, motivo):
     cands = candidatas()
     if cid not in cands: sys.exit(f'{cid}: no es una candidata de esta corrida')
@@ -381,5 +437,6 @@ if __name__ == '__main__':
     if a[:1] == ['buscar']: buscar(set(a[1:]))
     elif a[:1] == ['instalar'] and len(a) > 1: instalar(a[1:])
     elif a[:1] == ['reorganizar'] and len(a) == 2: reorganizar(a[1])
+    elif a[:1] == ['portada'] and len(a) >= 4: portada(a[1], a[2:])
     elif a[:1] == ['descartar'] and len(a) == 3: descartar(a[1], a[2])
     else: sys.exit(__doc__)
