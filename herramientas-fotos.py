@@ -5,6 +5,7 @@
     python3 herramientas-fotos.py instalar ID:VISTA...    # agrega las aprobadas, con su vista
     python3 herramientas-fotos.py descartar ID "motivo"
     python3 herramientas-fotos.py reorganizar PLAN.tsv    # vistas, repetidas y orden de lo instalado
+    python3 herramientas-fotos.py instalar-oficial LISTA.tsv  # fotos de sitios oficiales AR de la marca
     python3 herramientas-fotos.py portada SLUG carrusel N VISTA
     python3 herramientas-fotos.py portada SLUG IMAGEN VISTA "crédito" "fila de fichas-fuentes.tsv" [sin-recorte]
                                                           # cambia la portada (foto 1, miniatura y crédito)
@@ -422,6 +423,40 @@ def portada(slug, args):
     print(f'{slug}: portada nueva ({v}); {len(lineas) - len(quedan) + 1 + (0 if len(lineas) else 0)} fila(s) de portada vieja quitadas')
 
 
+LICENCIA_OFICIAL = 'material oficial de la marca'
+
+
+def instalar_oficial(lista):
+    """LISTA.tsv: slug, vista, archivo_local, url_imagen, pagina_donde_aparece, marca_credito
+    (con encabezado). Fotos de los sitios oficiales argentinos de la marca o del importador,
+    autorizadas por el usuario el 2026-10-06 con la marca como crédito. Se escalan a 900 px
+    sin recorte (son cabinas o baúles) y se anotan en fotos-fuentes.tsv con la URL de la
+    imagen y la página donde aparece. Una vista que el auto ya tiene se saltea."""
+    import csv, tempfile
+    html = leer_index()
+    est = estado(html)
+    cambios, saltadas = {}, 0
+    tmp = tempfile.mkdtemp()
+    for r in csv.DictReader(open(lista, encoding='utf-8'), delimiter='\t'):
+        slug, v = r['slug'], r['vista']
+        if v not in CLAVES: sys.exit(f'{slug}: vista desconocida {v!r}')
+        fotos = cambios.setdefault(slug, [dict(f) for f in est[slug]])
+        if any(f['vista'] == v for f in fotos): saltadas += 1; continue
+        if not r['url_imagen'].startswith('https://') or not r['pagina_donde_aparece'].startswith('https://'):
+            sys.exit(f'{slug}/{v}: la imagen y la página tienen que ser https')
+        destino = os.path.join(tmp, f'{slug}-{v}.jpg')
+        ok = subprocess.run(['sips', '-s', 'format', 'jpeg', '-s', 'formatOptions', '62', '-Z', '900',
+                             r['archivo_local'], '--out', destino], capture_output=True).returncode == 0
+        if not ok or not os.path.getsize(destino): sys.exit(f'no se pudo procesar {r["archivo_local"]}')
+        marca = r['marca_credito'].strip()
+        fotos.append({'archivo': None, 'origen': destino, 'vista': v,
+                      'cred': f'Foto: {marca} · {LICENCIA_OFICIAL} · sitio oficial',
+                      'fila': ['', v, r['url_imagen'], LICENCIA_OFICIAL, marca, r['pagina_donde_aparece']]})
+    cambios = {k: f for k, f in cambios.items() if len(f) != len(est[k])}
+    escribir(html, cambios)
+    print(f'{sum(len(f) - len(est[k]) for k, f in cambios.items())} fotos en {len(cambios)} autos; {saltadas} vistas que ya tenían')
+
+
 def descartar(cid, motivo):
     cands = candidatas()
     if cid not in cands: sys.exit(f'{cid}: no es una candidata de esta corrida')
@@ -440,5 +475,6 @@ if __name__ == '__main__':
     elif a[:1] == ['instalar'] and len(a) > 1: instalar(a[1:])
     elif a[:1] == ['reorganizar'] and len(a) == 2: reorganizar(a[1])
     elif a[:1] == ['portada'] and len(a) >= 4: portada(a[1], a[2:])
+    elif a[:1] == ['instalar-oficial'] and len(a) == 2: instalar_oficial(a[1])
     elif a[:1] == ['descartar'] and len(a) == 3: descartar(a[1], a[2])
     else: sys.exit(__doc__)

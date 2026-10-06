@@ -379,6 +379,14 @@ portada primero y el resto en el orden de las vistas.
   total a 214. Commons casi no tiene interiores ni perfiles de la versión argentina: el
   hueco grande sigue siendo cabina, baúl y plazas traseras.
 - **Volante a la derecha = otro mercado**: no va, aunque sea el mismo modelo.
+- **Fotos oficiales de la marca** (autorizado por el usuario el 2026-10-06): las galerías de
+  los sitios oficiales argentinos de la marca o del importador también valen, con la marca
+  como crédito ("Foto: Chery Argentina · material oficial de la marca · sitio oficial").
+  Se instalan con `instalar-oficial LISTA.tsv` (slug, vista, archivo, URL de la imagen,
+  página donde aparece, marca), sin recorte, y en `fotos-fuentes.tsv` llevan la URL de la
+  imagen y la página del sitio en vez de las de Commons. Así entraron 180 fotos de cabina y
+  baúl el 2026-10-06. Solo de la versión de la tabla, con volante a la izquierda y sin
+  renders armados (se descartó un baúl con un telescopio sobre un cielo estrellado).
 - **La portada tiene que ser la versión que vende el importador argentino** (frente,
   rótulos, generación): se compara con la tapa de la ficha AR o el sitio oficial AR. Se
   cambia con `herramientas-fotos.py portada SLUG …`, que reescribe juntos la foto 1, la

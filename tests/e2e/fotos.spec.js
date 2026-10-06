@@ -52,7 +52,10 @@ test.describe('atribución de las fotos', () => {
   test('cada foto extra tiene fila completa en fotos-fuentes.tsv', () => {
     const faltan = extras.map(e => e.archivo).filter(a => {
       const m = manifiesto.get(a);
-      return !m || !m.licencia || !m.autor || !/^https:\/\/commons\.wikimedia\.org\//.test(m.pagina || '');
+      // Commons, o material oficial de la marca (autorizado por el usuario el 2026-10-06), que
+      // anota la página del sitio oficial argentino donde aparece la imagen.
+      const oficial = m && m.licencia === 'material oficial de la marca';
+      return !m || !m.licencia || !m.autor || !(oficial ? /^https:\/\//.test(m.pagina || '') : /^https:\/\/commons\.wikimedia\.org\//.test(m.pagina || ''));
     });
     expect(faltan).toEqual([]);
   });
