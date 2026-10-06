@@ -369,8 +369,9 @@ portada primero y el resto en el orden de las vistas.
   cambia con `herramientas-fotos.py portada SLUG …`, que reescribe juntos la foto 1, la
   miniatura base64 del `<th>`, su `data-credito`, `VISTAS_POR_FOTO` y la fila de la
   portada en `fichas-fuentes.tsv`. El 2026-10-06 se cambiaron 7 (Jetour T2, Omoda 5,
-  Lynk & Co 06 y 01, Tiggo 8 Pro, BAIC X35 y Jolion Pro HEV). Sigue pendiente el Jaecoo 7:
-  la portada parece el naftero, pero no hay foto oficial AR del PHEV para comparar.
+  Lynk & Co 06 y 01, Tiggo 8 Pro, BAIC X35 y Jolion Pro HEV), y después Jaecoo 7 (una
+  "SHS-P" de Commons: la anterior era el naftero) y SWM G03F (en Commons es "SWM Tiger";
+  la "Tiger EDi" es la electrificada y no va).
 
 **Las fotos se agregan con `herramientas-fotos.py`, nunca a mano**: `buscar` baja y
 procesa candidatas de Commons a `.fotos-candidatas/`, `instalar ID…` agrega las
