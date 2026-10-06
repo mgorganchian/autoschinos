@@ -271,6 +271,19 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   total no coincide, si un local no tiene fuente https o provincia normalizada, o si hay
   locales repetidos.
 
+## Colores (2026-10-06)
+
+- Sección "Colores en Argentina" en la página de cada auto, desde `COLORES_AR` (por slug):
+  `{c: [nombres] | null, f: url, d: tipo de fuente, n: nota}`. Los nombres van **tal como
+  los escribe la marca** (sin traducir ni inventar el tono), y solo de fuentes oficiales
+  argentinas: ficha AR, sitio o configurador de la marca. Nada de otros mercados.
+- Si la ficha y la web oficial no coinciden, va **la más reciente** (casi siempre la web) y
+  `n` dice en qué difiere la otra. Si se contradicen sin forma de saber cuál vale (Kaiyi
+  X3/X3 Pro/X7), `c` queda en null con el motivo.
+- 71 de 108 autos tienen colores; los demás no los publican con nombre (BAIC dibuja muestras
+  sin nombre, MG solo tiene códigos internos, los no lanzados no tienen página).
+  `tests/e2e/colores.spec.js` falla si una lista no tiene fuente https.
+
 ## Logos (2026-10-05)
 
 - En la vista Grupos (grupo y cada marca) y en el filtro de Marca. Archivos en `logos/`,
