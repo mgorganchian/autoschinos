@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""Genera una página estática por auto (autos/<slug>.html), sitemap.xml y robots.txt.
+
+    python3 herramientas-paginas.py           # escribe las páginas
+    python3 herramientas-paginas.py --check   # sale con error si alguna está desactualizada
+
+Por qué existe (2026-10-06): la página de cada auto del comparador se arma en el navegador
+(?auto=slug), así que Google no la indexa y al compartirla se ve siempre la misma vista
+previa. Estas páginas salen de los mismos datos de index.html (CARS, DATA, COLORES_AR,
+CREDITOS de las portadas) y no agregan ninguno: si index.html cambia, se regeneran.
+Nunca editarlas a mano. tests/e2e/paginas.spec.js falla si quedaron desactualizadas.
+"""
+import html as H
+import json
+import os
+import re
+import sys
+
+RAIZ = os.path.dirname(os.path.abspath(__file__))
+SITIO = 'https://autoschinos-ar.vercel.app'
+DIR = os.path.join(RAIZ, 'autos')
+
+TIPO = {'ev': '100% eléctrico', 'phev': 'híbrido enchufable', 'hev': 'híbrido', 'mhev': 'mild-hybrid',
+        'ice': 'naftero o diésel', 'tbd': 'propulsión a confirmar'}
+ESTADO = {'venta': 'A la venta', 'preventa': 'En preventa', 'nolanzado': 'No lanzado todavía',
+          'discontinuado': 'Discontinuado'}
+SENTINELA = {'YES': 'Sí', 'NO': 'No', 'OPT': 'Opcional', 'ND': 'Sin dato'}
+
+
+def leer():
+    s = open(os.path.join(RAIZ, 'index.html'), encoding='utf-8').read()
+    a = s.index('const DATA = ['); data = json.loads(s[a + 13:s.find('];', a) + 1])
+    cs = s.index('const CARS = ['); bloque = s[cs:s.index('];', cs)]
+    cars = [dict(re.findall(r'(\w+):"([^"]*)"', o)) for o in re.findall(r'\{name:"[^}]*\}', bloque)]
+    tags = re.findall(r'<img class="car-photo" data-slug="[^"]+"[^>]*>', s)
+    slugs = [re.search(r'data-slug="([^"]+)"', t).group(1) for t in tags]
+    creditos = [H.unescape((re.search(r'data-credito="([^"]*)"', t) or [None, ''])[1]) for t in tags]
+    colores = json.loads(re.search(r'const COLORES_AR = (\{.*?\});\n', s).group(1))
+    assert len(cars) == len(slugs) == len(data[0][1][0]) - 1
+    return data, cars, slugs, creditos, colores
+
+
+def celda(v):
+    """(texto visible, aclaración o None) de una celda con la convención NR/NOTE/EXT."""
+    if v in SENTINELA: return SENTINELA[v], None
+    m = re.match(r'^(NR|NOTE|EXT):(.*?)(?:\|(.*))?$', v, re.S)
+    if not m: return v, None
+    pre, val, nota = m.groups()
+    if pre == 'NR': return 'Sin dato', nota
+    if pre == 'EXT': return val, ('No sale de la ficha oficial argentina. ' + (nota or '')).strip()
+    return val, nota
+
+
+def precio_usd(v):
+    if not v.startswith('USD '): return None
+    m = re.match(r'USD ([\d.]+)', v)
+    return m.group(1).replace('.', '') if m else None
+
+
+def pagina(i, data, car, slug, credito, colores):
+    nombre = car['name']
+    filas = {f[0]: f[i + 1] for cat in data for f in cat[1]}
+    precio, _ = celda(filas['Precio de lista (versión tope de gama de la tabla)'])
+    largo, _ = celda(filas['Longitud (mm)'])
+    tipo = TIPO.get(car['type'], '')
+    desc_partes = [f'{nombre}: {tipo}', car.get('body', ''), ESTADO.get(car['status'], '')]
+    if precio != 'Sin dato': desc_partes.append(f'precio {precio}')
+    desc = ', '.join(p for p in desc_partes if p) + '. Ficha técnica oficial, equipamiento, colores y comparación con otros autos chinos en Argentina.'
+    titulo = f'{nombre}: precio, ficha técnica y equipamiento en Argentina'
+    url = f'{SITIO}/autos/{slug}'
+    foto = f'{SITIO}/fotos/{slug}-1.jpg'
+    e = H.escape
+    # Ficha completa, por categoría
+    secciones = []
+    for cat, fs in data:
+        trs = []
+        for f in fs:
+            txt, nota = celda(f[i + 1])
+            trs.append(f'<tr><th scope="row">{e(f[0])}</th><td>{e(txt)}' + (f'<small>{e(nota)}</small>' if nota else '') + '</td></tr>')
+        secciones.append(f'<section><h2>{e(cat)}</h2><table>{"".join(trs)}</table></section>')
+    col = colores.get(slug) or {}
+    colores_html = ''
+    if col.get('c'):
+        colores_html = ('<section><h2>Colores en Argentina</h2><ul class="colores">' + ''.join(f'<li>{e(c)}</li>' for c in col['c']) +
+                        f'</ul><p class="nota">{e(col.get("n", ""))} Fuente: <a href="{e(col["f"])}" rel="nofollow">{e(col.get("d", "oficial"))}</a>.</p></section>')
+    ld = {'@context': 'https://schema.org', '@type': 'Car', 'name': nombre, 'url': url, 'image': foto,
+          'brand': {'@type': 'Brand', 'name': car['brand']}, 'bodyType': car.get('body', ''),
+          'vehicleConfiguration': tipo}
+    usd = precio_usd(filas['Precio de lista (versión tope de gama de la tabla)'])
+    if usd and car['status'] == 'venta':
+        ld['offers'] = {'@type': 'Offer', 'price': usd, 'priceCurrency': 'USD', 'availability': 'https://schema.org/InStock'}
+    return f'''<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(titulo)}</title>
+<meta name="description" content="{e(desc)}">
+<link rel="canonical" href="{url}">
+<meta property="og:type" content="article"><meta property="og:title" content="{e(titulo)}">
+<meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{url}">
+<meta property="og:image" content="{foto}"><meta property="og:image:width" content="900"><meta property="og:image:height" content="570">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
+<style>
+:root{{--paper:#EEF1EE;--ink:#17211D;--ink2:#4B5A53;--line:#C9D4CE;--accent:#00843D}}
+@media (prefers-color-scheme:dark){{:root{{--paper:#141B18;--ink:#E4EAE6;--ink2:#9DB3A8;--line:#2E3A35;--accent:#3FB57A}}}}
+body{{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
+main{{max-width:880px;margin:0 auto;padding:16px}}
+a{{color:var(--accent)}} h1{{font-size:2rem;line-height:1.1;margin:8px 0 4px;text-wrap:balance}}
+.sub{{color:var(--ink2);margin:0 0 12px}} figure{{margin:0}} figure img{{width:100%;height:auto;background:#fff;border-radius:2px}}
+figcaption{{font-size:.75rem;color:var(--ink2)}} .cta{{display:inline-block;margin:12px 0;padding:8px 14px;border-radius:4px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}}
+h2{{font-size:1.15rem;margin:24px 0 6px;border-bottom:2px solid var(--ink)}} table{{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}}
+th,td{{text-align:left;vertical-align:top;padding:5px 6px;border-bottom:1px solid var(--line)}} th{{font-weight:500;width:42%;color:var(--ink2)}}
+td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px}}
+.colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
+</style></head>
+<body><main>
+<p class="sub"><a href="/">Autos chinos en Argentina</a> / {e(car['brand'])}</p>
+<h1>{e(nombre)}</h1>
+<p class="sub">{e(tipo.capitalize())}, {e(car.get('body', ''))}. {e(ESTADO.get(car['status'], ''))}. Precio de lista: {e(precio)}.</p>
+<figure><img src="/fotos/{slug}-1.jpg" alt="{e(nombre)}" width="900" height="570">{f'<figcaption>{e(credito)}</figcaption>' if credito else ''}</figure>
+<a class="cta" href="/?auto={slug}">Compararlo con otros autos</a>
+{colores_html}
+{''.join(secciones)}
+<footer><p>Datos de la ficha técnica oficial argentina; lo que sale de otra fuente está aclarado. "Sin dato" quiere decir que la fuente no lo informa, no que el auto no lo tenga.</p>
+<p><a href="/">Volver al comparativo</a></p></footer>
+</main></body></html>
+'''
+
+
+def generar():
+    data, cars, slugs, creditos, colores = leer()
+    salida = {}
+    for i, (car, slug, cred) in enumerate(zip(cars, slugs, creditos)):
+        salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores)
+    urls = [SITIO + '/'] + [f'{SITIO}/autos/{s}' for s in slugs]
+    salida[os.path.join(RAIZ, 'sitemap.xml')] = ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+                                                 ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
+    salida[os.path.join(RAIZ, 'robots.txt')] = f'User-agent: *\nAllow: /\nSitemap: {SITIO}/sitemap.xml\n'
+    # En el pie del comparativo, un link a cada página: así Google las encuentra.
+    idx = os.path.join(RAIZ, 'index.html'); s = open(idx, encoding='utf-8').read()
+    lista = sorted(zip(cars, slugs), key=lambda cs: cs[0]['name'].lower())
+    nav = ('<nav class="todos-autos" aria-label="Página de cada auto"><h2>La página de cada auto</h2><ul>' +
+           ''.join(f'<li><a href="/autos/{sl}">{H.escape(c["name"])}</a></li>' for c, sl in lista) + '</ul></nav>')
+    s = re.sub(r'(<!-- autos:inicio[^>]*-->\n).*?(<!-- autos:fin -->)', lambda m: m.group(1) + nav + '\n' + m.group(2), s, flags=re.S)
+    salida[idx] = s
+    return salida, slugs
+
+
+if __name__ == '__main__':
+    salida, slugs = generar()
+    sobran = sorted(set(f for f in os.listdir(DIR) if f.endswith('.html')) - {s + '.html' for s in slugs}) if os.path.isdir(DIR) else []
+    if '--check' in sys.argv:
+        viejas = [os.path.relpath(r, RAIZ) for r, t in salida.items() if not os.path.exists(r) or open(r, encoding='utf-8').read() != t]
+        if viejas or sobran:
+            sys.exit('desactualizadas: ' + ', '.join(viejas + sobran) + '\ncorrer: python3 herramientas-paginas.py')
+        print('páginas al día'); sys.exit(0)
+    os.makedirs(DIR, exist_ok=True)
+    for r, t in salida.items(): open(r, 'w', encoding='utf-8').write(t)
+    for f in sobran: os.remove(os.path.join(DIR, f))
+    print(f'{len(slugs)} páginas, sitemap.xml y robots.txt')

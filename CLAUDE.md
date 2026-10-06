@@ -4,8 +4,9 @@ Comparativo de **108 autos** chinos/electrificados vendidos (o por llegar) en Ar
 Todo vive en un único `index.html` autocontenido: sin CSS, JS ni imágenes externas.
 Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.** Las únicas excepciones, servidas junto a la página y bajadas cuando hacen
-falta: `fotos/`, `logos/`, `og.jpg`, `fichas-fuentes.tsv`, `logos-fuentes.tsv` y
-`concesionarios.json`.
+falta: `fotos/` (con `fotos/mini/`, las miniaturas del encabezado), `logos/`, `og.jpg`,
+`fichas-fuentes.tsv`, `logos-fuentes.tsv` y `concesionarios.json`. Aparte, `autos/*.html`,
+`sitemap.xml` y `robots.txt` son páginas generadas para Google (ver "Páginas por auto").
 
 El contexto largo (el *porqué* de cada decisión, orden de columnas, estado del research,
 metodología de búsqueda de fichas) está en **`CONTEXTO_PROYECTO_AUTOSCHINOS.md`**.
@@ -284,6 +285,19 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   sin nombre, MG solo tiene códigos internos, los no lanzados no tienen página).
   `tests/e2e/colores.spec.js` falla si una lista no tiene fuente https.
 
+## Páginas por auto (2026-10-06)
+
+- `herramientas-paginas.py` genera desde `index.html` una página estática por auto
+  (`autos/<slug>.html`, servida como `/autos/<slug>` por `cleanUrls` de `vercel.json`), con
+  título y descripción propios, datos estructurados schema.org `Car`, la ficha completa y
+  los colores; además `sitemap.xml`, `robots.txt` y la lista de links del pie del
+  comparativo (entre `<!-- autos:inicio -->` y `<!-- autos:fin -->`).
+- Existen porque la página de cada auto del comparador se arma en el navegador (`?auto=`):
+  Google no la indexa y al compartirla se veía siempre la misma vista previa.
+- **No agregan datos ni se editan a mano.** Si cambia `index.html`, se regeneran:
+  `tests/e2e/paginas.spec.js` falla si quedaron desactualizadas (corre el script con
+  `--check`). La rutina semanal lo hace sola (tarea F).
+
 ## Logos (2026-10-05)
 
 - En la vista Grupos (grupo y cada marca) y en el filtro de Marca. Archivos en `logos/`,
@@ -345,8 +359,9 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 
 ## Fotos
 
-Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura base64
-embebida en el `<th>`) y, si hay material, más fotos en un carrusel: **a lo sumo una por
+Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura de 300×190 en
+`fotos/mini/<slug>.jpg` para el `<th>`; hasta el 2026-10-06 iba embebida en base64 y pesaba
+1,3 MB de los 2,7 del archivo) y, si hay material, más fotos en un carrusel: **a lo sumo una por
 vista** (12 vistas: tres cuartos delantero, frente, perfiles izquierdo y derecho, tres
 cuartos trasero, atrás, baúl abierto, tablero, instrumentos, consola central, asientos
 delanteros y plazas traseras; pedido del usuario del 2026-10-05: dos fotos casi iguales no
@@ -367,7 +382,7 @@ portada primero y el resto en el orden de las vistas.
 - **La portada tiene que ser la versión que vende el importador argentino** (frente,
   rótulos, generación): se compara con la tapa de la ficha AR o el sitio oficial AR. Se
   cambia con `herramientas-fotos.py portada SLUG …`, que reescribe juntos la foto 1, la
-  miniatura base64 del `<th>`, su `data-credito`, `VISTAS_POR_FOTO` y la fila de la
+  miniatura de `fotos/mini/`, su `data-credito`, `VISTAS_POR_FOTO` y la fila de la
   portada en `fichas-fuentes.tsv`. El 2026-10-06 se cambiaron 7 (Jetour T2, Omoda 5,
   Lynk & Co 06 y 01, Tiggo 8 Pro, BAIC X35 y Jolion Pro HEV), y después Jaecoo 7 (una
   "SHS-P" de Commons: la anterior era el naftero) y SWM G03F (en Commons es "SWM Tiger";

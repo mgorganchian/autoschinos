@@ -37,6 +37,13 @@ test.describe('atribución de las fotos', () => {
     expect(enDisco.filter(f => !declarados.has(f))).toEqual([]);
   });
 
+  test('cada auto tiene su miniatura en fotos/mini (la del <th>, que antes iba embebida)', () => {
+    const slugs = [...html.matchAll(/<img class="car-photo" data-slug="([^"]+)"[^>]*src="([^"]+)"/g)];
+    const mal = slugs.filter(([, slug, src]) => src !== `fotos/mini/${slug}.jpg` || !fs.existsSync(path.join(RAIZ, src))).map(m => m[1]);
+    expect(slugs.length).toBe(Object.keys(FOTOS_POR_AUTO).length);
+    expect(mal).toEqual([]);
+  });
+
   test('cada foto extra tiene su crédito, no el de otra', () => {
     const sinCredito = extras.filter(({ slug, k }) => !(CREDITOS_POR_FOTO[slug] || [])[k]).map(e => e.archivo);
     expect(sinCredito).toEqual([]);

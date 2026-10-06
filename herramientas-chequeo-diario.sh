@@ -163,6 +163,23 @@ iguales no suman. La vista de cada foto instalada está en VISTAS_POR_FOTO.
    verifican que coincidan.
 Si una candidata sirve para una vista que el auto ya tiene, dejala sin instalar ni descartar."
 
+TAREA+="
+
+D) PRECIOS: revisá las listas de precios oficiales vigentes (sitio AR de cada marca o
+importador, PDF de lista numerada) y actualizá la fila \"Precio de lista (versión tope de
+gama de la tabla)\" solo si el precio oficial cambió o si hoy sale de la prensa y la marca
+ya lo publica. Formato: USD 36.500 (versión, tope de gama). Si la marca publica solo en
+pesos, va NOTE:ARS … con la explicación, NUNCA convertido a dólares. Prensa solo como
+EXT: con medio y fecha, y solo si no hay fuente oficial.
+
+E) COLORES (COLORES_AR, en el script): si una ficha o página oficial AR nueva publica los
+colores de un auto que hoy no los tiene, cargalos tal como los escribe la marca, con la
+URL de la fuente. Nunca de otro mercado.
+
+F) PÁGINAS POR AUTO: si cambiaste index.html, corré python3 herramientas-paginas.py antes
+de la suite. Regenera autos/*.html, sitemap.xml y la lista del pie; el test
+paginas.spec.js falla si quedaron desactualizadas. Nunca las edites a mano."
+
 log "invocando a Claude…"
 PROMPT="Sos el mantenimiento automático semanal del comparativo de autos chinos. Corrés sin
 supervisión, así que la prudencia vale más que la cobertura.

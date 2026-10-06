@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://autoschinos-ar.vercel.app/sitemap.xml

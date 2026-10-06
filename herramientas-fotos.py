@@ -370,10 +370,10 @@ def reorganizar(plan):
 
 
 def portada(slug, args):
-    """Cambia la portada: fotos/<slug>-1.jpg, la miniatura base64 del <th>, su data-credito,
+    """Cambia la portada: fotos/<slug>-1.jpg, la miniatura fotos/mini/<slug>.jpg, el data-credito del <th>,
     VISTAS_POR_FOTO[slug][0] y la fila de la portada en fichas-fuentes.tsv, todo junto.
     Con "carrusel N" sube la foto N del carrusel (sale del carrusel); si no, procesa IMAGEN."""
-    import base64, tempfile
+    import tempfile
     html = leer_index()
     nombre = dict(autos(html))[slug]
     est = estado(html)[slug]
@@ -399,11 +399,11 @@ def portada(slug, args):
     miniatura = os.path.join(tmp, 'm.jpg')
     subprocess.run(['sips', '-s', 'format', 'jpeg', '-s', 'formatOptions', '70', '-z', '190', '300',
                     os.path.join(tmp, 'p.jpg'), '--out', miniatura], check=True, capture_output=True)
-    b64 = base64.b64encode(open(miniatura, 'rb').read()).decode()
+    # La miniatura vive en fotos/mini/<slug>.jpg (2026-10-06: embebidas pesaban 1,3 MB).
+    shutil.copyfile(miniatura, os.path.join(FOTOS, 'mini', slug + '.jpg'))
     m = re.search(r'<img class="car-photo" data-slug="%s"[^>]*>' % re.escape(slug), html)
     if not m: sys.exit('no encontré la miniatura de ' + slug)
     tag = re.sub(r' data-credito="[^"]*"', '', m.group(0))
-    tag = re.sub(r'src="data:image/[a-z]+;base64,[^"]+"', 'src="data:image/jpeg;base64,' + b64 + '"', tag)
     if credito: tag = tag.replace(' alt=""', ' alt="" data-credito="' + credito.replace('"', '&quot;') + '"', 1)
     html = html[:m.start()] + tag + html[m.end():]
     open(INDEX, 'w', encoding='utf-8').write(html)
