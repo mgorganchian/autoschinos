@@ -324,9 +324,9 @@ test.describe('grupos automotrices', () => {
     await expect(page.locator('#gruposVista')).toBeHidden();
   });
 
-  test('GWM: en Argentina los 8 se venden como GWM; las submarcas quedan en el grupo', async ({ page }) => {
+  test('GWM: en Argentina todos se venden como GWM; las submarcas quedan en el grupo', async ({ page }) => {
     const gwm = CARS.filter(c => c.brand === 'GWM').map(c => c.name);
-    expect(gwm).toHaveLength(8);
+    expect(gwm).toHaveLength(11);   // Haval (6), Ora (2), Tank y Poer
     expect(CARS.some(c => /^GWM \(|^Haval$/.test(c.brand))).toBe(false);
     await abrir(page);
     await page.click('#gruposBtn');
@@ -338,7 +338,7 @@ test.describe('grupos automotrices', () => {
     await page.click('#gruposBtn');
     await page.locator('#gruposHoja .grupo[data-grupo="Changan"] [data-comparar-grupo]').click();
     const vis = (await idxVisibles(page)).map(i => CARS[i].name).sort();
-    expect(vis).toEqual(['Changan CS55 Plus', 'Deepal S05']);
+    expect(vis).toEqual(['Changan CS55 Plus', 'Changan Eado Plus PHEV', 'Deepal S05']);
   });
 
   test('filtro por grupo en el selector', async ({ page }) => {

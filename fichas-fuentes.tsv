@@ -37,7 +37,7 @@ Arcfox S5	arcfox-s5-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/
 Arcfox Koala S	arcfox-kaola-s-argentina.pdf	https://arcfox.com.ar/wp-content/uploads/2026/05/ARCFOX-KAOLA-S-Brochure-Argentina-2026_Web.pdf	verificado-igual	2026-09-21
 Tank 300	gwm-tank-300.pdf	https://gwm.com.ar/FT-TANK-300.pdf	verificado-igual	2026-09-21
 Ora 03	gwm-ora-03.pdf	https://gwm.com.ar/FT-ORA-03.pdf	verificado-igual	2026-09-21
-Haval H6 HEV	gwm-haval-h6-hev.pdf	https://gwm.com.ar/FT-H6-HEV.pdf	verificado-igual	2026-09-21
+Haval H6 Pro HEV	gwm-haval-h6-hev.pdf	https://gwm.com.ar/FT-H6-HEV.pdf	verificado-igual	2026-09-21
 Jetour T2	jetour-t2-oficial.pdf	https://jetour.com.ar/wp-content/uploads/2025/10/Ficha-tecnica-Jetour-T2-2025.pdf	verificado-igual	2026-09-21
 Changan CS55 Plus	changan-cs55-citydrive.pdf	https://citydrive.com.ar/wp-content/uploads/2025/10/ficha-tecnica-Changan-CS55.pdf	verificado-igual	2026-09-21
 MG ZS HEV	mg-zs-hev-mgpilar.pdf	https://mgpilar.com.ar/assets/archivos/ficha_tecnica_mg_zs.pdf	verificado-igual	2026-09-21
@@ -252,7 +252,7 @@ BAIC X55 Plus	https://baic.com.ar/wp-content/uploads/2025/09/Foto-X55-Plus-Exter
 # segunda tanda de fotos (BYD, GWM, Leapmotor)
 Atto 2 DM-i	https://www.byd.com/material/byd-site/ar/atto-2-dmi/homepage/atto2-dm-ibanner-PC.png
 Dolphin Mini	https://www.byd.com/material/byd-site/ar/dolphin-mini-argentina/test-drive/Dolphin_mini.webp
-Haval H6 HEV	https://gwm.com.ar/h6-blanco.png
+Haval H6 Pro HEV	https://gwm.com.ar/h6-blanco.png
 Leapmotor B10	https://www.leapmotor.com.ar/content/dam/leapmotor/argentina/gamas/b10/andando-frente-dk.png
 Seal 5 DM-i	https://www.byd.com/material/__CN/byd-site/ar/seal5dmi/testdrive/Test-drive-page.png
 Seal U DM-i	https://www.byd.com/material/byd-site/ar/sealudmi/time-grey-header41.png
@@ -432,3 +432,36 @@ Jaecoo 7	Jaecoo 7 SHS-P (55060879309).jpg	CC BY-SA 4.0	Alexandre Prevot from Nan
 SWM G03F	SWM Tiger front quarter.jpg	CC BY-SA 4.0	Great Wall Motors Shalong	https://commons.wikimedia.org/wiki/File:SWM_Tiger_front_quarter.jpg
 GAC S7	gac-s7.pdf	sin URL pública: gacmotorargentina.com/modelos/s7 ya no enlaza la ficha AR (leída entera el 2026-10-06)	42c6be4ce66c3e17bc13de7543585092d9910bfc8f22eb366c7f05bead781566	2026-10-06
 MG Cyberster	mg-cyberster-mgargentina.pdf	https://d32t3vbefah0xk.cloudfront.net/AR/brochure/mg-cyberster.pdf	4a7cfceebc0d96ed9d0c06d8f15e2dcbd22612653eada949770fb1370763701d	2026-10-06
+
+# AUTOS AGREGADOS EL 2026-10-06 (Expo Auto Chino y modelos que faltaban): fichas AR
+Changan Eado Plus PHEV	changan-eado-plus-phev.pdf	https://changan.com.ar/FT-EADO-PLUS-PHEV.pdf	4ff5e592f2d13f6f4bcafe935768ed7bb02b900c91dc0ccbdca88e0af3dcf3d3	2026-10-06
+GAC Aion UT	gac-aion-ut.pdf	https://framerusercontent.com/assets/TpNJ97GsH3RCCx33rNg9CrlXyE.pdf	f9c25278fa6b34759001906744d450ac4ec108dc542aa74352b4333224860cbe	2026-10-06
+GAC Aion ES	gac-aion-es.pdf	https://drive.google.com/file/d/1786RLJ6YwHwyC5BN8ktIjgFdAtXmpvAI/view	76673eede94ae4fc7028657db0e73033df38c625c7a98a58ddbc3cc7070fd5cf	2026-10-06
+GAC Emkoo HEV	gac-emkoo-hev.pdf	https://drive.google.com/file/d/1T_P-WR_axC2chrBKH4mwOxkAlTqsndIa/view	8b4e686ef1e05346c00cd362ab5399e5ce4a23419d56fe18dabf966386f73ff6	2026-10-06
+GAC Empow	gac-empow.pdf	https://drive.google.com/file/d/1QDyOdE9IE_5aYT6wdnePn8AFK0T4_QWM/view	9e056d56ad06d910741df2446087b8b542af298a71f5b57ec5ef812aff2a85f6	2026-10-06
+GAC GS3 Emzoom	gac-gs3-emzoom.pdf	https://drive.google.com/file/d/1uMR2bih91ZyCSJ5GXG6neoK8VnB-Vv7r/view	957555dc60c74905a281a5159e8c2f4902e4425a6e5fc83f4f999a545f6c8955	2026-10-06
+GAC GS8	gac-gs8.pdf	https://drive.google.com/file/d/1dNgPTY2WnCLXKZt3YTK48MuLpOkaGG3w/view	733d940426e84dc7fa78036d6e84dbf667ec5c979d93bd4e6161593df5514777	2026-10-06
+smart #1	smart-1.pdf	https://ar.smart.com/wp-content/uploads/2026/08/FT-1-Digital.pdf	340aa3b933bb253841d457870f15e492b23116eeb9a1241457ef1216758e5a08	2026-10-06
+smart #3	smart-3.pdf	https://ar.smart.com/wp-content/uploads/2026/08/FT-3-DIGITAL.pdf	aa9f0a3ac75bf7ed96a35f15b8fc947835b7dd5bd1582474d86631ee87b071e4	2026-10-06
+Haval H6 4WD	haval-h6-4wd.pdf	https://gwm.com.ar/FT-Haval-H6-4WD.pdf	3c9fd837137aebad4dbec1a1358d493b8765ecb069e1af10175a383f8e23ce0f	2026-10-06
+Haval H6 GT	haval-h6-gt.pdf	https://gwm.com.ar/FT-Haval-H6-GT.pdf	cc8e73c5eae914cc9bbfc13733e609f3f25a51bf77ea5f85f1a656c7221861d0	2026-10-06
+Haval Jolion HEV	haval-jolion-hev.pdf	https://gwm.com.ar/FT-Jolion-HEV.pdf	829fb8215792ab5652552cc22c09d407d301a7e8860d1e3bfbace87cc63056f2	2026-10-06
+Haval H6 Pro HEV	haval-h6-pro-hev.pdf	https://gwm.com.ar/FT-H6-Pro-HEV.pdf	302f310114f968c766628364747b2d19c9f4fbc076153d4899ebe52f566cf33e	2026-10-06
+Rely R8	rely-r8.pdf	https://relyargentina.com.ar/wp-content/uploads/2026/05/FichaTecnica-R8_Rely.pdf	3651001426d6a8172e87ba76a12485310cea284065b6ec43d076fc44cd7fe60a	2026-10-06
+# Geely Icon y Forthing V9: sin ficha AR (página oficial y prensa, marcadas EXT donde corresponde).
+# PORTADAS DE LOS AUTOS AGREGADOS EL 2026-10-06
+Changan Eado Plus PHEV	tapa de changan-eado-plus-phev.pdf
+GAC Aion UT	página 1 de gac-aion-ut.pdf
+GAC Aion ES	tapa de gac-aion-es.pdf
+GAC Emkoo HEV	tapa de gac-emkoo-hev.pdf
+GAC Empow	tapa de gac-empow.pdf
+GAC GS3 Emzoom	tapa de gac-gs3-emzoom.pdf
+GAC GS8	tapa de gac-gs8.pdf
+smart #1	tapa de smart-1.pdf
+smart #3	tapa de smart-3.pdf
+Haval H6 4WD	tapa de haval-h6-4wd.pdf
+Haval H6 GT	tapa de haval-h6-gt.pdf
+Haval Jolion HEV	https://gwm.com.ar/jolionhev-blue.webp
+Rely R8	https://relyargentina.com.ar/wp-content/uploads/2026/09/rely_R8_slider-naranja.png
+Geely Icon	https://api.wbsuite.app/public/3a8894769719df7-compressed.webp
+Forthing V9	Forthing Xinghai (U-Tour) V9 01 China 2024-03-30.jpg	CC BY-SA 4.0	Navigator84	https://commons.wikimedia.org/wiki/File:Forthing_Xinghai_(U-Tour)_V9_01_China_2024-03-30.jpg

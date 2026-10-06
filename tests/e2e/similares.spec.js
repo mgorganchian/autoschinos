@@ -134,7 +134,7 @@ test.describe('similares en el selector', () => {
 
   test('con Propulsión tildada, sugiere primero autos del mismo tipo', async ({ page }) => {
     let primero = true;
-    for (const base of ['Lynk & Co 06', 'Arcfox S5', 'Haval H6 HEV', 'BAIC X35', 'BAIC BJ60']) {
+    for (const base of ['Lynk & Co 06', 'Arcfox S5', 'Haval H6 Pro HEV', 'BAIC X35', 'BAIC BJ60']) {
       if (primero) { await elegirSolo(page, base); primero = false; }
       else { await page.click('#modelNoneBtn'); await page.locator(`#modelList input[data-idx="${indice(base)}"]`).check(); }
       const box = page.locator('#simModal');
@@ -150,7 +150,7 @@ test.describe('similares en el selector', () => {
     // Hoy todos los tipos tienen 3 o más autos, así que se simula en memoria: al
     // Haval le quedan un solo compañero híbrido, y el resto pasa a nafta.
     const r = await page.evaluate(() => {
-      const base = CARS.findIndex(c => c.name === 'Haval H6 HEV');
+      const base = CARS.findIndex(c => c.name === 'Haval H6 Pro HEV');
       const hibridos = CARS.map((_, i) => i).filter(i => i !== base && ['hev', 'mhev'].includes(CARS[i].type));
       const antes = hibridos.map(i => CARS[i].type);
       hibridos.slice(1).forEach(i => { CARS[i].type = 'ice'; });
@@ -177,7 +177,7 @@ test.describe('similares en el selector', () => {
   });
 
   test('Tamaño usa el largo y lo dice; sin largo cargado se apaga', async ({ page }) => {
-    await elegirSolo(page, 'Haval H6 HEV');
+    await elegirSolo(page, 'Haval H6 Pro HEV');
     const tam = page.locator('#simModal [data-crit="tamano"]');
     await expect(tam).toBeEnabled();
     await expect(tam).toHaveAttribute('aria-pressed', 'true');
@@ -208,7 +208,7 @@ test.describe('similares en el selector', () => {
 
 test.describe('similares en la tabla', () => {
   test('desde la tabla completa, "Comparar con los 3" deja el auto y sus 3 parecidos', async ({ page }) => {
-    const base = 'Haval H6 HEV';
+    const base = 'Haval H6 Pro HEV';
     await page.locator(`#theadTable .sim-btn[data-idx="${indice(base)}"]`).click();
     const panel = page.locator('#simPanel');
     await expect(panel).toBeVisible();
@@ -229,17 +229,17 @@ test.describe('similares en la tabla', () => {
     await page.click('#openModalBtn');
     await page.click('#modelDropdownBtn');
     await page.click('#modelNoneBtn');
-    for (const n of ['Haval H6 HEV', 'MG ZS HEV']) await page.locator(`#modelList input[data-idx="${indice(n)}"]`).check();
+    for (const n of ['Haval H6 Pro HEV', 'MG ZS HEV']) await page.locator(`#modelList input[data-idx="${indice(n)}"]`).check();
     await page.click('#compareBtn');
     await expect(columnasVisibles(page)).toHaveCount(2);
 
-    await page.locator(`#theadTable .sim-btn[data-idx="${indice('Haval H6 HEV')}"]`).click();
+    await page.locator(`#theadTable .sim-btn[data-idx="${indice('Haval H6 Pro HEV')}"]`).click();
     const panel = page.locator('#simPanel');
     const libre = panel.locator('.sim-sumar:not([disabled])').first();
     const nombre = await libre.evaluate(b => b.closest('li').dataset.auto);
     await libre.click();
     await expect(columnasVisibles(page)).toHaveCount(3);
-    expect(await nombresVisibles(page)).toEqual(expect.arrayContaining(['Haval H6 HEV', 'MG ZS HEV', nombre]));
+    expect(await nombresVisibles(page)).toEqual(expect.arrayContaining(['Haval H6 Pro HEV', 'MG ZS HEV', nombre]));
     await expect(panel.locator(`.sim-lista li[data-auto="${nombre}"] .sim-sumar`)).toHaveText('✓ En la tabla');
   });
 

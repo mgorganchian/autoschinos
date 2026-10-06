@@ -1,6 +1,6 @@
 # autoschinos — reglas del proyecto
 
-Comparativo de **108 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
+Comparativo de **123 autos** chinos/electrificados vendidos (o por llegar) en Argentina.
 Todo vive en un único `index.html` autocontenido: sin CSS, JS ni imágenes externas.
 Ese principio es deliberado — **no agregar dependencias externas ni partir el
 archivo.** Las únicas excepciones, servidas junto a la página y bajadas cuando hacen
@@ -177,7 +177,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   tipo** (`SIM_FAMILIA`: el mild-hybrid va con los híbridos, porque ninguno se
   enchufa y el BJ60 es el único mild), y si hay menos de 3 completa con otros. Es
   **preferencia, no filtro**: el usuario pidió explícitamente que no fuera estricta.
-  El **tamaño se mide por el largo** (está en 107 de 108 autos; el segmento falta en 1)
+  El **tamaño se mide por el largo** (está en 119 de 123 autos; el segmento falta en 4)
   y **pesa el doble** (`SIM_PESO`), también pedido explícito. Con el triple el largo
   pisaba al tipo de auto: no subirlo sin mirar qué sugiere. La distancia de cada criterio está explicada arriba
   de `SIM_CRITERIOS`. Si el auto elegido no tiene un dato, ese criterio se apaga; si
