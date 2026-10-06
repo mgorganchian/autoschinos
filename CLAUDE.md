@@ -267,7 +267,8 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **WhatsApp es link solo si viene en formato internacional (54…)**: pasar un número
   local a internacional sería adivinar.
 - Deepal publica la red de Changan; Arcfox, la de BAIC; los talleres de Jetour son la red
-  de servicio de Famly, su importador. Omoda/Jaecoo, SWM, Skywell y Stelato no publican red.
+  de servicio de Famly, su importador; smart, la de su buscador (concesionarios Mercedes-Benz
+  que la venden). Omoda/Jaecoo, SWM, Skywell, Stelato y Rely no publican red.
 - `tests/e2e/concesionarios.spec.js` falla si una marca de la tabla no figura, si un
   total no coincide, si un local no tiene fuente https o provincia normalizada, o si hay
   locales repetidos.
@@ -281,7 +282,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - Si la ficha y la web oficial no coinciden, va **la más reciente** (casi siempre la web) y
   `n` dice en qué difiere la otra. Si se contradicen sin forma de saber cuál vale (Kaiyi
   X3/X3 Pro/X7), `c` queda en null con el motivo.
-- 71 de 108 autos tienen colores; los demás no los publican con nombre (BAIC dibuja muestras
+- 81 de 123 autos tienen colores; los demás no los publican con nombre (BAIC dibuja muestras
   sin nombre, MG solo tiene códigos internos, los no lanzados no tienen página).
   `tests/e2e/colores.spec.js` falla si una lista no tiene fuente https.
 
