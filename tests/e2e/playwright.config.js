@@ -24,7 +24,7 @@ module.exports = defineConfig({
     navigationTimeout: 15_000,
   },
   webServer: {
-    command: `python3 -m http.server ${PUERTO} --bind 127.0.0.1 --directory "${RAIZ}"`,
+    command: `python3 "${path.join(__dirname, 'servidor.py')}" ${PUERTO} "${RAIZ}"`,
     url: `http://127.0.0.1:${PUERTO}/index.html`,
     timeout: 15_000,
     reuseExistingServer: false,

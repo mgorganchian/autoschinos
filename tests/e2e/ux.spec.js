@@ -304,6 +304,24 @@ test.describe('selector y comparación', () => {
     await expect(fila.locator(`td[data-col="${indice('BYD Shark')}"] .cmp-barra`)).toHaveClass(/mejor/);
   });
 
+  test('las barras de una fila quedan a la misma altura y solo la del mejor llena el ancho', async ({ page }) => {
+    // Pedido del 2026-10-07: barras alineadas aunque el texto ocupe distintas líneas, y en
+    // "menos es mejor" (precio) el más barato es el que llena la barra, no el más caro.
+    await abrir(page, '?autos=deepal-s05,byd-shark,geely-ex5,chery-tiggo-7-pro-phev');
+    const fila = page.locator('#mainTable tr[data-nombre="Precio de lista (versión tope de gama de la tabla)"]');
+    const tops = await fila.locator('.cmp-barra').evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));
+    expect(tops).toHaveLength(4);
+    expect(new Set(tops).size).toBe(1);
+    const llenas = await fila.locator('.cmp-barra i').evaluateAll(is => is.filter(i => parseFloat(i.style.width) === 100).length);
+    expect(llenas).toBe(1);
+    // El texto arranca a la misma altura en todas las celdas, con o sin ★ arriba.
+    const textos = await fila.locator('td[data-col]').evaluateAll(tds => tds.filter(td => td.querySelector('.cmp-barra')).map(td => {
+      const r = document.createRange(); const t = [...td.childNodes].find(n => n.nodeType === 3 || (n.nodeType === 1 && !n.matches('.cmp-barra,.mejor-sel,.pct')));
+      r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }));
+    expect(new Set(textos).size).toBe(1);
+    await expect(fila.locator(`td[data-col="${indice('Deepal S05')}"] .cmp-barra`)).toHaveClass(/mejor/);
+  });
+
   test('el título de la pestaña dice qué se compara', async ({ page }) => {
     await abrir(page, '?autos=byd-shark,maxus-t60');
     await expect(page).toHaveTitle(/^(Shark|T60) vs (Shark|T60) · /);
