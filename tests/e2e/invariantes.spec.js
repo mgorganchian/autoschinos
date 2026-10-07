@@ -52,8 +52,8 @@ test.describe('invariantes del index.html', () => {
     expect(colspans).toEqual([String(N + 1)]);
   });
 
-  test('6. ninguna celda con "|" sin prefijo NR:/NOTE:/EXT:', () => {
-    const malas = filas.flatMap(f => f.slice(1).filter(v => v.includes('|') && !/^(NR|NOTE|EXT):/.test(v)).map(v => `${f[0]}: ${v}`));
+  test('6. ninguna celda con "|" sin prefijo NR:/NOTE:/EXT:/DET:', () => {
+    const malas = filas.flatMap(f => f.slice(1).filter(v => v.includes('|') && !/^(NR|NOTE|EXT|DET):/.test(v)).map(v => `${f[0]}: ${v}`));
     expect(malas).toEqual([]);
   });
 
@@ -69,13 +69,13 @@ test.describe('invariantes del index.html', () => {
   const largoDe = i => {
     const v = filas.find(f => f[0] === 'Longitud (mm)')[i + 1];
     if (/^NR:|^ND$/.test(v)) return null;
-    const m = /\d+/.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]);
+    const m = /\d+/.exec(v.replace(/^(NOTE|EXT|DET):/, '').split('|')[0]);
     return m ? Number(m[0]) : null;
   };
   const asientosDe = i => {
     const v = filas.find(f => f[0] === 'Número de asientos')[i + 1];
     if (/^NR:|^ND$/.test(v)) return null;
-    const m = /\d+/.exec(v.replace(/^(NOTE|EXT):/, '').split('|')[0]);
+    const m = /\d+/.exec(v.replace(/^(NOTE|EXT|DET):/, '').split('|')[0]);
     return m ? Number(m[0]) : null;
   };
   // Muy grande (xl): 4825 mm o más Y (6+ asientos o pickup). Decisión del usuario, 2026-10-04.

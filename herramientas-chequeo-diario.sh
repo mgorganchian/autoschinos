@@ -189,6 +189,10 @@ Hacé las tareas en este orden:
 $TAREA
 
 REGLAS QUE NO SE NEGOCIAN:
+- Lo igual se escribe igual: antes de cargar un valor, mirá cómo está escrito el mismo dato
+  en otros autos de esa fila y usá exactamente ese texto. El detalle que no hace falta ver
+  de entrada va como DET:valor|detalle (sin franja). En filas con ranking, el ciclo, \"suma
+  de los motores\", \"rebatidos\" y las unidades distintas quedan en el texto visible.
 - Nunca inventes un valor. Si la ficha no lo dice, va NR con la explicación. La ausencia
   de un dato en una ficha NO prueba que el auto no lo tenga.
 - Verificá que la ficha sea de la MISMA versión que está en la tabla. Ya pasó dos veces

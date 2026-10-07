@@ -41,9 +41,9 @@ def leer():
 
 
 def celda(v):
-    """(texto visible, aclaración o None) de una celda con la convención NR/NOTE/EXT."""
+    """(texto visible, aclaración o None) de una celda con la convención NR/NOTE/EXT/DET."""
     if v in SENTINELA: return SENTINELA[v], None
-    m = re.match(r'^(NR|NOTE|EXT):(.*?)(?:\|(.*))?$', v, re.S)
+    m = re.match(r'^(NR|NOTE|EXT|DET):(.*?)(?:\|(.*))?$', v, re.S)
     if not m: return v, None
     pre, val, nota = m.groups()
     if pre == 'NR': return 'Sin dato', nota

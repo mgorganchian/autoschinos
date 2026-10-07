@@ -32,10 +32,10 @@ test.describe('render de la tabla', () => {
     await expect(page.locator('#theadTable img.car-photo')).toHaveCount(N);
   });
 
-  test('ninguna celda muestra texto crudo de la convención (NR:, NOTE:, EXT:, |)', async ({ page }) => {
+  test('ninguna celda muestra texto crudo de la convención (NR:, NOTE:, EXT:, DET:, |)', async ({ page }) => {
     // Los centinelas con texto al lado ("OPT (…)") los cubre invariantes.spec.js.
     const textos = await page.locator('#mainTable tbody td[data-col]').allTextContents();
-    const crudas = textos.filter(t => /\b(NR|NOTE|EXT):|\|/.test(t));
+    const crudas = textos.filter(t => /\b(NR|NOTE|EXT|DET):|\|/.test(t));
     expect(crudas).toEqual([]);
   });
 

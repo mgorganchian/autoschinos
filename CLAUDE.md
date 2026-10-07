@@ -74,7 +74,7 @@ visible.
 3. Un solo `<th class="feat-col">`.
 4. Los **dos** `<colgroup>` con N `col-data` cada uno.
 5. `colspan` de las filas de categoría = N+1.
-6. **Ninguna celda con `|` que no arranque con `NR:`, `NOTE:` o `EXT:`.**
+6. **Ninguna celda con `|` que no arranque con `NR:`, `NOTE:`, `EXT:` o `DET:`.**
 
 Más: `DATA` tiene que parsear con `JSON.parse` y el `<script>` no tener errores.
 
@@ -103,12 +103,24 @@ una rama que no los ignore: la rutina no arranca si ve archivos sin trackear.
 
 ## Convención de celdas
 
+**Lo igual se escribe igual** (pedido del usuario, 2026-10-07): el filtro "Solo diferencias"
+compara el texto visible (lo que va antes del `|`). Dos celdas que dicen lo mismo tienen que
+decirlo con el mismo texto ("Independiente McPherson", no "MacPherson" en una y "McPherson
+independiente" en otra), y el detalle que no hace falta ver de entrada va a `DET:` (o a la
+explicación, si ya era `NOTE:`/`EXT:`). En las filas con ranking, lo que el lector necesita
+queda visible: el ciclo, "suma de los motores", "rebatidos", unidades distintas y "No aplica".
+Un `Sí`/`No` con aclaración (`DET:Sí|…`, `NOTE:Sí|…`) se dibuja con el mismo ✓/– que
+`YES`/`NO` (`simbVal`), y "Solo diferencias" toma `YES` = `Sí` (`CLEAN_SENT`). La primera
+pasada (2026-10-07) unificó 2.917 celdas: los valores visibles distintos bajaron de 3.324 a
+1.843, sin cambiar el ranking.
+
 | forma | significa |
 |---|---|
 | texto plano | dato confirmado |
 | `NR:s/d\|explicación` | sin dato, con motivo |
 | `NOTE:valor\|explicación` | dato con matiz (ciclo de homologación, discrepancia, estimación) |
 | `EXT:valor\|explicación` | no sale de la ficha oficial argentina (otro mercado, prensa) |
+| `DET:valor\|detalle` | dato confirmado con un detalle que no hace falta ver de entrada (la versión del precio, "con barra estabilizadora"): se ve como un dato común, sin franja, y el detalle sale al pasar el mouse |
 
 **Centinelas exactos** (el valor es *exactamente* eso): `"YES"` → ✓ · `"NO"` → – ·
 `"OPT"` → ○ Opcional · `"ND"` → s/d.
