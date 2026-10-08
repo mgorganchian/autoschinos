@@ -322,6 +322,20 @@ test.describe('selector y comparación', () => {
     await expect(fila.locator(`td[data-col="${indice('Deepal S05')}"] .cmp-barra`)).toHaveClass(/mejor/);
   });
 
+  test('con todos los autos, la barra de percentil va al pie de la celda y el mejor la llena casi entera', async ({ page }) => {
+    // 2026-10-07: la barra rojo → amarillo → verde reemplazó a los cuatro cuadraditos en la
+    // tabla completa (antes las barras solo aparecían al comparar de 2 a 6 autos).
+    await abrir(page);
+    const fila = page.locator('#mainTable tr[data-nombre="Potencia total del sistema (kW)"]');
+    const barras = await fila.locator('.pct').evaluateAll(bs => bs.map(b => {
+      const r = b.getBoundingClientRect(), td = b.closest('td').getBoundingClientRect();
+      return { pie: Math.round(td.bottom - r.bottom), w: parseFloat(b.querySelector('i').style.width) }; }));
+    expect(barras.length).toBeGreaterThan(50);
+    expect(new Set(barras.map(b => b.pie)).size).toBe(1);
+    expect(Math.max(...barras.map(b => b.w))).toBeGreaterThan(95);
+    expect(Math.min(...barras.map(b => b.w))).toBeLessThan(10);
+  });
+
   test('el título de la pestaña dice qué se compara', async ({ page }) => {
     await abrir(page, '?autos=byd-shark,maxus-t60');
     await expect(page).toHaveTitle(/^(Shark|T60) vs (Shark|T60) · /);

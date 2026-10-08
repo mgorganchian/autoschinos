@@ -155,7 +155,9 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **La barra resumen NO es sticky** — decisión explícita del usuario.
 - **El header grande se oculta** tras el primer "Comparar" (`hasComparedOnce`).
 - **Dropdown de Marca/Modelo en `position:static`**, no `absolute` (quedaba recortado).
-- El **indicador de percentiles** (4 cuadraditos verdes) va **solo en las 15 filas
+- El **indicador de percentiles** (una barra rojo → amarillo → verde al pie de la celda, cuyo
+  largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario: la
+  misma barra que al comparar de 2 a 6 autos, que ahí se mide contra los elegidos) va **solo en las 15 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
   propósito**: poner el indicador ahí afirmaría que un auto más largo es mejor, y
@@ -169,7 +171,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   de 4.
 - La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 15
   filas de `PCTL_DIR`**, y lee los números con el **mismo `pctlValor()`** que los
-  cuadraditos: no tiene parser propio, así que hereda los vetos. Lo que no se puede
+  barras de percentil: no tiene parser propio, así que hereda los vetos. Lo que no se puede
   rankear va al final en **tres grupos distintos que no hay que fusionar**: "Sin dato"
   (no se sabe), "No aplica" (consumo de nafta en un eléctrico) y "No comparable" (hay
   cifra pero en otra unidad o medida distinto). Las cifras NOTE/EXT entran marcadas con
@@ -178,7 +180,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   En **Consumo, los enchufables (`type:"phev"`) van aparte y sin puesto** (`RK_APARTE`):
   rankeados salían primeros con 0,9–1,2 L/100km, y tampoco se ordenan entre ellos
   porque cada ficha mide distinto (el Lynk & Co 01 da 0,9 con batería llena y 6,4 con
-  batería vacía; los BYD DM-i no aclaran). Los cuadraditos de la tabla todavía los
+  batería vacía; los BYD DM-i no aclaran). Las barras de percentil de la tabla todavía los
   incluyen.
 - **Autos similares** (bloque "Autos similares a X por:" en el selector con un solo
   auto elegido, y botón "Similares" en cada auto de la tabla): sugiere los 3 más
@@ -205,7 +207,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   se usa `TH_AUTO[i]` (tomado al cargar) o `th[data-idx]`, y las celdas por
   `td[data-col]`. `tests/e2e/ux.spec.js` falla si una celda queda debajo de otro auto.
   La referencia marca ▲/▼ **solo en las filas de `PCTL_DIR`** y con `pctlValor()`,
-  igual que los cuadraditos; los enchufables no se comparan en consumo (`RK_APARTE`).
+  igual que las barras de percentil; los enchufables no se comparan en consumo (`RK_APARTE`).
 - **La comparación vive en la URL**: `?autos=slug,slug&ref=slug&orden=clave` (los slugs
   son los de las fotos). Si se renombra un slug, los links viejos a ese auto dejan de
   incluirlo: no renombrar slugs sin necesidad.

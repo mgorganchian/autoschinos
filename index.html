@@ -781,12 +781,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   }
   .modal-body .advanced-toggle:hover{background:var(--surface-hover);}
   body.modal-open{overflow:hidden;}
-  /* Indicador de percentiles: cuatro cuadraditos que ubican al auto contra
-     los demás EN ESA MISMA FILA. Solo aparece en las filas donde "mejor"
-     tiene una dirección objetiva — ver PCTL_DIR en el script. */
-  .pct{display:inline-flex;gap:1px;vertical-align:middle;margin-left:5px;flex-shrink:0}
-  .pct i{width:4px;height:9px;border-radius:1px;background:var(--pct-off)}
-  .pct i.on{background:var(--pct-on)}
+  /* Indicador de percentiles: una barra al pie de la celda que ubica al auto contra los
+     demás EN ESA MISMA FILA (llena y verde = de los mejores; corta y roja = de los peores).
+     Reemplazó a los cuatro cuadraditos el 2026-10-07, pedido del usuario: la misma barra
+     rojo → amarillo → verde que al comparar. Solo en las filas donde "mejor" tiene una
+     dirección objetiva — ver PCTL_DIR en el script. La forma la comparte con .cmp-barra. */
   /* ============ Vista Ranking ============================================
      Ordena a los autos del mejor al peor en cada una de las 14 filas de
      PCTL_DIR. Usa la misma paleta y los mismos chips que la tabla. */
@@ -1035,8 +1034,10 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      lugar fijo para la ★ (el mejor) y abajo, para la barra. */
   #mainTable tr:has(.cmp-barra) > td[data-col]{vertical-align:top;position:relative;padding-top:18px;padding-bottom:20px}
   #mainTable tr:has(.cmp-barra) .mejor-sel{position:absolute;top:2px;left:50%;transform:translateX(-50%);margin:0}
-  .cmp-barra{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
-  .cmp-barra i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat}
+  #mainTable tr:has(.pct) > td[data-col]{vertical-align:top;position:relative;padding-bottom:20px}
+  .cmp-barra,.pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
+  .cmp-barra i,.pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat}
+  .pct.leyenda{position:relative;display:inline-block;left:auto;right:auto;bottom:auto;width:56px;vertical-align:middle}
   @media print{ .dif{display:none !important} }
 
   /* ============ Barra resumen: compartir y referencia ===================== */
@@ -1177,10 +1178,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .rk-marca{display:inline-block;width:4px;height:.95em;vertical-align:-1px;margin-left:6px;cursor:help;border-radius:0}
   .rk-marca.ext{background:var(--banda-ext)} .rk-marca.nota{background:var(--banda-note)}
 
-  /* Percentil con la escala de la etiqueta: más casilleros, más verde */
-  .pct i{border-radius:0;width:5px}
-  .pct.n4 i.on{background:var(--etq-a)} .pct.n3 i.on{background:var(--etq-b)}
-  .pct.n2 i.on{background:var(--etq-c)} .pct.n1 i.on{background:var(--etq-d)}
 
   /* Ranking: filas de planilla, no tarjetas */
   .rk-head h2{font-family:var(--fuente-titulo);font-weight:700;font-size:1.6rem;line-height:1.05}
@@ -1343,7 +1340,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <span><span class="banda banda-note"></span> Franja gris azulada: dato con una aclaración (otra unidad, otro ciclo)</span>
   <span><span class="banda banda-nd"></span> Rayado: la ficha no lo informa</span>
   <span>Tocá cualquier celda con franja para ver de dónde sale.</span>
-  <span><span class="pct n3" style="margin-left:0"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> Cómo queda contra los demás autos en esa fila, con los colores de la etiqueta de eficiencia: 4 verdes es el mejor 20%. Solo en las filas donde "mejor" tiene una dirección clara.</span>
+  <span><span class="pct leyenda" aria-hidden="true"><i style="width:75%;background-size:133.3% 100%"></i></span> Cómo queda contra los demás autos en esa fila: llena y verde es de los mejores, corta y roja, de los peores. Al comparar de 2 a 6 autos, la barra se mide contra los elegidos. Solo en las filas donde "mejor" tiene una dirección clara.</span>
 </div>
 
 <section class="dif" id="difBox" aria-label="Mayores diferencias" hidden></section>
@@ -2062,11 +2059,12 @@ function pctlFila(row){
 
 function pctlHTML(d){
   if(!d) return "";
-  // La clase n0..n4 colorea los cuadraditos con la escala de la etiqueta de eficiencia.
-  var h = '<span class="pct n'+d.c+'" title=""Mejor que el '+d.p+'% de los '+d.n+
-          ' autos con este dato" aria-label="'+d.c+' de 4">';
-  for(var i=0;i<4;i++) h += '<i'+(i<d.c?' class="on"':'')+'></i>';
-  return h+'</span>';
+  // Barra rojo → amarillo → verde: el largo es el percentil (mínimo 4% para que se vea) y
+  // el gradiente mide todo el ancho (background-size inverso), así la punta toma su color.
+  // n0..n4 queda como clase: la usan los tests y dice el quintil.
+  var w = Math.max(4, d.p), t = 'Mejor que el '+d.p+'% de los '+d.n+' autos con este dato';
+  return '<span class="pct n'+d.c+'" role="img" title="'+t+'" aria-label="'+t+'"><i style="width:'+w+
+         '%;background-size:'+(10000/w).toFixed(1)+'% 100%"></i></span>';
 }
 
 const tbody = document.getElementById('tbody');
