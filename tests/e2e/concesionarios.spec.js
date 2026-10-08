@@ -44,6 +44,37 @@ test.describe('concesionarios.json', () => {
     }
   });
 
+  test('ubicaciones: dentro de la Argentina y con su precisión; zonas de Georef para elegir', () => {
+    const conGeo = RED.concesionarios.filter(c => c.lat != null);
+    expect(conGeo.length).toBeGreaterThan(450);
+    for (const c of conGeo){
+      expect(c.lat, c.nombre).toBeGreaterThan(-56); expect(c.lat, c.nombre).toBeLessThan(-21);
+      expect(c.lon, c.nombre).toBeGreaterThan(-74); expect(c.lon, c.nombre).toBeLessThan(-53);
+      expect(['red', 'direccion', 'localidad'], c.nombre).toContain(c.geo);
+    }
+    expect(RED.localidades.length).toBeGreaterThan(500);
+    for (const l of RED.localidades) expect(PROVINCIAS, l.localidad).toContain(l.provincia);
+  });
+
+  test('promociones: de un auto de la tabla, con fuente https y no vencidas al consultarlas', () => {
+    // Pedido del 2026-10-08: precios y promos que publican la marca o el propio concesionario.
+    // Nunca un monto sin moneda, nunca una promo sin fuente.
+    const slugs = new Set(leerIndex().SLUGS || []);
+    const todas = [...Object.entries(RED.marcas).flatMap(([m, x]) => (x.promos || []).map(p => [m, p])),
+                   ...RED.concesionarios.flatMap(c => (c.promos || []).map(p => [c.nombre, p]))];
+    expect(todas.length).toBeGreaterThan(50);
+    for (const [quien, p] of todas){
+      expect(['precio', 'bonificacion', 'financiacion', 'entrega', 'otro'], quien).toContain(p.tipo);
+      expect(p.autos.length, quien).toBeGreaterThan(0);
+      if (slugs.size) for (const a of p.autos) if (a !== '*') expect(slugs.has(a), quien + ' ' + a).toBe(true);
+      expect(p.fuente.length, quien).toBeGreaterThan(0);
+      for (const u of p.fuente) expect(u, quien).toMatch(/^https:\/\/\S+$/);
+      expect(p.consultado, quien).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (p.vigencia) expect(p.vigencia >= p.consultado, quien + ': vencida al consultarla').toBe(true);
+      for (const f of ['precio', 'descuento']) if (p[f]){ expect(['USD', 'ARS'], quien).toContain(p[f].moneda); expect(typeof p[f].monto).toBe('number'); }
+    }
+  });
+
   test('ningún local repetido (mismo nombre, dirección y ciudad)', () => {
     const clave = c => [c.nombre, c.direccion, c.ciudad].join('|').toLowerCase();
     const vistas = new Set();
@@ -102,14 +133,39 @@ test.describe('vista Concesionarios', () => {
   });
 });
 
-test.describe('"Dónde verlo" en la página de cada auto', () => {
-  test('lista los concesionarios de su marca y filtra por provincia', async ({ page }) => {
+const venden = m => deMarca(m).filter(c => c.servicios.includes('venta'));
+test.describe('"Dónde comprarlo" en la página de cada auto', () => {
+  test('lista los concesionarios que venden la marca y filtra por provincia', async ({ page }) => {
     await abrir(page, '?auto=byd-shark');
     const donde = page.locator('#fichaDonde');
-    await expect(donde).toContainText(`${deMarca('BYD').length} concesionarios de BYD`);
-    await donde.locator('#fichaProv').selectOption('Ciudad Autónoma de Buenos Aires');
-    const caba = deMarca('BYD').filter(c => c.provincia === 'Ciudad Autónoma de Buenos Aires');
-    await expect(donde.locator('.cc')).toHaveCount(caba.length);
+    await expect(donde).toContainText(`${venden('BYD').length} concesionarios que venden BYD`);
+    await donde.locator('#dondeProv').selectOption('Ciudad Autónoma de Buenos Aires');
+    const caba = venden('BYD').filter(c => c.provincia === 'Ciudad Autónoma de Buenos Aires');
+    await expect(donde.locator(':scope > .cc-lista .cc')).toHaveCount(caba.length);
+  });
+
+  test('con la ubicación del GPS, ordena por cercanía y muestra la zona de cada local', async ({ page, context }) => {
+    // El GPS se pide solo al tocar el botón. Obelisco, CABA.
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: -34.6037, longitude: -58.3816 });
+    await abrir(page, '?auto=byd-shark');
+    await page.locator('#dondeGps').click();
+    const donde = page.locator('#fichaDonde');
+    await expect(donde).toContainText('Ordenado por cercanía a tu ubicación');
+    const km = await donde.locator(':scope > .cc-lista .cc-dist').allTextContents();
+    const n = km.map(t => parseFloat(t.replace(/[^\d,]/g, '').replace(',', '.')));
+    expect(n.length).toBeGreaterThan(5);
+    for (let k = 1; k < n.length; k++) expect(n[k]).toBeGreaterThanOrEqual(n[k - 1]);
+    await expect(donde.locator('.cc-zona').first()).not.toBeEmpty();
+  });
+
+  test('la mejor oferta publicada va arriba, con el local más cercano que la tiene', async ({ page }) => {
+    const marca = Object.keys(RED.marcas).find(m => (RED.marcas[m].promos || []).some(p => p.precio && p.autos.length === 1 && (!p.vigencia || p.vigencia >= new Date().toISOString().slice(0, 10))));
+    const p = RED.marcas[marca].promos.find(p => p.precio && p.autos.length === 1);
+    await abrir(page, '?auto=' + p.autos[0]);
+    const mejor = page.locator('#fichaDonde .donde-mejor');
+    await expect(mejor).toContainText(/Mejor precio publicado/);
+    await expect(mejor.locator('.cc-destacado')).toHaveCount(1);
   });
 
   test('"abrí la lista completa" lleva a la vista filtrada por la marca', async ({ page }) => {

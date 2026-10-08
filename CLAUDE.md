@@ -286,6 +286,24 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - `tests/e2e/concesionarios.spec.js` falla si una marca de la tabla no figura, si un
   total no coincide, si un local no tiene fuente https o provincia normalizada, o si hay
   locales repetidos.
+- **Dónde comprarlo** (2026-10-08, pedido del usuario): en la página de cada auto, los locales
+  que VENDEN la marca, con su zona, la distancia y los precios y promos publicados; arriba la
+  mejor oferta publicada y el local más cercano que la tiene.
+  - Ubicación de cada local: `lat`, `lon`, `geo` (`red` = pin de la red oficial, `direccion` =
+    Georef, `localidad` = centroide de Georef) y `partido`/`localidad` de Georef para la zona.
+    Nunca una coordenada a mano. 13 locales sin coordenadas (solo provincia).
+  - Ubicación de quien mira: el GPS **solo al tocar "Usar mi ubicación"**, no sale del navegador
+    ni se guarda; o el partido/departamento que elige (`localidades`: los 529 centroides de
+    Georef), que sí se guarda en su navegador. Distancia en línea recta.
+  - Promos: `marcas[m].promos` (lo que publica la marca para toda la red) y
+    `concesionarios[i].promos` (lo que publica el sitio del propio local). Cada una
+    `{autos:[slug|"*"], tipo, texto, precio?|descuento? {moneda, monto}, version?, vigencia,
+    fuente[], consultado}`. Solo el sitio de la marca o del propio concesionario: nada de
+    clasificados, comparadores, prensa ni redes. **Un monto sin moneda clara no lleva
+    `precio`** (queda en el texto); nunca convertir monedas. Una promo de la marca no se copia
+    a cada local. Las vencidas no se muestran; la rutina (tarea G) las saca y busca nuevas.
+  - "Mejor oferta" = el precio final más bajo publicado en la moneda del precio de lista (USD si
+    hay), o si no hay precios, el mayor descuento. Sin datos, la página dice que nadie publica.
 
 ## Colores (2026-10-06)
 

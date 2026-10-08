@@ -25,7 +25,9 @@ function leerIndex() {
   const bloquePctl = /const PCTL_DIR = (\{[\s\S]*?\});/.exec(html)[1];
   const PCTL_DIR = JSON.parse(bloquePctl);
 
-  return { html, DATA, CARS, PCTL_DIR, filas: DATA.flatMap(([, filas]) => filas) };
+  const SLUGS = [...html.matchAll(/<img class="car-photo" data-slug="([^"]+)"/g)].map(m => m[1]);
+
+  return { html, DATA, CARS, PCTL_DIR, SLUGS, filas: DATA.flatMap(([, filas]) => filas) };
 }
 
 // Errores de consola y excepciones no atrapadas. Se juntan desde antes de navegar

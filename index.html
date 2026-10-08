@@ -1002,6 +1002,20 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .cc-fuente{color:var(--ink-3) !important}
   .cc-lista.compacta{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:6px}
   .ficha-donde .rk-sel{margin-top:2px}
+  .cc-dist{margin-left:auto;font-family:var(--fuente-tabla);font-size:.72rem;font-weight:600;color:var(--ink-2);white-space:nowrap}
+  .cc-zona{margin:1px 0 2px;font-size:.72rem;color:var(--ink-2)}
+  .cc-destacado{border:1px solid var(--etq-a);border-radius:6px;padding:9px 10px}
+  .cc-promos{list-style:none;margin:4px 0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .promo{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:.76rem;line-height:1.35}
+  .promo-tipo{font-family:var(--fuente-tabla);font-size:.62rem;font-weight:700;border:1px solid var(--etq-a);color:var(--etq-a);border-radius:3px;padding:0 5px}
+  .promo-monto{font-family:var(--fuente-tabla);font-variant-numeric:tabular-nums}
+  .promo-pie{flex-basis:100%;font-size:.68rem;color:var(--ink-3)}
+  .promo-pie a{color:var(--link)}
+  .donde-ubic{margin:4px 0 10px}
+  .donde-ubic-txt{margin:0 0 4px;font-size:.8rem}
+  .donde-mejor{border-top:2px solid var(--ink);padding:8px 0 4px;margin:6px 0 10px}
+  .donde-mejor-tit{margin:6px 0 2px;font-family:var(--fuente-tabla);font-size:.72rem;font-weight:700;color:var(--ink-2)}
+  .donde-mejor-monto{margin:0;font-family:var(--fuente-titulo);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
   .colores{list-style:none;margin:4px 0 6px;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px}
   .colores li{font-family:var(--fuente-tabla);font-size:.78rem;background:var(--chip-bg);border-radius:3px;padding:2px 8px}
   .ficha-colores a{color:var(--link)}
@@ -3997,11 +4011,13 @@ async function abrirFicha(i){
       '<p class="ficha-chips"><span>' + icono + rkEsc(SIM_PROP_TXT[c.type] || c.type) + '</span><span>' + rkEsc(c.body) + '</span>' +
         '<span>' + rkEsc(SEGMENT_LABELS[c.size] || 'Tamaño s/d') + '</span><span class="ficha-estado ' + c.status + '">' + rkEsc(STATUS_LABELS[c.status] || c.status) + '</span></p>' +
       '<div class="ficha-acciones"><button type="button" class="ficha-btn primario" id="fichaVerTabla">Ver todos sus datos en la tabla</button>' +
+        '<button type="button" class="ficha-btn" id="fichaIrDonde">Dónde comprarlo</button>' +
         '<button type="button" class="ficha-btn" id="fichaSumar">' + (colVisible.every(Boolean) ? 'Empezar una comparación' : (colVisible[i] ? '✓ Ya está en tu comparación' : '+ Sumar a mi comparación')) + '</button></div>' +
     '</div></div>' +
     '<dl class="ficha-datos">' + FICHA_DATOS.filter(n => FILA_POR_NOMBRE[n] && aplica(n)).map(n =>
       '<div><dt>' + rkEsc(rkTitulo(n) + (rkUnidad(n) ? ' (' + rkUnidad(n) + ')' : '')) + '</dt><dd>' + val(n) + '</dd></div>').join('') +
     '</dl>' +
+    '<section class="ficha-donde" id="fichaDondeSec"><h3>Dónde comprarlo</h3><div id="fichaDonde"><p class="ficha-vacio">Cargando la red de concesionarios…</p></div></section>' +
     '<div class="ficha-cols"><section><h3>Dónde se destaca</h3>' + lista(fuertes, 'fuerte') + '</section>' +
       '<section><h3>Dónde queda abajo</h3>' + lista(debiles, 'debil') + '</section></div>' +
     '<p class="ficha-nota">Puestos contra los autos a la venta, en las filas donde "mejor" tiene una dirección clara (cuarto mejor y cuarto peor). No es una opinión: sale de las cifras de la tabla.' +
@@ -4013,7 +4029,6 @@ async function abrirFicha(i){
         '<button type="button" class="ficha-btn" data-comparar="' + s.i + '">Comparar</button></li>';
     }).join('') + '</ul></section>' : '') +
     coloresHTML(SLUG_AUTO[i]) +
-    '<section class="ficha-donde"><h3>Dónde verlo</h3><div id="fichaDonde"><p class="ficha-vacio">Cargando la red de concesionarios…</p></div></section>' +
     '<section class="ficha-fuentes"><h3>Fuentes oficiales</h3><p id="fichaFuentes" class="ficha-vacio">Cargando…</p></section>';
   document.getElementById('fichaAuto').hidden = false;
   document.body.classList.add('modal-open');
@@ -4183,7 +4198,13 @@ const CC_TEL = /\+?\(?\d[\d\s().-]{6,}\d/g, CC_MAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]
 const concesLinks = (txt, re, href) => { let out = '', i = 0; String(txt).replace(re, (m, pos) => { out += concesEsc(txt.slice(i, pos)) + '<a href="' + concesEsc(href(m)) + '"' + (/^https?:/.test(href(m)) ? ' target="_blank" rel="noopener"' : '') + '>' + concesEsc(m) + '</a>'; i = pos + m.length; return m; }); return out + concesEsc(String(txt).slice(i)); };
 const concesTel = t => concesLinks(t, CC_TEL, m => 'tel:' + m.replace(/[^\d+]/g, ''));
 const concesWaTxt = t => concesLinks(t, CC_TEL, m => concesWa(m) || 'tel:' + m.replace(/[^\d+]/g, ''));
-function concesTarjetaHTML(c, compacta){
+// La zona de un local: localidad y partido del geocodificador oficial (Georef), si los hay.
+function concesZona(c){
+  const loc = c.localidad || c.ciudad || '', par = c.partido && c.partido !== loc ? c.partido : '';
+  return [loc, par, c.provincia].filter(Boolean).join(', ');
+}
+function concesTarjetaHTML(c, compacta, extra){
+  extra = extra || {};
   const tel = c.telefono ? concesTel(c.telefono) : '';
   const wa = c.whatsapp ? 'WhatsApp ' + concesWaTxt(c.whatsapp) : '';
   const serv = (c.servicios || []).map(s => '<span class="cc-serv">' + (s === 'posventa' ? 'Service' : 'Venta') + '</span>').join('');
@@ -4195,8 +4216,11 @@ function concesTarjetaHTML(c, compacta){
     compacta ? '' : (c.horarios ? concesEsc(c.horarios) : ''),
     c.web ? concesLinks(c.web, CC_WEB, m => /^https?:/.test(m) ? m : 'https://' + m) : '',
   ].filter(Boolean);
-  return '<li class="cc"><div class="cc-cab"><b>' + concesEsc(c.nombre) + '</b>' + serv + '</div>' +
+  const dist = extra.km != null ? '<span class="cc-dist" title="' + (c.geo === 'localidad' ? 'Distancia aproximada (al centro de su localidad), en línea recta' : 'Distancia en línea recta') + '">' + (c.geo === 'localidad' ? '~' : '') + fmtKm(extra.km) + '</span>' : '';
+  return '<li class="cc' + (extra.destacado ? ' cc-destacado' : '') + '"><div class="cc-cab"><b>' + concesEsc(c.nombre) + '</b>' + serv + dist + '</div>' +
     (compacta ? '' : '<p class="cc-marcas">' + (c.marcas || []).map(m => '<span>' + concesEsc(m) + '</span>').join('') + '</p>') +
+    (extra.zona ? '<p class="cc-zona">' + concesEsc(concesZona(c)) + '</p>' : '') +
+    (extra.promos && extra.promos.length ? '<ul class="cc-promos">' + extra.promos.map(promoHTML).join('') + '</ul>' : '') +
     lineas.map(l => '<p class="cc-linea">' + l + '</p>').join('') +
     '<p class="cc-links"><a href="' + concesMapa(c) + '" target="_blank" rel="noopener">Ver en el mapa</a>' +
       (compacta ? '' : fuentes.map((u, k) => '<a class="cc-fuente' + (k ? ' cc-fuente-n' : '') + '" title="' + (k ? 'Otra página de la red oficial' : 'Página de la red oficial') + '" href="' + concesEsc(u) + '" target="_blank" rel="noopener">' + (k ? (k + 1) : 'Fuente: red oficial') + '</a>').join('')) + '</p></li>';
@@ -4272,36 +4296,149 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && concesAbierta) cerrarConces(); });
 
-// --- "Dónde verlo" en la página de cada auto -----------------------------------------
+// --- "Dónde comprarlo" en la página de cada auto ------------------------------------
+// Pedido del usuario (2026-10-08): todos los concesionarios que venden el auto, con la zona
+// de cada uno, los precios y promociones que publican (la marca o el propio concesionario,
+// siempre con fuente y fecha), la mejor oferta publicada y, para esa oferta, el local más
+// cercano a quien mira. Nada se estima: si nadie publica precio, se dice eso.
+//
+// Ubicación de quien mira: el GPS del navegador SOLO al tocar "Usar mi ubicación" (no sale
+// del navegador ni se guarda); si no, la localidad que elige (se guarda en este navegador).
+let miUbic = null;
+try { const g = JSON.parse(localStorage.getItem('concesLoc') || 'null'); if (g && isFinite(g.lat) && isFinite(g.lon)) miUbic = g; } catch (e) {}
+function distKm(a, b){
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLa = rad(b.lat - a.lat), dLo = rad(b.lon - a.lon);
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const fmtKm = km => km < 1 ? 'a menos de 1 km' : 'a ' + (km < 10 ? km.toFixed(1).replace('.', ',') : Math.round(km).toLocaleString('es-AR')) + ' km';
+const kmDe = c => miUbic && isFinite(c.lat) && isFinite(c.lon) ? distKm(miUbic, c) : null;
+const HOY = new Date().toISOString().slice(0, 10);
+const promoVigente = p => !p.vigencia || p.vigencia >= HOY;
+const promoDelAuto = slug => p => promoVigente(p) && (p.autos || []).some(a => a === '*' || a === slug);
+const fmtMonto = m => (m.moneda === 'USD' ? 'USD ' : '$ ') + Number(m.monto).toLocaleString('es-AR');
+const PROMO_TIPO = { precio: 'Precio', bonificacion: 'Bonificación', financiacion: 'Financiación', entrega: 'Entrega', otro: 'Promoción' };
+function promoHTML(p){
+  const fuente = [].concat(p.fuente || [])[0];
+  return '<li class="promo"><span class="promo-tipo">' + concesEsc(PROMO_TIPO[p.tipo] || 'Promoción') + '</span>' +
+    (p.precio ? '<b class="promo-monto">' + fmtMonto(p.precio) + '</b>' : p.descuento ? '<b class="promo-monto">−' + fmtMonto(p.descuento) + '</b>' : '') +
+    '<span class="promo-txt">' + concesEsc(p.texto || '') + (p.version ? ' (' + concesEsc(p.version) + ')' : '') + '</span>' +
+    '<small class="promo-pie">' + (p.vigencia ? 'Hasta el ' + concesEsc(p.vigencia.split('-').reverse().join('/')) + '. ' : '') +
+      'Consultado el ' + concesEsc((p.consultado || '').split('-').reverse().join('/')) +
+      (fuente ? '. <a href="' + concesEsc(fuente) + '" target="_blank" rel="noopener">Fuente</a>' : '') + '</small></li>';
+}
+// La mejor oferta publicada: el precio final más bajo que alguien publica para este auto, en
+// la moneda del precio de lista (no se convierten monedas). Sin precios, el mayor descuento.
+function mejorOferta(marcaPromos, locales){
+  const cands = [];
+  marcaPromos.forEach(p => cands.push({ p, red: true }));
+  locales.forEach(x => x.promos.forEach(p => cands.push({ p, local: x.c })));
+  const conPrecio = cands.filter(x => x.p.precio), conDesc = cands.filter(x => x.p.descuento);
+  const elegir = (lista, campo, menor) => {
+    if (!lista.length) return null;
+    const usd = lista.filter(x => x.p[campo].moneda === 'USD'), base = usd.length ? usd : lista;
+    const mon = base[0].p[campo].moneda, misma = base.filter(x => x.p[campo].moneda === mon);
+    const mejor = misma.reduce((m, x) => (menor ? x.p[campo].monto < m.p[campo].monto : x.p[campo].monto > m.p[campo].monto) ? x : m);
+    return { campo, todos: misma.filter(x => x.p[campo].monto === mejor.p[campo].monto) };
+  };
+  return elegir(conPrecio, 'precio', true) || elegir(conDesc, 'descuento', false);
+}
+function ubicacionHTML(d){
+  const locs = (d.localidades || []).slice().sort((a, b) => PROV_ORDEN(a.provincia, b.provincia) || PROV_ORDEN(a.localidad, b.localidad));
+  const provs = [...new Set(locs.map(l => l.provincia))];
+  const prov = miUbic && miUbic.provincia || concesFiltro.provincia || '';
+  const opts = locs.filter(l => l.provincia === prov);
+  return '<div class="donde-ubic"><p class="donde-ubic-txt">' + (miUbic
+      ? 'Ordenado por cercanía a <b>' + concesEsc(miUbic.etiqueta) + '</b>, en línea recta. <button type="button" class="mini-btn" id="dondeOlvidar">Cambiar</button>'
+      : '¿Dónde estás? Así te mostramos primero los más cercanos.') + '</p>' +
+    (miUbic ? '' : '<div class="cc-filtros"><button type="button" class="ficha-btn primario" id="dondeGps">Usar mi ubicación</button>' +
+      '<label class="rk-sel"><span>Provincia</span><select id="dondeProv"><option value="">Elegí</option>' + provs.map(p => '<option' + (p === prov ? ' selected' : '') + '>' + concesEsc(p) + '</option>').join('') + '</select></label>' +
+      (prov ? '<label class="rk-sel"><span>Partido o departamento</span><select id="dondeLoc"><option value="">Elegí</option>' + opts.map(l => '<option>' + concesEsc(l.localidad) + '</option>').join('') + '</select></label>' : '') +
+      '</div><p class="ficha-nota" id="dondeAviso">Tu ubicación se usa solo en tu navegador para medir distancias: no se envía a ningún lado.</p>') +
+    '</div>';
+}
 async function pintarDondeVerlo(i){
   const box = document.getElementById('fichaDonde');
   if (!box) return;
   const d = await cargarConces();
   if (fichaActual !== i) return;
-  const marca = CARS[i].brand;
-  const red = (d.concesionarios || []).filter(c => c.marcas.includes(marca));
-  const info = (d.marcas || {})[marca];
+  const marca = CARS[i].brand, slug = SLUG_AUTO[i];
+  const info = (d.marcas || {})[marca] || {};
   if (d.error){ box.innerHTML = '<p class="ficha-vacio">No se pudo cargar la red de concesionarios.</p>'; return; }
-  if (!red.length){ box.innerHTML = '<p class="ficha-vacio">' + concesEsc(marca) + ' no publica todavía una red de concesionarios' + (info && info.aviso ? ': ' + concesEsc(info.aviso) + '.' : '.') + '</p>'; return; }
-  const provincias = [...new Set(red.map(c => c.provincia))].sort(PROV_ORDEN);
-  const prov = provincias.includes(concesFiltro.provincia) ? concesFiltro.provincia : '';
-  const lista = red.filter(c => !prov || c.provincia === prov);
-  box.innerHTML = '<p class="cc-total"><b>' + red.length + '</b> concesionario' + (red.length === 1 ? '' : 's') + ' de ' + concesEsc(marca) + ' en ' + provincias.length + ' provincia' + (provincias.length === 1 ? '' : 's') + '</p>' +
-    '<label class="rk-sel"><span>Provincia</span><select id="fichaProv"><option value="">Todas</option>' + provincias.map(p => '<option' + (p === prov ? ' selected' : '') + '>' + concesEsc(p) + '</option>').join('') + '</select></label>' +
-    '<ul class="cc-lista compacta">' + lista.slice(0, prov ? 60 : 8).map(c => concesTarjetaHTML(c, true)).join('') + '</ul>' +
-    (!prov && lista.length > 8 ? '<p class="ficha-vacio">Elegí tu provincia para ver todos, o <button type="button" class="mini-btn ficha-ver-conces">abrí la lista completa</button>.</p>' : '');
+  const red = (d.concesionarios || []).filter(c => c.marcas.includes(marca));
+  const venta = red.filter(c => (c.servicios || []).includes('venta'));
+  const lista = venta.length ? venta : red;
+  const precioLista = cleanVal((FILA_POR_NOMBRE['Precio de lista (versión tope de gama de la tabla)'] || [])[i + 1] || '');
+  const marcaPromos = (info.promos || []).filter(promoDelAuto(slug));
+  const conKm = lista.map(c => ({ c, km: kmDe(c), promos: (c.promos || []).filter(promoDelAuto(slug)) }));
+  const prov = miUbic ? '' : concesFiltro.provincia;
+  const orden = (a, b) => (a.km == null) - (b.km == null) || (a.km - b.km) || PROV_ORDEN(a.c.provincia, b.c.provincia) || PROV_ORDEN(a.c.nombre, b.c.nombre);
+  const visibles = conKm.filter(x => miUbic || !prov || x.c.provincia === prov).sort(orden);
+  const mejor = mejorOferta(marcaPromos, conKm.filter(x => x.promos.length));
+  let ofertaHTML = '';
+  if (mejor){
+    const ej = mejor.todos[0].p, deRed = mejor.todos.some(x => x.red);
+    const donde = deRed ? conKm : conKm.filter(x => mejor.todos.some(y => y.local === x.c));
+    const cerca = donde.slice().sort(orden)[0];
+    ofertaHTML = '<div class="donde-mejor"><p class="donde-mejor-tit">' + (mejor.campo === 'precio' ? 'Mejor precio publicado' : 'Mayor bonificación publicada') + '</p>' +
+      '<p class="donde-mejor-monto">' + (mejor.campo === 'precio' ? fmtMonto(ej.precio) : '−' + fmtMonto(ej.descuento)) + '</p>' +
+      '<p class="ficha-nota">' + (deRed ? 'Lo publica ' + concesEsc(marca) + ' para toda su red.' : 'Lo publica ' + (mejor.todos.length === 1 ? 'un concesionario' : mejor.todos.length + ' concesionarios') + '.') +
+        (precioLista && precioLista !== 's/d' ? ' Precio de lista en la tabla: ' + concesEsc(precioLista) + '.' : '') + '</p>' +
+      '<ul class="cc-promos">' + promoHTML(ej) + '</ul>' +
+      (cerca ? '<p class="donde-mejor-tit">' + (miUbic && cerca.km != null ? 'El más cerca tuyo con esta oferta' : 'Dónde está esta oferta') + '</p><ul class="cc-lista compacta">' + concesTarjetaHTML(cerca.c, true, { km: cerca.km, zona: true, destacado: true }) + '</ul>' +
+        (miUbic ? '' : '<p class="ficha-nota">Decinos dónde estás para ver el más cercano.</p>') : '') + '</div>';
+  }
+  const otrasPromos = marcaPromos.filter(p => !mejor || !mejor.todos.some(x => x.p === p));
+  const hayPromos = marcaPromos.length || conKm.some(x => x.promos.length);
+  box.innerHTML = ubicacionHTML(d) + ofertaHTML +
+    (otrasPromos.length ? '<p class="donde-mejor-tit">' + (mejor ? 'Otras promociones' : 'Promociones') + ' de ' + concesEsc(marca) + ' para toda la red</p><ul class="cc-promos">' + otrasPromos.map(promoHTML).join('') + '</ul>' : '') +
+    (!hayPromos && lista.length ? '<p class="ficha-nota">Ni ' + concesEsc(marca) + ' ni sus concesionarios publican en sus sitios precios o promociones para este auto' +
+      (info.promos_consultado ? ' (revisado el ' + concesEsc(info.promos_consultado.split('-').reverse().join('/')) + ')' : '') + '. Conviene pedir cotización a más de uno.</p>' : '') +
+    (!red.length ? '<p class="ficha-vacio">' + concesEsc(marca) + ' no publica todavía una red de concesionarios' + (info.aviso ? ': ' + concesEsc(info.aviso) + '.' : '.') + '</p>'
+      : '<p class="cc-total"><b>' + lista.length + '</b> concesionario' + (lista.length === 1 ? '' : 's') + (venta.length ? ' que venden ' : ' de ') + concesEsc(marca) +
+          (prov && !miUbic ? ', ' + visibles.length + ' en ' + concesEsc(prov) : '') + '</p>' +
+        '<ul class="cc-lista compacta">' + visibles.slice(0, miUbic || prov ? 60 : 8).map(x => concesTarjetaHTML(x.c, true, { km: x.km, zona: true, promos: x.promos })).join('') + '</ul>' +
+        (!miUbic && !prov && visibles.length > 8 ? '<p class="ficha-vacio">Decinos dónde estás para ver los más cercanos, o <button type="button" class="mini-btn ficha-ver-conces">abrí la lista completa</button>.</p>' : ''));
+}
+function dondeGuardarLoc(u){
+  miUbic = u;
+  try { if (u && u.tipo !== 'gps') localStorage.setItem('concesLoc', JSON.stringify(u)); else if (!u) localStorage.removeItem('concesLoc'); } catch (e) {}
 }
 document.addEventListener('change', e => {
-  if (e.target.id !== 'fichaProv' || fichaActual === null) return;
-  concesFiltro.provincia = e.target.value;
-  try { localStorage.setItem('concesProv', JSON.stringify(e.target.value)); } catch (er) {}
-  pintarDondeVerlo(fichaActual);
+  if (fichaActual === null) return;
+  if (e.target.id === 'dondeProv'){
+    concesFiltro.provincia = e.target.value;
+    try { localStorage.setItem('concesProv', JSON.stringify(e.target.value)); } catch (er) {}
+    pintarDondeVerlo(fichaActual);
+  } else if (e.target.id === 'dondeLoc'){
+    const l = (concesDatos.localidades || []).find(x => x.provincia === concesFiltro.provincia && x.localidad === e.target.value);
+    if (l) dondeGuardarLoc({ lat: l.lat, lon: l.lon, etiqueta: l.localidad + ', ' + l.provincia, provincia: l.provincia, tipo: 'localidad' });
+    pintarDondeVerlo(fichaActual);
+  }
 });
 document.addEventListener('click', e => {
-  const b = e.target.closest ? e.target.closest('.ficha-ver-conces') : null;
-  if (!b || fichaActual === null) return;
-  concesFiltro.marca = CARS[fichaActual].brand;
-  cerrarFicha(); abrirConces();
+  const t = e.target.closest ? e.target : null;
+  if (!t || fichaActual === null) return;
+  if (t.closest('#dondeGps')){
+    const aviso = document.getElementById('dondeAviso');
+    if (!navigator.geolocation){ if (aviso) aviso.textContent = 'Este navegador no comparte la ubicación: elegí tu provincia y localidad.'; return; }
+    if (aviso) aviso.textContent = 'Buscando tu ubicación…';
+    navigator.geolocation.getCurrentPosition(p => {
+      dondeGuardarLoc({ lat: p.coords.latitude, lon: p.coords.longitude, etiqueta: 'tu ubicación', tipo: 'gps' });
+      if (fichaActual !== null) pintarDondeVerlo(fichaActual);
+    }, err => {
+      const a = document.getElementById('dondeAviso');
+      if (a) a.textContent = err.code === 1 ? 'No se dio permiso para usar la ubicación: elegí tu provincia y localidad.' : 'No se pudo obtener la ubicación: elegí tu provincia y localidad.';
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+  } else if (t.closest('#dondeOlvidar')){
+    dondeGuardarLoc(null); pintarDondeVerlo(fichaActual);
+  } else if (t.closest('#fichaIrDonde')){
+    const sec = document.getElementById('fichaDondeSec'); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (t.closest('.ficha-ver-conces')){
+    concesFiltro.marca = CARS[fichaActual].brand;
+    cerrarFicha(); abrirConces();
+  }
 });
 
 ordenarColumnas();          // el orden por dimensiones, desde la carga

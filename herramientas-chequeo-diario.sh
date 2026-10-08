@@ -178,7 +178,18 @@ URL de la fuente. Nunca de otro mercado.
 
 F) PÁGINAS POR AUTO: si cambiaste index.html, corré python3 herramientas-paginas.py antes
 de la suite. Regenera autos/*.html, sitemap.xml y la lista del pie; el test
-paginas.spec.js falla si quedaron desactualizadas. Nunca las edites a mano."
+paginas.spec.js falla si quedaron desactualizadas. Nunca las edites a mano.
+
+G) PROMOCIONES DE CONCESIONARIOS (concesionarios.json: marcas[m].promos y
+concesionarios[i].promos): sacá las que vencieron (vigencia anterior a hoy) y las que la
+fuente ya no publica; revisá el sitio oficial AR de cada marca (promociones, ofertas, lista
+de precios) y el sitio propio de cada concesionario que tenga web, y cargá las nuevas con
+el esquema que ya usan (autos por slug, tipo, texto, precio o descuento solo si la fuente
+publica el monto, vigencia, fuente https, consultado). Solo el sitio de la marca o del
+propio concesionario: nada de clasificados, comparadores, prensa ni redes. Nunca
+conviertas monedas ni estimes un precio. Actualizá marcas[m].promos_consultado con la
+fecha de hoy en cada marca que revisaste. El test concesionarios.spec.js falla si una
+promo no tiene fuente https o si vence antes de la fecha de consulta."
 
 log "invocando a Claude…"
 PROMPT="Sos el mantenimiento automático semanal del comparativo de autos chinos. Corrés sin
