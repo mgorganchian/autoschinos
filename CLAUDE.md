@@ -529,9 +529,11 @@ tocarla a mano.
 
 **Circuito de PR (pedido del usuario, 2026-10-09): de ahora en más, todo cambio va por pull
 request.** Rama nueva desde `main`, se pushea la rama y se abre el PR en GitHub
-(`gh pr create`) apenas arranca el trabajo; los commits siguientes van a esa rama. Cuando
-está listo se avisa con el link. Se mergea **solo cuando el usuario lo pide** ("mergealo"),
-con `gh pr merge`, y después se verifica el sitio y se borra la rama (local y en GitHub).
+(`gh pr create`, en borrador mientras está en curso); los commits siguientes van a esa rama.
+Cuando la suite pasa, se marca listo y se activa **auto-merge when ready** (pedido del
+2026-10-09: el repo tiene "Allow auto-merge" en GitHub); si no hay nada que esperar, se
+mergea directo con `gh pr merge`. Después se verifica el sitio y se borra la rama (local y en
+GitHub).
 Nunca push directo a `main` desde una sesión interactiva. Vercel arma una vista previa de
 cada PR. La rutina semanal sigue con su propia excepción (ver abajo).
 
