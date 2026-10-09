@@ -2090,6 +2090,18 @@ function pctlValor(v, nombre){
   var veto = PCTL_VETO[nombre];
   if(veto && veto.test(s)) return null;
 
+  // Garantías: mandan los años y, a igual plazo, los kilómetros (pedido del 2026-10-09: "3 años
+  // o 60.000 km" empataba con "3 años o 100.000 km"). Vale años + km/250.000 (tope 249.999), así
+  // los km se notan en la barra pero nunca pasan por encima de un año: 3 años o 100.000 km vale
+  // 3,4 y 4 años o 60.000 km vale 4,24. "Sin límite de km" va arriba de cualquier cifra.
+  // rkNumero muestra solo los años.
+  if(nombre.indexOf("Garantía") === 0){
+    var ga = /(\d+)\s*años?/i.exec(s);
+    if(!ga) return null;
+    var gk = /sin l[ií]mite/i.test(s) ? 249999 : (/([\d.]+)\s*km/i.exec(s) || [0, "0"])[1].replace(/\./g, "");
+    return +ga[1] + Math.min(+gk, 249999) / 250000;
+  }
+
   var m = PCTL_NUM.exec(s);
   if(!m) return null;
 
@@ -3114,6 +3126,7 @@ function rkUnidad(nombre){
 }
 function rkEtiqueta(nombre){ return nombre.replace(/\s*\([^()]*\)\s*$/, ''); }
 function rkNumero(n, nombre){
+  if (nombre.startsWith('Garantía')) return String(Math.floor(n));   // los km desempatan, no se muestran
   const t = n.toLocaleString('es-AR', {maximumFractionDigits: 2});
   return nombre.startsWith('Precio') ? 'USD ' + t : t;
 }

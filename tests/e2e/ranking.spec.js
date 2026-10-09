@@ -266,3 +266,18 @@ test.describe('ranking para elegir', () => {
     for (let k = 1; k < gastos.length; k++) expect(gastos[k - 1]).toBeLessThanOrEqual(gastos[k]);
   });
 });
+
+test('garantía: a igual plazo gana la de más kilómetros, y los kilómetros nunca pasan un año', async ({ page }) => {
+  // Pedido del 2026-10-09: "3 años o 60.000 km" empataba con "3 años o 100.000 km".
+  await page.goto('/index.html?tabla');
+  const v = await page.evaluate(() => ['3 años o 60.000 km', '3 años o 100.000 km', '3 años sin límite de km', '4 años o 60.000 km', 'NOTE:5 años o 150.000 km|x']
+    .map(t => pctlValor(t, 'Garantía general')));
+  expect(v[1]).toBeGreaterThan(v[0]);
+  expect(v[2]).toBeGreaterThan(v[1]);
+  expect(v[3]).toBeGreaterThan(v[2]);
+  expect(Math.floor(v[4])).toBe(5);
+  await page.goto('/index.html?autos=jetour-x70,dfsk-glory-600');
+  const fila = page.locator('#mainTable tr[data-nombre="Garantía general"]');
+  await expect(fila.locator('.mejor-sel')).toHaveCount(1);
+  await expect(fila.locator('td[data-col]:has(.mejor-sel)')).toContainText('100.000 km');
+});

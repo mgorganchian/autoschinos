@@ -284,8 +284,8 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   elegir una más alta dice que querés gastar más, y dentro de la franja el precio no suma. Con
   enchufe en casa, los enchufables van primero (`ELEGIR_ENCHUFE`). Un enchufable nunca se
   presenta como de bajo consumo (`RK_APARTE`).
-- **Respaldo** (2026-10-09, pedido del usuario): las dos garantías están en `PCTL_DIR` (años,
-  el primer número de la celda): tienen barra, ★ y ranking. Quién lo importa
+- **Respaldo** (2026-10-09, pedido del usuario): las dos garantías están en `PCTL_DIR` (años y,
+  a igual plazo, kilómetros: vale años + km/250.000, sin pasar nunca un año; 2026-10-09): tienen barra, ★ y ranking. Quién lo importa
   (`IMPORTA_FABRICA`: BYD, Omoda, Jaecoo y Leapmotor los trae la casa matriz, según
   `MARCAS_INFO`) cuenta como una fila más en "Gana en más filas" cuando los elegidos difieren,
   y en Ayudame a elegir suma puntos y aparece como motivo.
