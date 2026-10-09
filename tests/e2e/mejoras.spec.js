@@ -25,7 +25,9 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   await page.locator('label:has(input[name="el-presu"][value="35501-38500"])').click();
   await page.locator('label:has(input[name="el-enchufe"][value="si"])').click();
   const res = page.locator('.elegir-res > li');
-  await expect(res).toHaveCount(4);   // al menos 4 (pedido del 2026-10-09)
+  // 5 en escritorio y 4 en el celular (pedido del 2026-10-09).
+  const N = page.viewportSize().width >= 900 ? 5 : 4;
+  await expect(res).toHaveCount(N);
   for (const t of await res.locator('ul').allTextContents()){
     const m = /USD ([\d.]+)/.exec(t);
     expect(m, t).toBeTruthy();
@@ -42,9 +44,10 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   await expect(barra).toHaveClass(/cambio/);
   for (const t of await res.locator("ul").allTextContents()) expect(t).not.toMatch(/necesita dónde cargar/);
   await page.locator('label:has(input[name="el-presu"][value=""])').click();
-  await expect(res).toHaveCount(4);
+  await expect(res).toHaveCount(N);
   await page.locator('[data-elegir-comparar="top"]').click();
-  await expect(page).toHaveURL(/\?autos=[^,]+,[^,]+,[^,]+,[^,&]+/);
+  await expect(page).toHaveURL(/\?autos=/);
+  expect(new URL(page.url()).searchParams.get('autos').split(',')).toHaveLength(N);
 });
 
 test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no publican precio', async ({ page }) => {
@@ -144,4 +147,27 @@ test('la portada empieza en "Ayudame a elegir"; un link con parámetros o ?tabla
   await page.goto('/index.html?autos=byd-shark,maxus-t60');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   await expect(page.locator('#elegirHoja')).toBeHidden();
+});
+
+test('el visor agranda la foto y recorre las demás, desde Ayudame a elegir y desde la página del auto', async ({ page }) => {
+  // Pedido del 2026-10-09: en escritorio y en el celular.
+  await page.goto('/index.html');
+  await page.locator('.elegir-foto').first().click();
+  const visor = page.locator('#visorFotos');
+  await expect(visor).toBeVisible();
+  await expect(visor.locator('.visor-nombre')).not.toBeEmpty();
+  await page.keyboard.press('Escape');
+  await expect(visor).toBeHidden();
+  await page.goto('/index.html?auto=tank-300');
+  await page.locator('#fichaImg').click();
+  await expect(visor).toBeVisible();
+  await expect(visor.locator('.visor-nombre')).toContainText('Tank 300');
+  const pie = visor.locator('.visor-pie');
+  const antes = await pie.textContent();
+  await visor.locator('.visor-nav.sig').click();
+  await expect(pie).not.toHaveText(antes);
+  await expect(visor.locator('.visor-puntos i.on')).toHaveCount(1);
+  await visor.locator('.visor-cerrar').click();
+  await expect(visor).toBeHidden();
+  await expect(page.locator('#fichaAuto')).toBeVisible();   // cerrar el visor no cierra la página del auto
 });
