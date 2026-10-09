@@ -1142,7 +1142,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   #mainTable tr:has(.pct) > td[data-col]{vertical-align:top;position:relative;padding-bottom:20px}
   .pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
   .pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat;
-    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%));mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%))}
+    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),rgba(0,0,0,.45) var(--z,0%),#000);mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),rgba(0,0,0,.45) var(--z,0%),#000)}
   .pct.leyenda{position:relative;display:inline-block;left:auto;right:auto;bottom:auto;width:56px;vertical-align:middle}
   @media print{ .dif{display:none !important} }
 
@@ -2187,13 +2187,14 @@ function pctlFila(row){
   });
 }
 
-// Tramo sólido (pedido del 2026-10-09): la barra se ve sólida en un tercio de la escala que
-// termina en el puntaje del auto, y lo de atrás queda al 20%. Así las barras sólidas miden lo
+// Tramo marcado (pedido del 2026-10-09): la barra se marca en un cuarto de la escala que
+// termina en el puntaje del auto, y lo de atrás queda al 20%. Dentro del tramo la opacidad sube
+// de izquierda a derecha y llega al 100% en la punta, que es el puntaje. Así los tramos miden lo
 // mismo y lo que cambia es dónde están y de qué color (rojo, ámbar o verde); solo las de los
-// peores, que no llegan a un tercio, quedan más cortas. Devuelve dónde empieza el tramo sólido,
+// peores, que no llegan a un cuarto, quedan más cortas. Devuelve dónde empieza el tramo,
 // en % del largo de la barra (el --z de la máscara del CSS).
 function barraZona(w){
-  var desde = Math.max(0, w - 100 / 3);
+  var desde = Math.max(0, w - 25);
   return (desde / w * 100).toFixed(1);
 }
 function pctlHTML(d){
