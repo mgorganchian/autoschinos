@@ -1,11 +1,11 @@
 #!/bin/zsh
 # Actualización SEMANAL del comparativo autoschinos (los lunes, 09:15).
 #
-# El nombre dice "diario" porque así nació y la excepción de push de CLAUDE.md está
-# atada a este nombre de archivo. Renombrarlo sería tocar esa autorización.
+# El nombre dice "diario" porque así nació; el launchd (ar.autoschinos.chequeo.plist) lo
+# llama por este nombre.
 #
 # Corre LOCAL (launchd), no en la nube, por tres razones concretas:
-#   - necesita el llavero de macOS para poder pushear
+#   - necesita el llavero de macOS para poder pushear y abrir el PR
 #   - el recorte de fotos usa Vision de macOS vía Swift, que no existe en la nube
 #   - el único entorno de nube disponible es el de trabajo, y este es un proyecto personal
 #
@@ -76,6 +76,13 @@ if ! git pull --ff-only --quiet 2>>"$LOG"; then
   avisar "git pull no fue fast-forward: la actualización no corrió para no pisar trabajo."
   exit 0
 fi
+
+# Todo cambio va por PR (2026-10-09): la corrida trabaja en su propia rama y al final abre
+# el PR con auto-merge. La rama de una corrida anterior que no llegó a mergearse se borra.
+RAMA="rutina-$(date +%F)"
+git branch -D "$RAMA" >/dev/null 2>&1
+git checkout --quiet -b "$RAMA" 2>>"$LOG" || { avisar "No pude crear la rama $RAMA: la actualización no corrió."; exit 1; }
+log "trabajo en la rama $RAMA"
 
 # ---------- 1. ¿cambió alguna ficha? ----------
 # Imprime el hash de la ficha, o nada si la descarga no es confiable: falló, vino
@@ -226,11 +233,10 @@ REGLAS QUE NO SE NEGOCIAN:
 - Si no hay nada seguro que cambiar, no commitees. Una corrida sin cambios es un
   resultado válido.
 
-SOBRE PUSHEAR: el CLAUDE.md global dice que nunca se commitea sobre main ni se pushea.
-Para ESTA rutina el usuario autorizó la excepción explícitamente el 2026-09-22, y está
-documentada en el CLAUDE.md de este repo. Así que si hiciste cambios y los tests pasan:
-commiteá directo a main y pusheá. No abras una rama y no preguntes: nadie va a estar
-para responder.
+SOBRE COMMITEAR: estás en la rama $RAMA, que armó este script. Si hiciste cambios y los
+tests pasan, commiteá en esa rama. NO pushees, no cambies de rama y no abras el PR: lo
+hace el script al terminar (con auto-merge, que espera a que pasen los tests en GitHub).
+No preguntes: nadie va a estar para responder.
 
 Terminá con un resumen de tres líneas de lo que hiciste."
 
@@ -279,8 +285,7 @@ PY
   then
     if git diff --quiet -- index.html; then
       log "la fecha de consulta ya decía $HOY"; HOY=""
-    elif git commit -q -m "Actualiza la fecha de consulta: fichas verificadas al $HOY" -- index.html \
-         && git push -q origin main 2>>"$LOG"; then
+    elif git commit -q -m "Actualiza la fecha de consulta: fichas verificadas al $HOY" -- index.html; then
       log "fecha de consulta: $HOY"
     else
       avisar "No pude commitear o pushear la fecha de consulta. Revisar a mano."; HOY=""
@@ -289,6 +294,31 @@ PY
     avisar "No encontré la fecha de consulta en index.html. Revisar a mano."; HOY=""
   fi
 fi
+
+# ---------- 3b. PR con auto-merge ----------
+# GitHub lo mergea solo cuando pasa el check e2e. Se espera hasta 20 minutos.
+if [[ "$(git rev-list --count main.."$RAMA")" -gt 0 ]]; then
+  if git push --quiet -u origin "$RAMA" 2>>"$LOG" \
+     && gh pr create --base main --head "$RAMA" --title "Rutina semanal del $(date +%d/%m/%Y)" \
+          --body "Actualización semanal automática (herramientas-chequeo-diario.sh): fichas, datos faltantes y fotos. Se mergea sola cuando pasan los tests." >>"$LOG" 2>&1 \
+     && gh pr merge "$RAMA" --auto --squash --delete-branch >>"$LOG" 2>&1; then
+    ESTADO=""
+    for _ in {1..40}; do
+      ESTADO=$(gh pr view "$RAMA" --json state -q .state 2>>"$LOG")
+      [[ "$ESTADO" == "MERGED" || "$ESTADO" == "CLOSED" ]] && break
+      sleep 30
+    done
+    if [[ "$ESTADO" == "MERGED" ]]; then
+      log "PR de $RAMA mergeado"
+    else
+      avisar "El PR de la rutina ($RAMA) no se mergeó (estado: ${ESTADO:-desconocido}). Mirar los tests en GitHub."
+    fi
+  else
+    avisar "No pude pushear $RAMA o abrir su PR. Revisar a mano."
+  fi
+fi
+git checkout --quiet main 2>>"$LOG" && git pull --ff-only --quiet 2>>"$LOG"
+git branch -D "$RAMA" >/dev/null 2>&1
 
 # ---------- 4. si publicó, comprobar que el sitio quedó bien ----------
 # Nadie mira el resultado. Un desajuste rompe la tabla EN SILENCIO —queda en 0 filas

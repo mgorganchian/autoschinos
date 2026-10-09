@@ -1,0 +1,26 @@
+# Suite e2e (Playwright) en cada PR y en cada push a main. Es el check que exige la
+# protección de main: el auto-merge espera a que pase.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tests/e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+      - run: npm ci
+      # La suite usa el Chrome instalado (channel: 'chrome'); el runner de Ubuntu ya lo trae.
+      - run: npm test
