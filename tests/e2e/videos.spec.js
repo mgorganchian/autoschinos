@@ -51,3 +51,20 @@ test('un auto sin reseñas no muestra la sección', async ({ page }) => {
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   await expect(page.locator('.ficha-videos')).toHaveCount(0);
 });
+
+test('el encabezado de cada auto con video lleva el botón "Video" a su prueba más reciente, con la fecha al pasar el mouse', async ({ page }) => {
+  // Pedido del 2026-10-09: link en la tabla y la fecha de subida en el mouse over.
+  await page.goto('/index.html?tabla');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  for (const [slug, vs] of Object.entries(VIDEOS)) {
+    const ult = vs.slice().sort((a, b) => b.f.localeCompare(a.f))[0];
+    const i = SLUGS.indexOf(slug);
+    const a = page.locator(`#theadTable th[data-idx="${i}"] .th-video`);
+    await expect(a, slug).toHaveCount(1);
+    await expect(a, slug).toHaveAttribute('href', `https://www.youtube.com/watch?v=${ult.id}`);
+    const [y, m, d] = ult.f.split('-');
+    await expect(a, slug).toHaveAttribute('title', new RegExp(`subida el ${+d}/${+m}/${y}`));
+  }
+  const sinVideo = SLUGS.findIndex(s => !VIDEOS[s]);
+  await expect(page.locator(`#theadTable th[data-idx="${sinVideo}"] .th-video`)).toHaveCount(0);
+});

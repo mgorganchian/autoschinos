@@ -1161,6 +1161,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   /* ============ Auto de referencia ======================================= */
   .th-acciones{display:flex;justify-content:center;align-items:center;gap:3px;margin-top:4px}
   .th-acciones .sim-btn{margin:0}
+  .th-video{text-decoration:none}
   .ref-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:10px;
     padding:0 4px;font-size:.6rem;line-height:1.5;cursor:pointer;filter:grayscale(1);opacity:.75}
   .ref-btn[aria-pressed="true"]{filter:none;opacity:1;background:#fff;border-color:#fff}
@@ -4140,10 +4141,25 @@ function historialHTML(slug){
     '<ol class="ficha-hist-lista">' + serie.map(x => '<li><span>' + fecha(x[0]) + '</span><b>' + usd(x[1]) + '</b><a href="' + rkEsc(x[3]) + '" target="_blank" rel="noopener">fuente</a></li>').join('') + '</ol>' +
     '<p class="ficha-nota">Precio de lista oficial de la versión ' + rkEsc(ult[2] || 'de la tabla') + ', cada vez que cambió en las listas que cargamos.</p></section>';
 }
+// El más reciente primero (pedido del 2026-10-09: priorizar la última prueba de cada auto).
+const videosDe = slug => (VIDEOS[slug] || []).slice().sort((a, b) => b.f.localeCompare(a.f));
+const videoFecha = f => { const [a, m, d] = f.split('-'); return +d + '/' + +m + '/' + a; };
+// Botón "Video" en el encabezado de cada auto de la tabla: abre en YouTube su prueba más
+// reciente, y al pasar el mouse dice de quién es y cuándo se subió (2026-10-09).
+TH_AUTO.forEach((th, i) => {
+  const v = videosDe(SLUG_AUTO[i])[0], acc = th.querySelector('.th-acciones');
+  if (!v || !acc) return;
+  const a = document.createElement('a');
+  const t = 'Prueba de ' + v.canal + ', subida el ' + videoFecha(v.f) + ': «' + v.t + '»';
+  a.className = 'sim-btn th-video'; a.textContent = 'Video';
+  a.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(v.id); a.target = '_blank'; a.rel = 'noopener';
+  a.title = t; a.setAttribute('aria-label', t);
+  acc.appendChild(a);
+});
 function videosHTML(slug){
-  const vs = VIDEOS[slug];
-  if (!vs || !vs.length) return '';
-  const fecha = f => { const [a, m, d] = f.split('-'); return +d + '/' + +m + '/' + a; };
+  const vs = videosDe(slug);
+  if (!vs.length) return '';
+  const fecha = videoFecha;
   const dur = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   return '<section class="ficha-videos"><h3>Reseñas en video</h3><ul class="videos">' + vs.map(v =>
     '<li><div class="video-info"><b>' + rkEsc(v.t) + '</b><small>' + rkEsc(v.canal) + ', ' + fecha(v.f) + ', ' + dur(v.s) + ' min</small></div>' +

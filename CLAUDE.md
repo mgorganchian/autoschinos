@@ -365,7 +365,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   hibridación iguales a la fila de `DATA`). No van: presentaciones o adelantos sin prueba,
   modelos viejos o de otra generación, videos de varios autos a la vez, ni contenido pago
   de la marca.
-- Primer canal: Matías Antico (10 autos). Para sumar otro periodista, mismo criterio.
+- Primer canal: Matías Antico. Para sumar otro periodista, mismo criterio.
+- En la tabla, cada auto con video lleva un botón **"Video"** en su encabezado que abre su prueba
+  **más reciente**, con canal, fecha de subida y título al pasar el mouse (2026-10-09). En la
+  página del auto, los videos van del más nuevo al más viejo (`videosDe`).
 - El reproductor (youtube-nocookie) se carga recién al tocar «Ver acá»: la página no baja
   nada de YouTube de entrada. Las páginas estáticas de `autos/` solo llevan el link.
   `tests/e2e/videos.spec.js` valida los datos y que no haya pedidos a YouTube antes del clic.
