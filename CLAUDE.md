@@ -355,6 +355,21 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   sin nombre, MG solo tiene códigos internos, los no lanzados no tienen página).
   `tests/e2e/colores.spec.js` falla si una lista no tiene fuente https.
 
+## Reseñas en video (2026-10-09)
+
+- Sección "Reseñas en video" en la página de cada auto, desde `VIDEOS` (por slug):
+  `[{canal, id, t, f, s}]` = canal, id de YouTube, título tal como está publicado, fecha de
+  publicación (AAAA-MM-DD) y duración en segundos. Fecha y duración salen de YouTube, no se
+  estiman.
+- Solo **pruebas del mismo modelo y versión que está en la tabla** (motor, tracción e
+  hibridación iguales a la fila de `DATA`). No van: presentaciones o adelantos sin prueba,
+  modelos viejos o de otra generación, videos de varios autos a la vez, ni contenido pago
+  de la marca.
+- Primer canal: Matías Antico (10 autos). Para sumar otro periodista, mismo criterio.
+- El reproductor (youtube-nocookie) se carga recién al tocar «Ver acá»: la página no baja
+  nada de YouTube de entrada. Las páginas estáticas de `autos/` solo llevan el link.
+  `tests/e2e/videos.spec.js` valida los datos y que no haya pedidos a YouTube antes del clic.
+
 ## Páginas por auto (2026-10-06)
 
 - `herramientas-paginas.py` genera desde `index.html` una página estática por auto
