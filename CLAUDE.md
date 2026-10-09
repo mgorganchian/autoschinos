@@ -534,12 +534,16 @@ Cuando la suite pasa, se marca listo y se activa **auto-merge when ready** (pedi
 2026-10-09: el repo tiene "Allow auto-merge" en GitHub); si no hay nada que esperar, se
 mergea directo con `gh pr merge`. Después se verifica el sitio y se borra la rama (local y en
 GitHub).
-Nunca push directo a `main` desde una sesión interactiva. Vercel arma una vista previa de
-cada PR. La rutina semanal sigue con su propia excepción (ver abajo).
-`main` está protegida (2026-10-09): para mergear exige que el control "Vercel" (la vista previa)
-salga bien, sin pedir aprobaciones, y no se aplica a administradores (así la rutina semanal,
-que pushea con el usuario dueño, sigue pudiendo pushear directo). Por eso el auto-merge se
-puede activar apenas el PR está listo: espera a Vercel y mergea solo.
+Nunca push directo a `main`. Vercel arma una vista previa de cada PR. La rutina semanal
+también va por PR (ver abajo).
+`main` está protegida (2026-10-09): para mergear exige que salgan bien dos controles, sin pedir
+aprobaciones: "Vercel" (la vista previa) y "e2e" (la suite de Playwright en GitHub Actions,
+`.github/workflows/tests.yml`, unos 7 minutos). No se aplica a administradores, pero eso no
+habilita a pushear directo. Por eso el auto-merge se puede activar apenas el PR está listo:
+espera a los dos y mergea solo.
+
+Los commits de este repo van con la identidad personal, no con la de kamiPay. El detalle
+(mail y config de git) está en `CONTEXTO_LOCAL_PRIVADO.md`.
 
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
@@ -548,25 +552,14 @@ difieren a lo sumo en el salto de línea final.
 
 ---
 
-## Push automático: la excepción de la rutina
+## La rutina semanal también va por PR
 
-El `CLAUDE.md` global del usuario dice que en un repo con remoto **nunca** se commitea
-sobre `main` ni se pushea, "ni siquiera si te pedí commitear".
+Desde el 2026-10-09 la rutina (`herramientas-chequeo-diario.sh`, los lunes a las 09:15 por
+launchd) ya no commitea a `main`: crea la rama `rutina-AAAA-MM-DD`, Claude commitea ahí, y el
+script pushea la rama, abre el PR con auto-merge y espera a que se mergee (hasta 20 minutos)
+antes de verificar el sitio. Si los controles de GitHub fallan, el PR queda abierto y la
+rutina avisa con una notificación de macOS. Si Claude no puede autenticarse o falla, también
+avisa; el 2026-09-28 la sesión venció y la pasada no corrió sin que nadie se enterara.
 
-**Para la rutina automática de este repo, y solo para ella, el usuario autorizó
-explícitamente la excepción** (2026-09-22): `herramientas-chequeo-diario.sh` puede
-commitear a `main` y pushear sin preguntar. Desde el 2026-09-30 corre **una vez por
-semana, los lunes a las 09:15** (launchd), con una pasada completa: fichas, datos
-faltantes y fotos. Si Claude no puede autenticarse o falla, avisa con una notificación
-de macOS; el 2026-09-28 la sesión venció y la pasada no corrió sin que nadie se enterara.
-
-La excepción es angosta y no se extiende:
-
-- vale **solo** para la corrida no interactiva que lanza ese script
-- vale **solo** para este repo
-- vale **solo si las 6 invariantes pasan**. Si alguna falla, no se commitea nada.
-- en una sesión interactiva la regla global sigue vigente: preguntar antes de pushear
-
-Como cada push publica en el acto y nadie revisa, la prudencia reemplaza a la
-supervisión: ante la duda sobre un dato, no cargarlo. Una corrida sin cambios es un
-resultado válido.
+Como nadie revisa el PR antes de que se mergee, la prudencia reemplaza a la supervisión:
+ante la duda sobre un dato, no cargarlo. Una corrida sin cambios es un resultado válido.
