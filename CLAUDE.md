@@ -536,6 +536,10 @@ mergea directo con `gh pr merge`. Después se verifica el sitio y se borra la ra
 GitHub).
 Nunca push directo a `main` desde una sesión interactiva. Vercel arma una vista previa de
 cada PR. La rutina semanal sigue con su propia excepción (ver abajo).
+`main` está protegida (2026-10-09): para mergear exige que el control "Vercel" (la vista previa)
+salga bien, sin pedir aprobaciones, y no se aplica a administradores (así la rutina semanal,
+que pushea con el usuario dueño, sigue pudiendo pushear directo). Por eso el auto-merge se
+puede activar apenas el PR está listo: espera a Vercel y mergea solo.
 
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
