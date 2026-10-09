@@ -32,7 +32,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
     const usd = Number(m[1].replace(/\./g, ''));
     expect(usd).toBeGreaterThanOrEqual(35001);
     expect(usd).toBeLessThanOrEqual(45000);
-    expect(t).toMatch(/Enchufable|Eléctrico/);
+    expect(t).toMatch(/enchufable|eléctrico/i);
   }
   // La barra al pie cambia con cada respuesta (en el celular la lista queda fuera de la pantalla).
   const barra = page.locator('.elegir-barra');
@@ -40,7 +40,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   await page.locator('label:has(input[name="el-enchufe"][value="no"])').click();
   await expect(barra).not.toHaveText(antes);
   await expect(barra).toHaveClass(/cambio/);
-  for (const t of await res.locator('ul').allTextContents()) expect(t).not.toMatch(/Eléctrico: /);
+  for (const t of await res.locator("ul").allTextContents()) expect(t).not.toMatch(/necesita dónde cargar/);
   await page.locator('label:has(input[name="el-presu"][value=""])').click();
   await expect(res).toHaveCount(4);
   await page.locator('[data-elegir-comparar="top"]').click();
@@ -54,15 +54,27 @@ test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no pub
   await page.locator('#elegirBtn').click();
   await page.locator('label:has(input[name="el-presu"][value="30001-35000"])').click();
   const todos = page.locator('[data-elegir-comparar="todos"]');
-  const n = Number(/los (\d+) que cumplen/.exec(await todos.textContent())[1]);
+  const n = Number(/Los (\d+)/.exec(await todos.textContent())[1]);
   expect(n).toBeGreaterThan(4);
   const conSin = page.locator('[data-elegir-comparar="sinprecio"]');
-  const m = /Comparar (\d+), con (\d+) sin precio/.exec(await conSin.textContent());
+  const m = /Los (\d+) \(\+(\d+) sin precio\)/.exec(await conSin.textContent());
   expect(Number(m[1])).toBe(n + Number(m[2]));
   await conSin.click();
   await expect(page).toHaveURL(/\?autos=/);
   const autos = new URL(page.url()).searchParams.get('autos').split(',');
   expect(autos).toHaveLength(Number(m[1]));
+});
+
+test('ayudame a elegir: en el celular los botones de comparar van en una fila, siempre a la vista', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await abrir(page);
+  await page.locator('#elegirBtn').click();
+  await page.locator('label:has(input[name="el-presu"][value="30001-35000"])').click();
+  const btns = page.locator('.elegir-barra-btns .ficha-btn');
+  await expect(btns).toHaveCount(3);
+  const tops = await btns.evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+  for (const t of tops) expect(t).toBeLessThan(844);
 });
 
 test('pedir cotización: WhatsApp solo con número internacional y el auto en el mensaje', async ({ page }) => {
