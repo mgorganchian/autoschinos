@@ -361,10 +361,12 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   `[{canal, id, t, f, s}]` = canal, id de YouTube, título tal como está publicado, fecha de
   publicación (AAAA-MM-DD) y duración en segundos. Fecha y duración salen de YouTube, no se
   estiman.
-- Solo **pruebas del mismo modelo y versión que está en la tabla** (motor, tracción e
-  hibridación iguales a la fila de `DATA`). No van: presentaciones o adelantos sin prueba,
-  modelos viejos o de otra generación, videos de varios autos a la vez, ni contenido pago
-  de la marca.
+- Las **pruebas** son del mismo modelo y versión que está en la tabla (motor, tracción e
+  hibridación iguales a la fila de `DATA`). Desde el 2026-10-09 (pedido del usuario) también van,
+  con su `tipo` y su etiqueta: `adelanto`, `presentación` (sin manejo), `informe` (varios autos,
+  salones) y `otra versión` (contacto con la de otro mercado, con `n` diciendo cuál). Sin `tipo`
+  es prueba. Siguen sin ir: modelos viejos o de otra generación y contenido pago de la marca.
+  La prueba va primero y el botón de la tabla apunta a ella; sin prueba, al video más reciente.
 - Primer canal: Matías Antico (@MatiasAnticoTV, 12 autos; revisados sus 984 videos el 2026-10-09).
   Un contacto corto al volante (Short) vale si es la misma versión: B10 y X55 Plus. Quedaron
   afuera el C10 (manejado en China con 223 CV, la tabla tiene 215) y el Dolphin Mini (manejado
