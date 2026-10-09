@@ -4675,7 +4675,7 @@ const esTodoterreno = i => !!TH_AUTO[i].querySelector('use[href="#b-offroad"]');
 function elegirCalcular(r){
   const [pMin, pMax] = r.presu ? r.presu.split('-').map(x => x === '' ? null : +x) : [null, null];
   const tope = r.presu ? true : null, plazas = +r.plazas;
-  let sinPrecio = 0;
+  const sinPrecioIdx = [];
   const cands = CARS.map((c, i) => i).filter(i => {
     const c = CARS[i];
     if (c.status !== 'venta') return false;
@@ -4685,7 +4685,7 @@ function elegirCalcular(r){
     const as = SIM_ASIENTOS[i];
     if (plazas >= 6 ? !(as >= 6) : (as != null && as < plazas)) return false;
     if (tope != null){
-      if (SIM_PRECIO[i] == null){ sinPrecio++; return false; }
+      if (SIM_PRECIO[i] == null){ sinPrecioIdx.push(i); return false; }
       if ((pMin != null && SIM_PRECIO[i] < pMin) || (pMax != null && SIM_PRECIO[i] > pMax)) return false;
     }
     return true;
@@ -4718,7 +4718,7 @@ function elegirCalcular(r){
     if (gAnos != null) motivos.push('Garantía de ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]));
     return { i, puntos, motivos: motivos.filter(Boolean) };
   }).sort((a, b) => b.puntos - a.puntos);
-  return { top: res.slice(0, ELEGIR_N), total: res.length, sinPrecio };
+  return { top: res.slice(0, ELEGIR_N), todos: res.map(x => x.i), total: res.length, sinPrecio: sinPrecioIdx.length, sinPrecioIdx };
 }
 let elegirAbierta = false;
 function abrirElegir(){
@@ -4745,9 +4745,14 @@ function pintarElegir(cambio){
         '<ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
         '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></li>';
     }).join('') + '</ol>' +
-      '<p class="elegir-acc"><button type="button" class="ficha-btn primario" id="elegirComparar">Comparar ' + (out.top.length === 1 ? 'este' : 'estos ' + out.top.length) + '</button>' +
+      // Tres formas de seguir (pedido del 2026-10-09): los sugeridos, todos los que cumplen, y
+      // además los que cumplen todo menos el precio porque no lo publican en dólares.
+      '<p class="elegir-acc"><button type="button" class="ficha-btn primario" data-elegir-comparar="top">Comparar ' + (out.top.length === 1 ? 'este' : 'estos ' + out.top.length) + '</button>' +
+      (out.total > out.top.length ? '<button type="button" class="ficha-btn" data-elegir-comparar="todos">Comparar los ' + out.total + ' que cumplen</button>' : '') +
+      (out.sinPrecio ? '<button type="button" class="ficha-btn" data-elegir-comparar="sinprecio">Comparar ' + (out.total + out.sinPrecio) + ', con ' + out.sinPrecio + ' sin precio en dólares</button>' : '') +
       '<span class="ficha-nota">' + out.total + ' autos cumplen lo que pediste' + (out.sinPrecio ? '; ' + out.sinPrecio + ' más no publican precio en dólares y quedaron afuera' : '') + '.</span></p>'
-      : '<p class="ficha-nota">Probá con otro presupuesto o con otro tipo de auto.' + (out.sinPrecio ? ' Hay ' + out.sinPrecio + ' autos sin precio en dólares que no se pueden filtrar por presupuesto.' : '') + '</p>');
+      : '<p class="ficha-nota">Probá con otro presupuesto o con otro tipo de auto.' + (out.sinPrecio ? ' Hay ' + out.sinPrecio + ' autos sin precio en dólares que no se pueden filtrar por presupuesto.' : '') + '</p>' +
+        (out.sinPrecio ? '<p class="elegir-acc"><button type="button" class="ficha-btn" data-elegir-comparar="sinprecio">Comparar los ' + out.sinPrecio + ' sin precio en dólares</button></p>' : ''));
   // Barra al pie del panel (2026-10-09): en el celular la lista queda debajo de las preguntas,
   // fuera de la pantalla, y parecía que tocar una opción no cambiaba nada. La barra muestra
   // siempre las sugerencias y se ilumina en cada cambio.
@@ -4756,6 +4761,8 @@ function pintarElegir(cambio){
     (out.top.length ? '<b>' + out.total + '</b> cumplen. Te sugerimos ' + out.top.map(x => rkEsc(CARS[x.i].short)).join(', ') : 'Ningún auto cumple todo eso') +
     '</span>' + (out.top.length ? '<button type="button" class="mini-btn" id="elegirVer">Ver</button>' : '') + '</div>');
   hoja.dataset.top = out.top.map(x => x.i).join(',');
+  hoja.dataset.todos = out.todos.join(',');
+  hoja.dataset.sinprecio = out.sinPrecioIdx.join(',');
 }
 function cerrarElegir(){
   if (!elegirAbierta) return;
@@ -4778,9 +4785,12 @@ document.getElementById('elegirVista').addEventListener('click', e => {
   const f = e.target.closest('[data-elegir-ficha]');
   if (f){ const i = +f.dataset.elegirFicha; cerrarElegir(); abrirFicha(i); return; }
   if (e.target.closest('#elegirVer')){ document.getElementById('elegirResTit').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
-  if (e.target.closest('#elegirComparar')){
-    const top = document.getElementById('elegirHoja').dataset.top.split(',').map(Number);
-    location.href = location.pathname + '?autos=' + top.map(i => SLUG_AUTO[i]).join(',');
+  const comp = e.target.closest('[data-elegir-comparar]');
+  if (comp){
+    const ds = document.getElementById('elegirHoja').dataset, que = comp.dataset.elegirComparar;
+    const lista = s => (s || '').split(',').filter(Boolean).map(Number);
+    const idx = que === 'top' ? lista(ds.top) : que === 'todos' ? lista(ds.todos) : lista(ds.todos).concat(lista(ds.sinprecio));
+    location.href = location.pathname + '?autos=' + idx.map(i => SLUG_AUTO[i]).join(',');
   }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && elegirAbierta) cerrarElegir(); });

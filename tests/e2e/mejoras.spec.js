@@ -43,8 +43,26 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   for (const t of await res.locator('ul').allTextContents()) expect(t).not.toMatch(/Eléctrico: /);
   await page.locator('label:has(input[name="el-presu"][value=""])').click();
   await expect(res).toHaveCount(4);
-  await page.locator('#elegirComparar').click();
+  await page.locator('[data-elegir-comparar="top"]').click();
   await expect(page).toHaveURL(/\?autos=[^,]+,[^,]+,[^,]+,[^,&]+/);
+});
+
+test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no publican precio', async ({ page }) => {
+  // Pedido del 2026-10-09: además de los 4 sugeridos, comparar los N que cumplen y los N + los
+  // que cumplen todo menos el precio (no lo publican en dólares).
+  await abrir(page);
+  await page.locator('#elegirBtn').click();
+  await page.locator('label:has(input[name="el-presu"][value="30001-35000"])').click();
+  const todos = page.locator('[data-elegir-comparar="todos"]');
+  const n = Number(/los (\d+) que cumplen/.exec(await todos.textContent())[1]);
+  expect(n).toBeGreaterThan(4);
+  const conSin = page.locator('[data-elegir-comparar="sinprecio"]');
+  const m = /Comparar (\d+), con (\d+) sin precio/.exec(await conSin.textContent());
+  expect(Number(m[1])).toBe(n + Number(m[2]));
+  await conSin.click();
+  await expect(page).toHaveURL(/\?autos=/);
+  const autos = new URL(page.url()).searchParams.get('autos').split(',');
+  expect(autos).toHaveLength(Number(m[1]));
 });
 
 test('pedir cotización: WhatsApp solo con número internacional y el auto en el mensaje', async ({ page }) => {
