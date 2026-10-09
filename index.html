@@ -1108,7 +1108,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   #mainTable tr:has(.pct) > td[data-col]{vertical-align:top;position:relative;padding-bottom:20px}
   .pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
   .pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat;
-    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.1) var(--z,0%),#000 var(--z,0%));mask-image:linear-gradient(90deg,rgba(0,0,0,.1) var(--z,0%),#000 var(--z,0%))}
+    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%));mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%))}
   .pct.leyenda{position:relative;display:inline-block;left:auto;right:auto;bottom:auto;width:56px;vertical-align:middle}
   @media print{ .dif{display:none !important} }
 
@@ -1413,7 +1413,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <span><span class="banda banda-note"></span> Franja gris azulada: dato con una aclaración (otra unidad, otro ciclo)</span>
   <span><span class="banda banda-nd"></span> Rayado: la ficha no lo informa</span>
   <span>Tocá cualquier celda con franja para ver de dónde sale.</span>
-  <span><span class="pct leyenda" aria-hidden="true"><i style="width:75%;background-size:133.3% 100%;--z:88.9%"></i></span> Cómo queda contra los demás autos en esa fila: la parte fuerte dice en qué tercio termina (rojo, ámbar o verde); llena y verde es de los mejores, corta y roja, de los peores. Al comparar de 2 a 6 autos, la barra se mide contra los elegidos. Solo en las filas donde "mejor" tiene una dirección clara.</span>
+  <span><span class="pct leyenda" aria-hidden="true"><i style="width:75%;background-size:133.3% 100%;--z:55.6%"></i></span> Cómo queda contra los demás autos en esa fila: el tramo fuerte termina en su puntaje: más a la derecha y más verde, mejor; corto y rojo al principio, de los peores. Al comparar 2 o más autos, la barra se mide contra los elegidos. Solo en las filas donde "mejor" tiene una dirección clara.</span>
 </div>
 
 <section class="dif" id="difBox" aria-label="Mayores diferencias" hidden></section>
@@ -2149,14 +2149,13 @@ function pctlFila(row){
   });
 }
 
-// Zona de la punta (pedido del 2026-10-09): la escala va en tres tercios (rojo, ámbar, verde) y la
-// barra se ve sólida solo en el tercio donde termina; lo recorrido antes queda al 10%. Devuelve
-// dónde empieza ese tercio, en % del largo de la barra (para el --z de la máscara del CSS).
+// Tramo sólido (pedido del 2026-10-09): la barra se ve sólida en un tercio de la escala que
+// termina en el puntaje del auto, y lo de atrás queda al 20%. Así las barras sólidas miden lo
+// mismo y lo que cambia es dónde están y de qué color (rojo, ámbar o verde); solo las de los
+// peores, que no llegan a un tercio, quedan más cortas. Devuelve dónde empieza el tramo sólido,
+// en % del largo de la barra (el --z de la máscara del CSS).
 function barraZona(w){
-  var zona = Math.min(2, Math.floor(w / (100 / 3) + 1e-9));
-  // La parte sólida mide al menos un décimo de la escala: si la punta apenas entró en un tercio,
-  // no queda una rayita.
-  var desde = Math.max(0, Math.min(zona * (100 / 3), w - 10));
+  var desde = Math.max(0, w - 100 / 3);
   return (desde / w * 100).toFixed(1);
 }
 function pctlHTML(d){
