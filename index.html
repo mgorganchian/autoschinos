@@ -1006,6 +1006,9 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .cc-dist{margin-left:auto;font-family:var(--fuente-tabla);font-size:.72rem;font-weight:600;color:var(--ink-2);white-space:nowrap}
   .cc-zona{margin:1px 0 2px;font-size:.72rem;color:var(--ink-2)}
   .legend-toggle.primario{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff;font-weight:600}
+  .elegir-sitio{margin:0 40px 10px 0;font-family:var(--fuente-titulo);font-weight:700;font-size:1.9rem;line-height:1.05;text-wrap:balance}
+  .elegir-sitio small{display:block;margin-top:3px;font-family:var(--fuente-tabla);font-weight:400;font-size:.8rem;color:var(--ink-2)}
+  .elegir-titulo{margin:8px 0 2px;padding-top:8px;border-top:2px solid var(--ink);font-family:var(--fuente-titulo);font-size:1.3rem}
   .elegir-preg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px 18px;margin:8px 0 12px}
   .elegir-preg fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:6px 0 0}
   .elegir-preg legend{font-family:var(--fuente-tabla);font-weight:700;font-size:.82rem;padding:0;margin-bottom:4px}
@@ -4782,7 +4785,10 @@ function pintarElegir(cambio){
   // Si una respuesta no mueve las sugerencias, se dice: si no, parece que no recalculó.
   const igual = cambio && hoja.dataset.top === out.top.map(x => x.i).join(',');
   hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="elegirCerrar" aria-label="Cerrar">✕</button>' +
-    '<h2 id="elegirTitulo" class="grupos-titulo">Ayudame a elegir</h2>' +
+    // Como la portada abre este panel, arriba va el nombre del sitio y "Ayudame a elegir" es el
+    // subtítulo de la sección (2026-10-09).
+    '<p class="elegir-sitio">Autos chinos en Argentina<small>' + CARS.length + ' autos con sus fichas técnicas oficiales</small></p>' +
+    '<h2 id="elegirTitulo" class="elegir-titulo">Ayudame a elegir</h2>' +
     '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
       '<button type="button" class="mini-btn" id="elegirTabla">Ver la tabla con los ' + CARS.length + ' autos</button></p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
