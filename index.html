@@ -1016,8 +1016,12 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .elegir-ops input:checked + span{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff}
   .elegir-ops input:focus-visible + span{outline:2px solid var(--link);outline-offset:1px}
   .elegir-res-tit{border-top:2px solid var(--ink);padding-top:8px}
-  .elegir-res{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-  .elegir-res > li{display:flex;flex-direction:column;gap:6px}
+  .elegir-res{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px}
+  /* Tarjeta: en escritorio, foto arriba y texto abajo; en el celular, nombre arriba y foto
+     a la izquierda con "Ver su página" debajo, para que entren las 4 (pedido del 2026-10-09). */
+  .elegir-res > li{display:grid;grid-template-areas:"foto" "nombre" "motivos" "ver";gap:6px;align-content:start}
+  .elegir-res > li > b{grid-area:nombre} .elegir-res > li > img{grid-area:foto}
+  .elegir-res > li > ul{grid-area:motivos} .elegir-res > li > button{grid-area:ver;justify-self:start}
   .elegir-res img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:2px}
   .elegir-res b{font-family:var(--fuente-titulo);font-size:1.1rem}
   .elegir-res ul{margin:4px 0 6px;padding-left:16px;font-size:.76rem;line-height:1.4}
@@ -1031,9 +1035,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   @media (prefers-reduced-motion:reduce){ .elegir-barra.cambio{animation:none} }
   @media (max-width:640px){
     .elegir-res{grid-template-columns:1fr;gap:10px}
-    .elegir-res > li{flex-direction:row;align-items:flex-start;gap:10px;border-bottom:1px solid var(--line);padding-bottom:10px}
-    .elegir-res img{width:120px;flex-shrink:0}
-    .elegir-res ul{margin:2px 0 4px}
+    .elegir-res > li{grid-template-columns:112px 1fr;grid-template-areas:"nombre nombre" "foto motivos" "ver motivos";
+      column-gap:10px;row-gap:4px;border-bottom:1px solid var(--line);padding-bottom:8px}
+    .elegir-res img{width:112px}
+    .elegir-res ul{margin:0;font-size:.72rem;line-height:1.3;padding-left:14px}
+    .elegir-res > li > button{align-self:start}
   }
   .ficha-hist-res{margin:2px 0 4px;font-family:var(--fuente-tabla);font-weight:700;font-size:.9rem}
   .ficha-hist-res.baja{color:var(--etq-a)} .ficha-hist-res.sube{color:var(--etq-e)}
@@ -4703,8 +4709,8 @@ function elegirCalcular(r){
     // gastar eso. Sin franja ("Me da igual"), lo más barato suma un poco.
     const puntos = 3 * fit + prom + (r.presu ? 0 : .3 * (precio ? precio.p / 100 : .4)) + bonus + respaldo;
     const motivos = [];
-    if (SIM_PRECIO[i] != null) motivos.push('USD ' + SIM_PRECIO[i].toLocaleString('es-AR') + (tope ? ', dentro de lo que querés gastar' : ''));
-    motivos.push({ ev: r.enchufe === 'si' ? 'Eléctrico: lo cargás donde dijiste' : 'Eléctrico: necesita dónde cargarlo', phev: 'Enchufable: anda eléctrico en el día a día y con nafta en la ruta', hev: 'Híbrido: gasta menos y no necesita enchufe', mhev: 'Mild-hybrid: naftero con asistencia eléctrica, sin enchufe', ice: 'Naftero o diésel: no depende de cargadores' }[c.type] || '');
+    if (SIM_PRECIO[i] != null) motivos.push('USD ' + SIM_PRECIO[i].toLocaleString('es-AR') + (tope ? ', en tu franja' : ''));
+    motivos.push({ ev: r.enchufe === 'si' ? 'Eléctrico: lo cargás donde dijiste' : 'Eléctrico: necesita dónde cargarlo', phev: 'Enchufable: eléctrico a diario, nafta en la ruta', hev: 'Híbrido: gasta menos y no necesita enchufe', mhev: 'Mild-hybrid: naftero con asistencia eléctrica, sin enchufe', ice: 'Naftero o diésel: no depende de cargadores' }[c.type] || '');
     if (SIM_ASIENTOS[i] != null) motivos.push(SIM_ASIENTOS[i] + ' asientos');
     ps.filter(x => x[1].c >= 4).forEach(x => motivos.push('Entre el 20% mejor en ' + rkTitulo(x[0]).toLowerCase()));
     if (bonus && esTodoterreno(i)) motivos.push('Todoterreno');
@@ -4735,8 +4741,9 @@ function pintarElegir(cambio){
     '<h3 class="elegir-res-tit" id="elegirResTit">' + (out.top.length ? 'Te sugerimos' : 'Ningún auto a la venta cumple todo eso') + '</h3>' +
     (out.top.length ? '<ol class="elegir-res">' + out.top.map(x => {
       const im = TH_AUTO[x.i].querySelector('img.car-photo');
-      return '<li><img src="' + (im ? im.src : '') + '" alt=""><div><b>' + rkEsc(CARS[x.i].name) + '</b><ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
-        '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></div></li>';
+      return '<li><b>' + rkEsc(CARS[x.i].name) + '</b><img src="' + (im ? im.src : '') + '" alt="">' +
+        '<ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
+        '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></li>';
     }).join('') + '</ol>' +
       '<p class="elegir-acc"><button type="button" class="ficha-btn primario" id="elegirComparar">Comparar ' + (out.top.length === 1 ? 'este' : 'estos ' + out.top.length) + '</button>' +
       '<span class="ficha-nota">' + out.total + ' autos cumplen lo que pediste' + (out.sinPrecio ? '; ' + out.sinPrecio + ' más no publican precio en dólares y quedaron afuera' : '') + '.</span></p>'
