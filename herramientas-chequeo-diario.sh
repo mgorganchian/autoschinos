@@ -301,7 +301,9 @@ if [[ "$(git rev-list --count main.."$RAMA")" -gt 0 ]]; then
   if git push --quiet -u origin "$RAMA" 2>>"$LOG" \
      && gh pr create --base main --head "$RAMA" --title "Rutina semanal del $(date +%d/%m/%Y)" \
           --body "Actualización semanal automática (herramientas-chequeo-diario.sh): fichas, datos faltantes y fotos. Se mergea sola cuando pasan los tests." >>"$LOG" 2>&1 \
-     && gh pr merge "$RAMA" --auto --squash --delete-branch >>"$LOG" 2>&1; then
+     && { gh pr merge "$RAMA" --auto --squash --delete-branch >>"$LOG" 2>&1 \
+          || gh pr merge "$RAMA" --squash --delete-branch >>"$LOG" 2>&1; }; then
+    # Si los checks ya terminaron, el PR está "clean" y --auto falla: se mergea directo.
     ESTADO=""
     for _ in {1..40}; do
       ESTADO=$(gh pr view "$RAMA" --json state -q .state 2>>"$LOG")

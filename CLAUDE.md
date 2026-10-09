@@ -542,8 +542,8 @@ aprobaciones: "Vercel" (la vista previa) y "e2e" (la suite de Playwright en GitH
 habilita a pushear directo. Por eso el auto-merge se puede activar apenas el PR está listo:
 espera a los dos y mergea solo.
 
-Los commits de este repo van con el mail personal (`matias@gorganchian.com.ar`), no con el de
-kamiPay: `~/.gitconfig-personal` solo cambia la credencial.
+Los commits de este repo van con la identidad personal, no con la de kamiPay. El detalle
+(mail y config de git) está en `CONTEXTO_LOCAL_PRIVADO.md`.
 
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
