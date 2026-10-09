@@ -33,11 +33,11 @@ const enLista = page => page.locator('#rkLista .rk-item').evaluateAll(ls => ls.m
 const enGrupo = (page, g) => page.locator(`#rkResto section[data-grupo="${g}"] li`).evaluateAll(ls => ls.map(l => l.dataset.auto));
 
 test.describe('vista ranking', () => {
-  test('muestra las 15 filas comparables y vuelve a la tabla', async ({ page }) => {
+  test('muestra las 17 filas comparables y vuelve a la tabla', async ({ page }) => {
     await abrirRanking(page);
     // Las filas comparables, dos relaciones precio/valor y dos herramientas.
     await expect(page.locator('#rkScroll .rk-chip')).toHaveCount(FILAS_RANKING.length + HERRAMIENTAS.length);
-    expect(FILAS_RANKING).toHaveLength(15);   // 14 + Potencia total (2026-10-04)
+    expect(FILAS_RANKING).toHaveLength(17);   // 14 + Potencia total (2026-10-04) + las dos garantías (2026-10-09)
     await expect(page.locator('#tbodyWrap')).toBeHidden();
     await expect(page.locator('#search')).toBeHidden();
 

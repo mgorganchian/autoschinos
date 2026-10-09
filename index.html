@@ -788,7 +788,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      rojo → amarillo → verde que al comparar. Solo en las filas donde "mejor" tiene una
      dirección objetiva — ver PCTL_DIR en el script. Al comparar, la misma barra se recalibra. */
   /* ============ Vista Ranking ============================================
-     Ordena a los autos del mejor al peor en cada una de las 14 filas de
+     Ordena a los autos del mejor al peor en cada una de las 17 filas de
      PCTL_DIR. Usa la misma paleta y los mismos chips que la tabla. */
   .vista-toggle{display:inline-flex;border:1px solid rgba(255,255,255,.4);border-radius:7px;overflow:hidden;flex-shrink:0}
   .vista-toggle button{background:transparent;color:rgba(255,255,255,.85);border:0;font-size:.68rem;padding:4px 11px;cursor:pointer}
@@ -2011,6 +2011,9 @@ function cleanVal(v){
 // Las filas de equipamiento (Sí/No) tampoco: un percentil sobre dos valores
 // no dice nada que el ✓ no diga ya.
 //   1 = más alto es mejor   ·   -1 = más bajo es mejor
+// Garantías (2026-10-09, pedido del usuario): más años es mejor. Se lee el primer número, los
+// años ("7 años o 150.000 km" vale 7); a igual plazo empatan. (Sin comentarios adentro del
+// objeto: los tests lo leen como JSON.)
 const PCTL_DIR = {
   "Precio de lista (versión tope de gama de la tabla)": -1,
   "Potencia total del sistema (kW)": 1,
@@ -2026,7 +2029,9 @@ const PCTL_DIR = {
   "Autonomía eléctrica (km)": 1,
   "Autonomía combinada (km)": 1,
   "Capacidad de batería (kWh)": 1,
-  "Cantidad de parlantes": 1
+  "Cantidad de parlantes": 1,
+  "Garantía general": 1,
+  "Garantía de la batería de alto voltaje": 1
 };
 
 // Unidades que descalifican la celda entera: si aparecen, el número que trae
@@ -2335,6 +2340,8 @@ function simColumna(nombre){
 const SIM_PRECIO = simColumna('Precio de lista (versión tope de gama de la tabla)');
 const SIM_ASIENTOS = simColumna('Número de asientos');
 const SIM_AUTONOMIA = simColumna('Autonomía eléctrica (km)');
+const SIM_GARANTIA = simColumna('Garantía general');
+const SIM_GARANTIA_BAT = simColumna('Garantía de la batería de alto voltaje');
 const SIM_LARGO = simColumna('Longitud (mm)');
 
 function simDist(a, b, k){
@@ -2571,6 +2578,12 @@ function submarcaDe(i){
   return c.brand;
 }
 const infoMarca = i => MARCAS_INFO[submarcaDe(i)] || null;
+// Importa la propia casa matriz (2026-10-09, pedido del usuario): sale de detalle_importador de
+// MARCAS_INFO, que lo dice con su fuente. BYD: filial de fábrica; Omoda y Jaecoo: filial directa
+// de Chery; Leapmotor: distribuidor de fábrica (Leapmotor International, vía Stellantis). Las
+// demás las trae un grupo importador. Sin importador anunciado (Stelato): null.
+const IMPORTA_FABRICA = new Set(['BYD', 'Omoda', 'Jaecoo', 'Leapmotor']);
+const importaFabrica = i => { const m = infoMarca(i); return !m || !m.importador_ar ? null : IMPORTA_FABRICA.has(submarcaDe(i)); };
 const grupoDe = i => (infoMarca(i) || {}).grupo || 'Sin dato';
 const BRANDS = [...new Set(CARS.map(c=>c.brand))];
 const SEGMENT_LABELS = {xl:"Muy grande", big:"Grande", mid:"Mediano", compact:"Compacto", mini:"Chico", nd:"Sin dato"};
@@ -3053,7 +3066,7 @@ window.addEventListener('scroll', cerrarZoom, true);
 window.addEventListener('resize', cerrarZoom);
 
 // ============ Vista Ranking ============================================
-// Ordena los autos elegidos del mejor al peor en cada una de las 14 filas de
+// Ordena los autos elegidos del mejor al peor en cada una de las 17 filas de
 // PCTL_DIR, las únicas donde "mejor" tiene una dirección objetiva. Lee los
 // números con pctlValor(), el mismo lector de los cuadraditos verdes, así que
 // hereda sus vetos: "No aplica (100% eléctrico)" no cuenta como 100, ni el baúl
@@ -3070,6 +3083,7 @@ let rkActual = RK_FILAS[0][0];
 // El precio va aparte: su paréntesis es una aclaración, no una unidad.
 function rkUnidad(nombre){
   if (nombre.startsWith('Precio')) return '';
+  if (nombre.startsWith('Garantía')) return 'años';
   const m = /\(([^()]{1,10})\)\s*$/.exec(nombre);
   return m ? m[1] : '';
 }
@@ -3669,7 +3683,7 @@ applyFilters();
 // Las dos cosas mueven las columnas en el DOM (th y td), sin tocar DATA ni el
 // índice de cada auto: cada celda sigue diciendo de qué auto es (data-col, y
 // data-idx en el th). La referencia va siempre primera; el resto, en el orden
-// elegido. Se compara solo en las 14 filas de PCTL_DIR, donde "mejor" tiene una
+// elegido. Se compara solo en las 17 filas de PCTL_DIR, donde "mejor" tiene una
 // dirección objetiva, y con el mismo pctlValor() que los cuadraditos y el ranking:
 // lo que no se puede comparar (otra unidad, sin dato, enchufables en consumo) no
 // lleva marca.
@@ -3841,7 +3855,20 @@ function renderDiferencias(){
     const a = Math.max(mejor, peor), b = Math.min(mejor, peor);
     filas.push({ nombre, orden, rel: b > 0 ? a / b - 1 : Infinity, est: vals.some(x => x.r.est) });
   });
-  const nComp = filas.length;
+  // Quién lo importa pesa como una fila más: si entre los elegidos a unos los trae la propia
+  // casa matriz y a otros un grupo importador, ganan los de la casa matriz (★ en la fila
+  // Importador). Si todos son iguales o falta el dato, no cuenta.
+  const fab = vis.map(i => ({ i, f: importaFabrica(i) }));
+  let extraImp = 0;
+  if (fab.every(x => x.f != null) && fab.some(x => x.f) && fab.some(x => !x.f)){
+    extraImp = 1;
+    fab.filter(x => x.f).forEach(x => {
+      gana.set(x.i, gana.get(x.i) + 1);
+      const td = document.querySelector('#mainTable tr[data-nombre="Importador en Argentina"] td[data-col="' + x.i + '"]');
+      if (td) td.insertAdjacentHTML('beforeend', '<span class="mejor-sel" title="Lo importa la propia casa matriz" aria-label="lo importa la casa matriz">★</span>');
+    });
+  }
+  const nComp = filas.length + extraImp;
   if (!nComp){ box.hidden = false; box.innerHTML = '<p class="dif-vacio">Estos autos no tienen ninguna fila comparable con cifra en todos (ver la tabla).</p>'; return; }
   const nom = i => rkEsc(CARS[i].short);
   const fmt = (n, nombre) => rkNumero(n, nombre) + (rkUnidad(nombre) ? ' ' + rkEsc(rkUnidad(nombre)) : '');
@@ -3851,7 +3878,7 @@ function renderDiferencias(){
   box.hidden = false;
   box.innerHTML = '<div class="dif-gana"><b>Gana en más filas</b> ' +
     ranking.map(([i, n]) => '<span class="dif-chip">' + nom(i) + ' <b>' + n + '</b></span>').join('') +
-    '<small>de ' + nComp + ' fila' + (nComp === 1 ? '' : 's') + ' con cifra en los ' + vis.length + ' autos (★ en la tabla)</small></div>' +
+    '<small>de ' + nComp + ' fila' + (nComp === 1 ? '' : 's') + ' con cifra en los ' + vis.length + ' autos' + (extraImp ? ', contando quién lo importa' : '') + ' (★ en la tabla)</small></div>' +
     (top.length ? '<div class="dif-lista"><b>Mayores diferencias</b><ul>' + top.map(f => {
       const m = f.orden[0], p = f.orden[f.orden.length - 1];
       return '<li><span class="dif-fila">' + rkEsc(rkTitulo(f.nombre)) + '</span> ' +
@@ -4581,24 +4608,35 @@ document.addEventListener('click', e => {
 // Cada motivo que se muestra sale de un dato de la tabla. Sin precio en dólares, el auto no
 // entra si hay tope (no se sabe si cabe), y se avisa cuántos quedaron afuera por eso.
 const ELEGIR_PREG = [
-  { k: 'presu', t: '¿Hasta cuánto querés gastar?', ops: [['25000', 'Hasta USD 25.000'], ['30000', 'Hasta USD 30.000'], ['35000', 'Hasta USD 35.000'], ['45000', 'Hasta USD 45.000'], ['60000', 'Hasta USD 60.000'], ['', 'Sin tope']] },
+  // Franjas, no topes (pedido del 2026-10-09): elegir "35.001 a 45.000" dice que querés gastar
+  // más que en la franja anterior, así que los de 30.000 no entran.
+  { k: 'presu', t: '¿Cuánto querés gastar?', ops: [['0-25000', 'Hasta USD 25.000'], ['25001-30000', 'USD 25.001 a 30.000'], ['30001-35000', 'USD 30.001 a 35.000'], ['35001-45000', 'USD 35.001 a 45.000'], ['45001-60000', 'USD 45.001 a 60.000'], ['60001-', 'Más de USD 60.000'], ['', 'Me da igual']] },
   { k: 'plazas', t: '¿Cuántos viajan seguido?', ops: [['4', 'Hasta 4'], ['5', '5'], ['6', '6 o 7']] },
   { k: 'uso', t: '¿Para qué lo vas a usar más?', ops: [['ciudad', 'Ciudad'], ['mixto', 'Ciudad y ruta'], ['ruta', 'Mucha ruta'], ['tierra', 'Tierra o campo'], ['carga', 'Trabajo o carga']] },
   { k: 'enchufe', t: '¿Podés cargarlo en tu casa o en el trabajo?', ops: [['si', 'Sí'], ['no', 'No'], ['nose', 'No sé']] },
   { k: 'carro', t: '¿Qué tipo de auto preferís?', ops: [['', 'Me da igual'], ['suv', 'SUV o crossover'], ['auto', 'Sedán o hatchback'], ['pickup', 'Pickup']] },
 ];
-let elegirResp = { presu: '35000', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
+let elegirResp = { presu: '30001-35000', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
 try { const g = JSON.parse(localStorage.getItem('elegir') || 'null'); if (g) elegirResp = Object.assign(elegirResp, g); } catch (e) {}
+if (elegirResp.presu && !/-/.test(elegirResp.presu)) elegirResp.presu = '30001-35000';   // topes guardados de la versión anterior
 // Qué tan bien encaja cada propulsión (0 a 1) según el enchufe y el uso. Es el criterio de la
 // herramienta, a la vista en el motivo de cada sugerencia: un eléctrico sin dónde cargarlo
 // casi no suma; en la ruta larga, el híbrido y el naftero no dependen de cargadores.
-const ELEGIR_PROP = {
-  ev:   (r) => ({ si: 1, nose: .45, no: .1 }[r.enchufe]) * ({ ciudad: 1, mixto: .9, ruta: .6, tierra: .3, carga: .5 }[r.uso]),
-  phev: (r) => ({ si: .95, nose: .75, no: .5 }[r.enchufe]) * ({ ciudad: 1, mixto: 1, ruta: .85, tierra: .6, carga: .6 }[r.uso]),
-  hev:  (r) => ({ ciudad: .9, mixto: .85, ruta: .75, tierra: .55, carga: .55 }[r.uso]),
-  mhev: (r) => ({ ciudad: .7, mixto: .75, ruta: .8, tierra: .8, carga: .7 }[r.uso]),
-  ice:  (r) => ({ ciudad: .5, mixto: .65, ruta: .8, tierra: .9, carga: .9 }[r.uso]),
+// Con enchufe en casa, los que se enchufan van primero (pedido del 2026-10-09: seguía sugiriendo
+// híbridos comunes); sin enchufe, el eléctrico casi no suma. El uso ajusta encima.
+const ELEGIR_ENCHUFE = {
+  si:   { ev: 1, phev: 1, hev: .45, mhev: .4, ice: .35 },
+  nose: { ev: .55, phev: .85, hev: .85, mhev: .75, ice: .7 },
+  no:   { ev: .1, phev: .55, hev: 1, mhev: .9, ice: .85 },
 };
+const ELEGIR_USO = {
+  ciudad: { ev: 1, phev: 1, hev: 1, mhev: .8, ice: .6 },
+  mixto:  { ev: .9, phev: 1, hev: .95, mhev: .85, ice: .75 },
+  ruta:   { ev: .6, phev: .9, hev: .85, mhev: .9, ice: .9 },
+  tierra: { ev: .3, phev: .65, hev: .6, mhev: .85, ice: .95 },
+  carga:  { ev: .5, phev: .6, hev: .6, mhev: .8, ice: .95 },
+};
+const elegirFit = (tipo, r) => (ELEGIR_ENCHUFE[r.enchufe][tipo] ?? .5) * (ELEGIR_USO[r.uso][tipo] ?? .5);
 const ELEGIR_FILAS = {
   ciudad: ['Consumo de combustible (L/100km)'],
   mixto: ['Consumo de combustible (L/100km)', 'Potencia total del sistema (kW)'],
@@ -4614,7 +4652,8 @@ function elegirPctl(nombre){
 }
 const esTodoterreno = i => !!TH_AUTO[i].querySelector('use[href="#b-offroad"]');
 function elegirCalcular(r){
-  const tope = r.presu ? +r.presu : null, plazas = +r.plazas;
+  const [pMin, pMax] = r.presu ? r.presu.split('-').map(x => x === '' ? null : +x) : [null, null];
+  const tope = r.presu ? true : null, plazas = +r.plazas;
   let sinPrecio = 0;
   const cands = CARS.map((c, i) => i).filter(i => {
     const c = CARS[i];
@@ -4624,12 +4663,15 @@ function elegirCalcular(r){
     if (r.carro === 'pickup' && c.body !== 'Pickup') return false;
     const as = SIM_ASIENTOS[i];
     if (plazas >= 6 ? !(as >= 6) : (as != null && as < plazas)) return false;
-    if (tope != null){ if (SIM_PRECIO[i] == null){ sinPrecio++; return false; } if (SIM_PRECIO[i] > tope) return false; }
+    if (tope != null){
+      if (SIM_PRECIO[i] == null){ sinPrecio++; return false; }
+      if ((pMin != null && SIM_PRECIO[i] < pMin) || (pMax != null && SIM_PRECIO[i] > pMax)) return false;
+    }
     return true;
   });
   const filas = ELEGIR_FILAS[r.uso].concat(plazas >= 6 ? ['Volumen de baúl/carga (L)'] : []);
   const res = cands.map(i => {
-    const c = CARS[i], fit = (ELEGIR_PROP[c.type] || (() => .5))(r);
+    const c = CARS[i], fit = elegirFit(c.type, r);
     // Consumo de un enchufable: no se compara (cada ficha lo mide distinto; ver RK_APARTE).
     const ps = filas.filter(n => !(c.type === 'phev' && n === 'Consumo de combustible (L/100km)')).map(n => [n, elegirPctl(n)[i]]).filter(x => x[1]);
     const prom = ps.length ? ps.reduce((a, x) => a + x[1].p, 0) / ps.length / 100 : .4;
@@ -4637,13 +4679,22 @@ function elegirCalcular(r){
     let bonus = 0;
     if (r.uso === 'tierra' && (esTodoterreno(i) || c.body === 'Pickup')) bonus += .5;
     if (r.uso === 'carga' && c.body === 'Pickup') bonus += .5;
-    const puntos = 2 * fit + prom + .5 * (precio ? precio.p / 100 : .4) + bonus;
+    // Respaldo (2026-10-09): pesa quién lo importa (la casa matriz suma) y los años de garantía
+    // (5 es lo más común: más suma, menos resta). La de la batería, solo si tiene una.
+    const fab = importaFabrica(i);
+    const gAnos = SIM_GARANTIA[i], bAnos = c.type === 'ice' ? null : SIM_GARANTIA_BAT[i];
+    const respaldo = (fab ? .35 : 0) + (gAnos != null ? (gAnos - 5) * .12 : -.1) + (bAnos != null ? (bAnos - 8) * .08 : 0);
+    // Dentro de la franja elegida el precio no suma: elegir una franja más alta dice que querés
+    // gastar eso. Sin franja ("Me da igual"), lo más barato suma un poco.
+    const puntos = 3 * fit + prom + (r.presu ? 0 : .3 * (precio ? precio.p / 100 : .4)) + bonus + respaldo;
     const motivos = [];
-    if (SIM_PRECIO[i] != null) motivos.push('USD ' + SIM_PRECIO[i].toLocaleString('es-AR') + (tope ? ', dentro de tu presupuesto' : ''));
+    if (SIM_PRECIO[i] != null) motivos.push('USD ' + SIM_PRECIO[i].toLocaleString('es-AR') + (tope ? ', dentro de lo que querés gastar' : ''));
     motivos.push({ ev: r.enchufe === 'si' ? 'Eléctrico: lo cargás donde dijiste' : 'Eléctrico: necesita dónde cargarlo', phev: 'Enchufable: anda eléctrico en el día a día y con nafta en la ruta', hev: 'Híbrido: gasta menos y no necesita enchufe', mhev: 'Mild-hybrid: naftero con asistencia eléctrica, sin enchufe', ice: 'Naftero o diésel: no depende de cargadores' }[c.type] || '');
     if (SIM_ASIENTOS[i] != null) motivos.push(SIM_ASIENTOS[i] + ' asientos');
     ps.filter(x => x[1].c >= 4).forEach(x => motivos.push('Entre el 20% mejor en ' + rkTitulo(x[0]).toLowerCase()));
     if (bonus && esTodoterreno(i)) motivos.push('Todoterreno');
+    if (fab) motivos.push('Lo importa la propia marca (' + (infoMarca(i).importador_ar || '') + ')');
+    if (gAnos != null) motivos.push('Garantía de ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]));
     return { i, puntos, motivos: motivos.filter(Boolean) };
   }).sort((a, b) => b.puntos - a.puntos);
   return { top: res.slice(0, 3), total: res.length, sinPrecio };

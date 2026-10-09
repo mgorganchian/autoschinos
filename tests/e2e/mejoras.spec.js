@@ -17,22 +17,27 @@ async function abrir(page, query = ''){
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 }
 
-test('ayudame a elegir: tres autos a la venta dentro del presupuesto, cada uno con sus motivos', async ({ page }) => {
+test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en casa van los que se enchufan', async ({ page }) => {
+  // Pedido del 2026-10-09: "35.001 a 45.000" no trae autos de 30.000, y con enchufe en casa
+  // no sugiere híbridos comunes.
   await abrir(page);
   await page.locator('#elegirBtn').click();
-  await page.locator('label:has(input[name="el-presu"][value="30000"])').click();
+  await page.locator('label:has(input[name="el-presu"][value="35001-45000"])').click();
+  await page.locator('label:has(input[name="el-enchufe"][value="si"])').click();
   const res = page.locator('.elegir-res > li');
   await expect(res).toHaveCount(3);
   for (const t of await res.locator('ul').allTextContents()){
     const m = /USD ([\d.]+)/.exec(t);
     expect(m, t).toBeTruthy();
-    expect(Number(m[1].replace(/\./g, ''))).toBeLessThanOrEqual(30000);
+    const usd = Number(m[1].replace(/\./g, ''));
+    expect(usd).toBeGreaterThanOrEqual(35001);
+    expect(usd).toBeLessThanOrEqual(45000);
+    expect(t).toMatch(/Enchufable|Eléctrico/);
   }
-  // Ningún enchufable se presenta como de los que menos consumen (no se comparan: RK_APARTE).
-  await page.locator('label:has(input[name="el-uso"][value="ciudad"])').click();
+  await page.locator('label:has(input[name="el-enchufe"][value="no"])').click();
+  for (const t of await res.locator('ul').allTextContents()) expect(t).not.toMatch(/Eléctrico: /);
   await page.locator('label:has(input[name="el-presu"][value=""])').click();
-  const nombres = await res.locator('b').allTextContents();
-  expect(nombres.length).toBe(3);
+  await expect(res).toHaveCount(3);
   await page.locator('#elegirComparar').click();
   await expect(page).toHaveURL(/\?autos=[^,]+,[^,]+,[^,&]+/);
 });

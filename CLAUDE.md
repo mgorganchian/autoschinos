@@ -159,7 +159,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario). Con 2
   o más autos elegidos, **la misma barra se recalibra** (`recalibrarBarras`, 2026-10-09): arranca
   en su valor general y se desliza a su lugar entre los elegidos (el mejor la llena; el resto,
-  valor/mejor). Al volver a todos, regresa a `data-g`. Va **solo en las 15 filas
+  valor/mejor). Al volver a todos, regresa a `data-g`. Va **solo en las 17 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
   propósito**: poner el indicador ahí afirmaría que un auto más largo es mejor, y
@@ -171,7 +171,7 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   filas en kW y una en **km/l** dentro de la fila en L/100km. Los empates se reparten
   con **rango medio**, sin eso los 37 autos de 5 asientos caían a 0 por un solo auto
   de 4.
-- La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 15
+- La **vista Ranking** (botón Tabla/Ranking) ordena del mejor al peor **solo las 17
   filas de `PCTL_DIR`**, y lee los números con el **mismo `pctlValor()`** que los
   barras de percentil: no tiene parser propio, así que hereda los vetos. Lo que no se puede
   rankear va al final en **tres grupos distintos que no hay que fusionar**: "Sin dato"
@@ -274,8 +274,16 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
 - **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
   historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
-- **Ayudame a elegir**: filtros duros (presupuesto, plazas, tipo) y puntos por propulsión y
-  percentiles. Un enchufable nunca se presenta como de bajo consumo (`RK_APARTE`).
+- **Ayudame a elegir**: filtros duros (franja de precio, plazas, tipo) y puntos por propulsión,
+  percentiles y respaldo. El presupuesto es una **franja** ("35.001 a 45.000"), no un tope:
+  elegir una más alta dice que querés gastar más, y dentro de la franja el precio no suma. Con
+  enchufe en casa, los enchufables van primero (`ELEGIR_ENCHUFE`). Un enchufable nunca se
+  presenta como de bajo consumo (`RK_APARTE`).
+- **Respaldo** (2026-10-09, pedido del usuario): las dos garantías están en `PCTL_DIR` (años,
+  el primer número de la celda): tienen barra, ★ y ranking. Quién lo importa
+  (`IMPORTA_FABRICA`: BYD, Omoda, Jaecoo y Leapmotor los trae la casa matriz, según
+  `MARCAS_INFO`) cuenta como una fila más en "Gana en más filas" cuando los elegidos difieren,
+  y en Ayudame a elegir suma puntos y aparece como motivo.
 - **Pedir cotización**: WhatsApp solo con número internacional; elige el contacto de la marca.
 
 ## Concesionarios (2026-10-05)
