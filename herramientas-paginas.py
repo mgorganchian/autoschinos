@@ -37,8 +37,9 @@ def leer():
     slugs = [re.search(r'data-slug="([^"]+)"', t).group(1) for t in tags]
     creditos = [H.unescape((re.search(r'data-credito="([^"]*)"', t) or [None, ''])[1]) for t in tags]
     colores = json.loads(re.search(r'const COLORES_AR = (\{.*?\});\n', s).group(1))
+    videos = json.loads(re.search(r'const VIDEOS = (\{.*?\});\n', s).group(1))
     assert len(cars) == len(slugs) == len(data[0][1][0]) - 1
-    return data, cars, slugs, creditos, colores
+    return data, cars, slugs, creditos, colores, videos
 
 
 def celda(v):
@@ -58,7 +59,7 @@ def precio_usd(v):
     return m.group(1).replace('.', '') if m else None
 
 
-def pagina(i, data, car, slug, credito, colores):
+def pagina(i, data, car, slug, credito, colores, videos):
     nombre = car['name']
     filas = {f[0]: f[i + 1] for cat in data for f in cat[1]}
     precio, _ = celda(filas['Precio de lista (versión tope de gama de la tabla)'])
@@ -84,6 +85,13 @@ def pagina(i, data, car, slug, credito, colores):
     if col.get('c'):
         colores_html = ('<section><h2>Colores en Argentina</h2><ul class="colores">' + ''.join(f'<li>{e(c)}</li>' for c in col['c']) +
                         f'</ul><p class="nota">{e(col.get("n", ""))} Fuente: <a href="{e(col["f"])}" rel="nofollow">{e(col.get("d", "oficial"))}</a>.</p></section>')
+    videos_html = ''
+    if videos.get(slug):
+        fecha = lambda f: '/'.join(str(int(x)) for x in list(reversed(f.split('-')))[:2]) + '/' + f[:4]
+        videos_html = ('<section><h2>Reseñas en video</h2><ul class="videos">' +
+                       ''.join(f'<li><a href="https://www.youtube.com/watch?v={e(v["id"])}" rel="nofollow">{e(v["t"])}</a> '
+                               f'<small>{e(v["canal"])}, {fecha(v["f"])}, {v["s"] // 60}:{v["s"] % 60:02d} min</small></li>' for v in videos[slug]) +
+                       '</ul><p class="nota">Pruebas de periodistas, del mismo modelo y versión: son opiniones de terceros, no datos de la ficha.</p></section>')
     ld = {'@context': 'https://schema.org', '@type': 'Car', 'name': nombre, 'url': url, 'image': foto,
           'brand': {'@type': 'Brand', 'name': car['brand']}, 'bodyType': car.get('body', ''),
           'vehicleConfiguration': tipo}
@@ -111,7 +119,8 @@ figcaption{{font-size:.75rem;color:var(--ink2)}} .cta{{display:inline-block;marg
 h2{{font-size:1.15rem;margin:24px 0 6px;border-bottom:2px solid var(--ink)}} table{{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}}
 th,td{{text-align:left;vertical-align:top;padding:5px 6px;border-bottom:1px solid var(--line)}} th{{font-weight:500;width:42%;color:var(--ink2)}}
 td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px}}
-.colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
+.colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}}
+.videos{{padding-left:18px}} .videos li{{margin:4px 0}} .videos small{{display:block;color:var(--ink2)}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
 </style></head>
 <body><main>
 <p class="sub"><a href="/">Autos chinos en Argentina</a> / {e(car['brand'])}</p>
@@ -120,6 +129,7 @@ td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-styl
 <figure><img src="/fotos/{slug}-1.jpg" alt="{e(nombre)}" width="900" height="570">{f'<figcaption>{e(credito)}</figcaption>' if credito else ''}</figure>
 <a class="cta" href="/?auto={slug}">Compararlo con otros autos</a>
 {colores_html}
+{videos_html}
 {''.join(secciones)}
 <footer><p>Datos de la ficha técnica oficial argentina; lo que sale de otra fuente está aclarado. "Sin dato" quiere decir que la fuente no lo informa, no que el auto no lo tenga.</p>
 <p><a href="/">Volver al comparativo</a></p></footer>
@@ -193,10 +203,10 @@ h2{{font-size:1.05rem;margin:2px 0}} p{{margin:2px 0}}
 
 
 def generar():
-    data, cars, slugs, creditos, colores = leer()
+    data, cars, slugs, creditos, colores, videos = leer()
     salida = {}
     for i, (car, slug, cred) in enumerate(zip(cars, slugs, creditos)):
-        salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores)
+        salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores, videos)
     pag_nov, rss = novedades(cars, slugs)
     salida[os.path.join(RAIZ, 'novedades.html')] = pag_nov
     salida[os.path.join(RAIZ, 'novedades.xml')] = rss
