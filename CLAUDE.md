@@ -276,8 +276,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
 - **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
   historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
-- **La portada abre "Ayudame a elegir"** (2026-10-09): sin parámetros en la URL se abre el panel;
-  con `?autos=`, `?auto=` o `?tabla` se va directo. **Los tests cargan `/index.html?tabla`**:
+- **La portada abre "Ayudame a elegir"** (2026-10-09), que es una **vista de la página** como Tabla
+  y Ranking (pestaña `#vistaElegir`, sección `#elegirHoja`, `mostrarVista('elegir')`), no un panel
+  encima de la tabla: el panel modal confundía (título repetido, tabla oscurecida e inaccesible).
+  Sin parámetros en la URL abre esa vista; con `?autos=`, `?auto=` o `?tabla` va directo. **Los tests cargan `/index.html?tabla`**:
   si un test nuevo carga la página sin parámetros, el panel tapa la tabla.
 - **Ayudame a elegir** (franjas de precio y tipos de auto elegidos para que cada opción tenga
   una cantidad pareja de autos: SUV partidos por tamaño; sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina

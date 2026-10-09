@@ -482,6 +482,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .preset-btn:hover{background:rgba(255,255,255,.22);}
   .toolbar-row{
     display:flex;
+    flex-wrap:wrap;          /* con la pestaña "Ayudame a elegir" ya no entra en una línea en el celular */
     align-items:center;
     justify-content:space-between;
     gap:8px;
@@ -1006,9 +1007,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .cc-dist{margin-left:auto;font-family:var(--fuente-tabla);font-size:.72rem;font-weight:600;color:var(--ink-2);white-space:nowrap}
   .cc-zona{margin:1px 0 2px;font-size:.72rem;color:var(--ink-2)}
   .legend-toggle.primario{background:var(--byd-blue);border-color:var(--byd-blue);color:#fff;font-weight:600}
-  .elegir-sitio{margin:0 40px 10px 0;font-family:var(--fuente-titulo);font-weight:700;font-size:1.9rem;line-height:1.05;text-wrap:balance}
-  .elegir-sitio small{display:block;margin-top:3px;font-family:var(--fuente-tabla);font-weight:400;font-size:.8rem;color:var(--ink-2)}
-  .elegir-titulo{margin:8px 0 2px;padding-top:8px;border-top:2px solid var(--ink);font-family:var(--fuente-titulo);font-size:1.3rem}
+  .elegir{max-width:1100px;margin:0 auto;padding:14px 16px 0}
+  .elegir-titulo{margin:0 0 2px;font-family:var(--fuente-titulo);font-size:1.6rem}
   .elegir-preg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px 18px;margin:8px 0 12px}
   .elegir-preg fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:6px 0 0}
   .elegir-preg legend{font-family:var(--fuente-tabla);font-weight:700;font-size:.82rem;padding:0;margin-bottom:4px}
@@ -1033,7 +1033,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      de abajo del panel (que pierde su margen inferior) y con el área segura del iPhone. */
   .elegir-barra{position:sticky;bottom:0;margin:10px 0 0;padding:6px 2px calc(6px + env(safe-area-inset-bottom));
     background:var(--paper);border-top:2px solid var(--ink);font-size:.72rem;line-height:1.3;z-index:2}
-  #elegirHoja{padding-bottom:0}
   .elegir-barra-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .elegir-barra-btns #elegirVer{margin-left:auto}
   .elegir-barra p{margin:0}
@@ -1379,6 +1378,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <div class="cat-scroll" id="rkScroll" style="display:none" aria-label="Característica del ranking"></div>
   <div class="toolbar-row">
     <div class="vista-toggle" role="tablist" aria-label="Vista">
+      <button type="button" role="tab" id="vistaElegir" aria-selected="false">Ayudame a elegir</button>
       <button type="button" role="tab" id="vistaTabla" aria-selected="true">Tabla</button>
       <button type="button" role="tab" id="vistaRanking" aria-selected="false">Ranking</button>
     </div>
@@ -1396,7 +1396,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       <button class="legend-toggle" id="plegarTodoBtn" type="button">Plegar todo</button>
     </span>
     <span class="herr-gral">
-      <button class="legend-toggle primario" id="elegirBtn" type="button" title="Cinco preguntas y te sugerimos tres autos">Ayudame a elegir</button>
       <button class="legend-toggle" id="concesBtn" type="button" title="Dónde ver y comprar cada marca">Concesionarios</button>
       <button class="legend-toggle" id="gruposBtn" type="button" title="Qué grupo automotriz está detrás de cada marca">Grupos</button>
       <button class="legend-toggle" id="imprimirBtn" type="button" title="Imprimir o guardar como PDF lo que estás viendo">Imprimir o PDF</button>
@@ -1671,6 +1670,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
 
 <div class="no-results" id="noResults" style="display:none">No se encontraron características con ese término.</div>
 <div class="sim" id="simPanel" role="dialog" aria-label="Autos similares" hidden></div>
+<section class="elegir" id="elegirHoja" aria-labelledby="elegirTitulo" hidden></section>
 <section class="ranking" id="rankingView" hidden>
   <div class="rk-filtros-wrap" id="rkFiltros"></div>
   <div class="rk-head"><h2 id="rkTitulo"></h2><p id="rkSub"></p></div>
@@ -1680,7 +1680,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   <div class="rk-resto" id="rkResto"></div>
   <div class="sim rk-ficha" id="rkFicha" role="dialog" aria-label="Puestos del auto" hidden></div>
 </section>
-<div class="ficha-overlay" id="elegirVista" role="dialog" aria-modal="true" aria-labelledby="elegirTitulo" hidden><div class="ficha-hoja" id="elegirHoja"></div></div>
 <div class="ficha-overlay" id="concesVista" role="dialog" aria-modal="true" aria-labelledby="concesTitulo" hidden><div class="ficha-hoja" id="concesHoja"></div></div>
 <div class="ficha-overlay" id="gruposVista" role="dialog" aria-modal="true" aria-labelledby="gruposTitulo" hidden><div class="ficha-hoja" id="gruposHoja"></div></div>
 <div class="ficha-overlay" id="fichaAuto" role="dialog" aria-modal="true" aria-labelledby="fichaNombre" hidden><div class="ficha-hoja" id="fichaHoja"></div></div>
@@ -3658,19 +3657,32 @@ document.getElementById('rankingView').addEventListener('keydown', e => {
 });
 
 let rkScrollTabla = 0;
+// Tres vistas (2026-10-09): Ayudame a elegir (la portada), Tabla y Ranking.
 function mostrarVista(v){
-  const rk = v === 'ranking';
+  const rk = v === 'ranking', el = v === 'elegir', tabla = !rk && !el;
   // Al esconder la tabla el navegador le pierde el scroll horizontal: se guarda
   // para que al volver siga en los mismos autos.
-  if (rk && tbodyWrap.style.display !== 'none') rkScrollTabla = tbodyWrap.scrollLeft;
-  document.getElementById('vistaTabla').setAttribute('aria-selected', String(!rk));
+  if (!tabla && tbodyWrap.style.display !== 'none') rkScrollTabla = tbodyWrap.scrollLeft;
+  document.getElementById('vistaElegir').setAttribute('aria-selected', String(el));
+  document.getElementById('vistaTabla').setAttribute('aria-selected', String(tabla));
   document.getElementById('vistaRanking').setAttribute('aria-selected', String(rk));
-  for (const el of [theadWrap, tbodyWrap, document.querySelector('header .controls'),
+  for (const x of [theadWrap, tbodyWrap, document.querySelector('header .controls'),
                     document.getElementById('catScroll'), document.querySelector('.diff-toggle'),
                     document.getElementById('herrTabla'), document.getElementById('difBox')])
-    el.style.display = rk ? 'none' : '';
+    x.style.display = tabla ? '' : 'none';
+  // "Elegir autos" y "Cómo leer la tabla" son de la tabla y el ranking, no de las preguntas.
+  document.getElementById('summaryBar').style.display = el ? 'none' : '';
+  document.getElementById('legendToggleBtn').style.display = el ? 'none' : '';
+  if (el) document.getElementById('legendBox').style.display = 'none';
   document.getElementById('rkScroll').style.display = rk ? '' : 'none';
   document.getElementById('rankingView').hidden = !rk;
+  document.getElementById('elegirHoja').hidden = !el;
+  document.body.classList.toggle('vista-elegir', el);
+  if (el){
+    document.getElementById('noResults').style.display = 'none';
+    pintarElegir();
+    return;
+  }
   if (rk){
     document.getElementById('noResults').style.display = 'none';
     renderRanking();
@@ -3681,6 +3693,7 @@ function mostrarVista(v){
     theadWrap.scrollLeft = tbodyWrap.scrollLeft;      // el header vuelve alineado con el cuerpo
   }
 }
+document.getElementById('vistaElegir').addEventListener('click', () => mostrarVista('elegir'));
 document.getElementById('vistaTabla').addEventListener('click', () => mostrarVista('tabla'));
 document.getElementById('vistaRanking').addEventListener('click', () => mostrarVista('ranking'));
 document.getElementById('rkScroll').addEventListener('click', e => {
@@ -4771,24 +4784,14 @@ function elegirCalcular(r){
   }).sort((a, b) => b.puntos - a.puntos);
   return { top: res.slice(0, ELEGIR_N), todos: res.map(x => x.i), total: res.length, sinPrecio: sinPrecioIdx.length, sinPrecioIdx };
 }
-let elegirAbierta = false;
-function abrirElegir(){
-  document.getElementById('elegirVista').hidden = false;
-  document.body.classList.add('modal-open');
-  elegirAbierta = true;
-  pintarElegir();
-  document.getElementById('elegirCerrar').focus();
-}
 function pintarElegir(cambio){
   const r = elegirResp, out = elegirCalcular(r);
   const hoja = document.getElementById('elegirHoja');
   // Si una respuesta no mueve las sugerencias, se dice: si no, parece que no recalculó.
   const igual = cambio && hoja.dataset.top === out.top.map(x => x.i).join(',');
-  hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="elegirCerrar" aria-label="Cerrar">✕</button>' +
-    // Como la portada abre este panel, arriba va el nombre del sitio y "Ayudame a elegir" es el
-    // subtítulo de la sección (2026-10-09).
-    '<p class="elegir-sitio">Autos chinos en Argentina<small>' + CARS.length + ' autos con sus fichas técnicas oficiales</small></p>' +
-    '<h2 id="elegirTitulo" class="elegir-titulo">Ayudame a elegir</h2>' +
+  // Es una vista de la página, como Tabla y Ranking (2026-10-09): el título del sitio es el de la
+  // página, y acá va el de la sección.
+  hoja.innerHTML = '<h2 id="elegirTitulo" class="elegir-titulo">Ayudame a elegir</h2>' +
     '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
       '<button type="button" class="mini-btn" id="elegirTabla">Ver la tabla con los ' + CARS.length + ' autos</button></p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
@@ -4825,36 +4828,28 @@ function pintarElegir(cambio){
   hoja.dataset.todos = out.todos.join(',');
   hoja.dataset.sinprecio = out.sinPrecioIdx.join(',');
 }
-function cerrarElegir(){
-  if (!elegirAbierta) return;
-  elegirAbierta = false;
-  document.getElementById('elegirVista').hidden = true;
-  document.getElementById('elegirHoja').innerHTML = '';
-  if (fichaActual === null && !grupoAbierto && !concesAbierta) document.body.classList.remove('modal-open');
-}
-document.getElementById('elegirBtn').addEventListener('click', abrirElegir);
-document.getElementById('elegirVista').addEventListener('change', e => {
+const elegirHoja = document.getElementById('elegirHoja');
+elegirHoja.addEventListener('change', e => {
   const m = /^el-(\w+)$/.exec(e.target.name || ''); if (!m) return;
   elegirResp[m[1]] = e.target.value;
   try { localStorage.setItem('elegir', JSON.stringify(elegirResp)); } catch (er) {}
-  const y = document.getElementById('elegirHoja').scrollTop; pintarElegir(true); document.getElementById('elegirHoja').scrollTop = y;
+  const y = window.scrollY; pintarElegir(true); window.scrollTo(0, y);
   const barra = document.querySelector('.elegir-barra');
   if (barra){ barra.classList.remove('cambio'); void barra.offsetWidth; barra.classList.add('cambio'); }
 });
-document.getElementById('elegirVista').addEventListener('click', e => {
-  if (e.target.id === 'elegirVista' || e.target.closest('#elegirCerrar') || e.target.closest('#elegirTabla')) return cerrarElegir();
+elegirHoja.addEventListener('click', e => {
+  if (e.target.closest('#elegirTabla')) return mostrarVista('tabla');
   const f = e.target.closest('[data-elegir-ficha]');
-  if (f){ const i = +f.dataset.elegirFicha; cerrarElegir(); abrirFicha(i); return; }
+  if (f){ abrirFicha(+f.dataset.elegirFicha); return; }
   if (e.target.closest('#elegirVer')){ document.getElementById('elegirResTit').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   const comp = e.target.closest('[data-elegir-comparar]');
   if (comp){
-    const ds = document.getElementById('elegirHoja').dataset, que = comp.dataset.elegirComparar;
+    const ds = elegirHoja.dataset, que = comp.dataset.elegirComparar;
     const lista = s => (s || '').split(',').filter(Boolean).map(Number);
     const idx = que === 'top' ? lista(ds.top) : que === 'todos' ? lista(ds.todos) : lista(ds.todos).concat(lista(ds.sinprecio));
     location.href = location.pathname + '?autos=' + idx.map(i => SLUG_AUTO[i]).join(',');
   }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && elegirAbierta) cerrarElegir(); });
 
 ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();
@@ -4862,7 +4857,7 @@ actualizarResumen();
 renderDiferencias();
 // La portada empieza en "Ayudame a elegir" (pedido del 2026-10-09). Un link con parámetros
 // (?autos=, ?auto=, ?ref=…) abre lo que pide, y ?tabla abre la tabla directo (lo usan los tests).
-if (!location.search && !location.hash) abrirElegir();
+if (!location.search && !location.hash) mostrarVista('elegir');
 
 // Tooltip propio: instantáneo, sin el delay nativo del navegador. Funciona con mouse y con tap en mobile.
 const tooltipBox = document.getElementById('tooltipBox');
