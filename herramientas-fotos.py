@@ -67,7 +67,7 @@ POR_CORRIDA = 14     # candidatas por auto y por corrida: después se elige una 
 # OJO: SWM Tiger EDi es la versión electrificada; el G03F de la tabla es naftero.
 ALIAS = {'Skywell BE11': 'Skyworth EV6', 'Omoda C5': 'Omoda 5', 'Ora 03': 'GWM Ora 03',
          'Tank 300': 'GWM Tank 300', 'Maxus eTerron': 'Maxus eTerron 9',
-         'SWM G03F': 'SWM Tiger'}   # SWM Tiger = G03F (mismo auto, nombre chino; ver fichas-fuentes.tsv)
+         'SWM G03F': 'SWM Tiger', 'SWM G03F EDi': 'SWM Tiger EDi'}   # SWM Tiger = G03F (mismo auto, nombre chino; ver fichas-fuentes.tsv)
 INTERIOR = re.compile(r'interior|dashboard|cockpit|innenraum|cabin|interieur', re.I)
 # Detalles que no sirven como foto del auto.
 DETALLE = re.compile(r'\bengine\b|motor bay|badge|emblem|logo|wheel detail|taillight|headlamp|'
@@ -107,10 +107,12 @@ def filas_tsv(ruta):
             if l.strip() and not l.startswith('#')]
 
 
-def ya_vistos():
-    """Archivos de Commons que ya están en uso o ya se descartaron."""
+def ya_vistos(slug=None):
+    """Archivos de Commons que ya están en uso o ya se descartaron. Un descarte vale para el auto
+    donde se hizo: las fotos de la SWM Tiger EDi se descartaron para la G03F naftera por ser la
+    electrificada, y son justo las de la G03F EDi (2026-10-09)."""
     usados = {c[2] for c in filas_tsv(MANIFIESTO) if len(c) > 2}
-    usados |= {c[0] for c in filas_tsv(DESCARTADAS)}
+    usados |= {c[0] for c in filas_tsv(DESCARTADAS) if slug is None or len(c) < 2 or c[1] == slug}
     # Las portadas que vienen de Commons figuran en fichas-fuentes.tsv como
     # "auto <TAB> archivo <TAB> licencia <TAB> autor <TAB> página de Commons".
     usados |= {c[1] for c in filas_tsv(PORTADAS) if len(c) > 4 and 'commons.wikimedia.org' in c[4]}
@@ -177,7 +179,6 @@ def buscar(solo=()):
     html = leer_index()
     _, fpa = mapa(html, 'FOTOS_POR_AUTO')
     vpf = vistas_actuales(html)
-    vistos = ya_vistos()
     # Sin autos pedidos, corrida completa desde cero. Con autos pedidos, se suman a las
     # candidatas que ya había (así se puede buscar por tandas sin perder lo anterior).
     if not solo: shutil.rmtree(CAND, ignore_errors=True)
@@ -191,6 +192,7 @@ def buscar(solo=()):
         faltan = [v for v in CLAVES if v not in vpf.get(slug, [])]
         if not faltan or fpa.get(slug, 1) >= MAX_TOTAL: continue
         modelo = ALIAS.get(nombre, nombre)
+        vistos = ya_vistos(slug)
         hallados = {}
         paginas = []
         for q in (modelo, modelo + ' interior', modelo + ' rear', modelo + ' dashboard'):

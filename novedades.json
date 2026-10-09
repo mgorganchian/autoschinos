@@ -1,8 +1,44 @@
 [
- {"fecha": "2026-10-08", "titulo": "Ayudame a elegir: cinco preguntas y tres autos sugeridos", "texto": "Presupuesto, plazas, uso, si podés cargar en casa y tipo de auto. Cada sugerencia dice por qué, con datos de la tabla.", "link": "/"},
- {"fecha": "2026-10-08", "titulo": "Dónde comprarlo: concesionarios por cercanía, con precios y promociones", "texto": "En la página de cada auto, los concesionarios que lo venden ordenados por distancia, la mejor oferta publicada y un botón para pedir cotización por WhatsApp o mail.", "link": "/"},
- {"fecha": "2026-10-07", "titulo": "Lo igual se escribe igual", "texto": "Se unificaron 2.917 celdas para que \"Solo diferencias\" muestre solo lo que cambia de verdad, y se revisaron 94 contra las fichas oficiales.", "link": "/"},
- {"fecha": "2026-10-06", "titulo": "Se sumaron 15 autos", "texto": "Changan Eado Plus PHEV, smart #1 y #3, siete GAC, Geely Icon y más: la tabla pasó de 108 a 123 autos.", "link": "/"},
- {"fecha": "2026-10-06", "titulo": "180 fotos de cabina y baúl", "texto": "De las galerías oficiales argentinas de cada marca.", "link": "/"},
- {"fecha": "2026-10-05", "titulo": "Red de concesionarios oficiales", "texto": "Los locales que publica cada marca o su importador, en las 24 provincias.", "link": "/"}
+ {
+  "fecha": "2026-10-09",
+  "titulo": "Se sumó la SWM G03F EDi",
+  "texto": "La versión enchufable de autonomía extendida de la G03F, que en 2026 se patentó más que la naftera. Sin ficha oficial argentina: datos del concesionario oficial y de la ficha china, marcados como de otra fuente.",
+  "link": "/autos/swm-g03f-edi"
+ },
+ {
+  "fecha": "2026-10-08",
+  "titulo": "Ayudame a elegir: cinco preguntas y tres autos sugeridos",
+  "texto": "Presupuesto, plazas, uso, si podés cargar en casa y tipo de auto. Cada sugerencia dice por qué, con datos de la tabla.",
+  "link": "/"
+ },
+ {
+  "fecha": "2026-10-08",
+  "titulo": "Dónde comprarlo: concesionarios por cercanía, con precios y promociones",
+  "texto": "En la página de cada auto, los concesionarios que lo venden ordenados por distancia, la mejor oferta publicada y un botón para pedir cotización por WhatsApp o mail.",
+  "link": "/"
+ },
+ {
+  "fecha": "2026-10-07",
+  "titulo": "Lo igual se escribe igual",
+  "texto": "Se unificaron 2.917 celdas para que \"Solo diferencias\" muestre solo lo que cambia de verdad, y se revisaron 94 contra las fichas oficiales.",
+  "link": "/"
+ },
+ {
+  "fecha": "2026-10-06",
+  "titulo": "Se sumaron 15 autos",
+  "texto": "Changan Eado Plus PHEV, smart #1 y #3, siete GAC, Geely Icon y más: la tabla pasó de 108 a 123 autos.",
+  "link": "/"
+ },
+ {
+  "fecha": "2026-10-06",
+  "titulo": "180 fotos de cabina y baúl",
+  "texto": "De las galerías oficiales argentinas de cada marca.",
+  "link": "/"
+ },
+ {
+  "fecha": "2026-10-05",
+  "titulo": "Red de concesionarios oficiales",
+  "texto": "Los locales que publica cada marca o su importador, en las 24 provincias.",
+  "link": "/"
+ }
 ]
