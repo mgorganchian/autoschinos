@@ -365,7 +365,11 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   hibridación iguales a la fila de `DATA`). No van: presentaciones o adelantos sin prueba,
   modelos viejos o de otra generación, videos de varios autos a la vez, ni contenido pago
   de la marca.
-- Primer canal: Matías Antico. Para sumar otro periodista, mismo criterio.
+- Primer canal: Matías Antico (@MatiasAnticoTV, 12 autos; revisados sus 984 videos el 2026-10-09).
+  Un contacto corto al volante (Short) vale si es la misma versión: B10 y X55 Plus. Quedaron
+  afuera el C10 (manejado en China con 223 CV, la tabla tiene 215) y el Dolphin Mini (manejado
+  en Roma con la versión europea), además de las presentaciones sin manejo (Kaiyi, GAC, Maxus
+  en Expoagro, salones). Para sumar otro periodista, mismo criterio.
 - En la tabla, cada auto con video lleva un botón **"Video"** en su encabezado que abre su prueba
   **más reciente**, con canal, fecha de subida y título al pasar el mouse (2026-10-09). En la
   página del auto, los videos van del más nuevo al más viejo (`videosDe`).
