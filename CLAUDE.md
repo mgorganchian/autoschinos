@@ -538,9 +538,11 @@ Nunca push directo a `main`. Vercel arma una vista previa de cada PR. La rutina 
 también va por PR (ver abajo).
 `main` está protegida (2026-10-09): para mergear exige que salgan bien dos controles, sin pedir
 aprobaciones: "Vercel" (la vista previa) y "e2e" (la suite de Playwright en GitHub Actions,
-`.github/workflows/tests.yml`, unos 7 minutos). No se aplica a administradores, pero eso no
-habilita a pushear directo. Por eso el auto-merge se puede activar apenas el PR está listo:
-espera a los dos y mergea solo.
+`.github/workflows/tests.yml`, unos 5 a 7 minutos). **Se aplica también a administradores**
+(`enforce_admins`, desde el 2026-10-09): ni el dueño ni la rutina pueden pushear directo a
+`main`; todo pasa por PR. Por eso el auto-merge se puede activar apenas el PR está listo:
+espera a los dos y mergea solo. Un arreglo urgente sin PR exige desactivarla antes en GitHub
+(Settings → Branches) y volver a activarla después.
 
 Los commits de este repo van con la identidad personal, no con la de kamiPay. El detalle
 (mail y config de git) está en `CONTEXTO_LOCAL_PRIVADO.md`.
