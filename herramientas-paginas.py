@@ -37,8 +37,9 @@ def leer():
     slugs = [re.search(r'data-slug="([^"]+)"', t).group(1) for t in tags]
     creditos = [H.unescape((re.search(r'data-credito="([^"]*)"', t) or [None, ''])[1]) for t in tags]
     colores = json.loads(re.search(r'const COLORES_AR = (\{.*?\});\n', s).group(1))
+    videos = json.loads(re.search(r'const VIDEOS_ANTICO = (\{.*?\});\n', s).group(1))
     assert len(cars) == len(slugs) == len(data[0][1][0]) - 1
-    return data, cars, slugs, creditos, colores
+    return data, cars, slugs, creditos, colores, videos
 
 
 def celda(v):
@@ -58,7 +59,7 @@ def precio_usd(v):
     return m.group(1).replace('.', '') if m else None
 
 
-def pagina(i, data, car, slug, credito, colores):
+def pagina(i, data, car, slug, credito, colores, videos):
     nombre = car['name']
     filas = {f[0]: f[i + 1] for cat in data for f in cat[1]}
     precio, _ = celda(filas['Precio de lista (versión tope de gama de la tabla)'])
@@ -79,6 +80,12 @@ def pagina(i, data, car, slug, credito, colores):
             txt, nota = celda(f[i + 1])
             trs.append(f'<tr><th scope="row">{e(f[0])}</th><td>{e(txt)}' + (f'<small>{e(nota)}</small>' if nota else '') + '</td></tr>')
         secciones.append(f'<section><h2>{e(cat)}</h2><table>{"".join(trs)}</table></section>')
+    v = videos.get(slug)
+    video_html = ''
+    if v:
+        fecha = '/'.join(reversed(v['f'].split('-')))
+        video_html = (f'<p class="video"><a href="https://www.youtube.com/watch?v={e(v["id"])}" rel="noopener" title="{e(v.get("t", ""))}">'
+                      f'Ver la prueba en video de Matías Antico</a> <small>Subida el {fecha}. {e(v.get("t", ""))}</small></p>')
     col = colores.get(slug) or {}
     colores_html = ''
     if col.get('c'):
@@ -111,7 +118,7 @@ figcaption{{font-size:.75rem;color:var(--ink2)}} .cta{{display:inline-block;marg
 h2{{font-size:1.15rem;margin:24px 0 6px;border-bottom:2px solid var(--ink)}} table{{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}}
 th,td{{text-align:left;vertical-align:top;padding:5px 6px;border-bottom:1px solid var(--line)}} th{{font-weight:500;width:42%;color:var(--ink2)}}
 td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px}}
-.colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
+.colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}} .video small{{display:block;color:var(--ink2);font-size:.8rem}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
 </style></head>
 <body><main>
 <p class="sub"><a href="/">Autos chinos en Argentina</a> / {e(car['brand'])}</p>
@@ -119,7 +126,7 @@ td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-styl
 <p class="sub">{e(tipo.capitalize())}, {e(car.get('body', ''))}. {e(ESTADO.get(car['status'], ''))}. Precio de lista: {e(precio)}.</p>
 <figure><img src="/fotos/{slug}-1.jpg" alt="{e(nombre)}" width="900" height="570">{f'<figcaption>{e(credito)}</figcaption>' if credito else ''}</figure>
 <a class="cta" href="/?auto={slug}">Compararlo con otros autos</a>
-{colores_html}
+{video_html}{colores_html}
 {''.join(secciones)}
 <footer><p>Datos de la ficha técnica oficial argentina; lo que sale de otra fuente está aclarado. "Sin dato" quiere decir que la fuente no lo informa, no que el auto no lo tenga.</p>
 <p><a href="/">Volver al comparativo</a></p></footer>
@@ -193,10 +200,10 @@ h2{{font-size:1.05rem;margin:2px 0}} p{{margin:2px 0}}
 
 
 def generar():
-    data, cars, slugs, creditos, colores = leer()
+    data, cars, slugs, creditos, colores, videos = leer()
     salida = {}
     for i, (car, slug, cred) in enumerate(zip(cars, slugs, creditos)):
-        salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores)
+        salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores, videos)
     pag_nov, rss = novedades(cars, slugs)
     salida[os.path.join(RAIZ, 'novedades.html')] = pag_nov
     salida[os.path.join(RAIZ, 'novedades.xml')] = rss

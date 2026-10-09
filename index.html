@@ -1154,6 +1154,10 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   /* ============ Auto de referencia ======================================= */
   .th-acciones{display:flex;justify-content:center;align-items:center;gap:3px;margin-top:4px}
   .th-acciones .sim-btn{margin:0}
+  .th-video{text-decoration:none}
+  .ficha-video{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:10px 0 0}
+  .ficha-video .ficha-btn{text-decoration:none}
+  .ficha-video small{font-size:.72rem;color:var(--ink-2)}
   .ref-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:10px;
     padding:0 4px;font-size:.6rem;line-height:1.5;cursor:pointer;filter:grayscale(1);opacity:.75}
   .ref-btn[aria-pressed="true"]{filter:none;opacity:1;background:#fff;border-color:#fff}
@@ -2599,6 +2603,21 @@ function simPanel(){
 }
 function simCerrarPanel(){ simTablaBase = null; simPanel(); }
 
+// Pruebas en video de Matías Antico (pedido del usuario, 2026-10-09): por slug, su video MÁS
+// RECIENTE de ese auto (mismo modelo, generación y propulsión que la columna), con la fecha de
+// subida que da YouTube. Solo un link: nada se embebe (el archivo es autocontenido).
+// VIDEO_CANAL es el canal oficial verificado. La rutina semanal busca videos nuevos.
+const VIDEO_CANAL = {"nombre":"","url":""};
+const VIDEOS_ANTICO = {};
+const fechaCorta = f => f ? f.split('-').reverse().join('/') : '';
+function videoTitulo(v){ return 'Prueba de Matías Antico, subida el ' + fechaCorta(v.f) + (v.t ? ': «' + v.t + '»' : ''); }
+function videoHTML(slug){
+  const v = VIDEOS_ANTICO[slug];
+  if (!v) return '';
+  return '<p class="ficha-video"><a class="ficha-btn" href="https://www.youtube.com/watch?v=' + rkEsc(v.id) + '" target="_blank" rel="noopener" title="' + rkEsc(videoTitulo(v)) + '">Ver la prueba en video de Matías Antico</a>' +
+    '<small>Subida el ' + fechaCorta(v.f) + (v.tipo && v.tipo !== 'prueba' ? ' (' + rkEsc(v.tipo) + ')' : '') + '. ' + rkEsc(v.t || '') + '</small></p>';
+}
+
 TH_AUTO.forEach((th, i) => {
   const acc = document.createElement('div');
   acc.className = 'th-acciones';
@@ -2613,6 +2632,15 @@ TH_AUTO.forEach((th, i) => {
   r.setAttribute('aria-label', 'Usar ' + CARS[i].name + ' como referencia');
   r.title = 'Usar como referencia: queda primero y los demás muestran si son mejores o peores';
   acc.append(b, r);
+  const v = VIDEOS_ANTICO[SLUG_AUTO[i]];
+  if (v){
+    const a = document.createElement('a');
+    a.className = 'sim-btn th-video'; a.textContent = 'Video';
+    a.href = 'https://www.youtube.com/watch?v=' + v.id; a.target = '_blank'; a.rel = 'noopener';
+    a.title = videoTitulo(v);
+    a.setAttribute('aria-label', videoTitulo(v));
+    acc.appendChild(a);
+  }
   th.appendChild(acc);
 });
 document.addEventListener('click', e => {
@@ -4211,6 +4239,7 @@ async function abrirFicha(i){
       '<div class="ficha-acciones"><button type="button" class="ficha-btn primario" id="fichaVerTabla">Ver todos sus datos en la tabla</button>' +
         '<button type="button" class="ficha-btn" id="fichaIrDonde">Dónde comprarlo</button>' +
         '<button type="button" class="ficha-btn" id="fichaSumar">' + (colVisible.every(Boolean) ? 'Empezar una comparación' : (colVisible[i] ? '✓ Ya está en tu comparación' : '+ Sumar a mi comparación')) + '</button></div>' +
+    videoHTML(SLUG_AUTO[i]) +
     '</div></div>' +
     '<dl class="ficha-datos">' + FICHA_DATOS.filter(n => FILA_POR_NOMBRE[n] && aplica(n)).map(n =>
       '<div><dt>' + rkEsc(rkTitulo(n) + (rkUnidad(n) ? ' (' + rkUnidad(n) + ')' : '')) + '</dt><dd>' + val(n) + '</dd></div>').join('') +
