@@ -464,7 +464,9 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
   después se agranda, el zoom y el visor arrancan en esa foto (`miniK`). Las flechas nunca van
   dentro de otro botón y su clic se toma en la captura de `window`: no abre la página del auto,
   no tilda el selector ni abre el zoom. Para copiar la portada de un `<th>` se usa
-  `portadaDe(img)`, no `img.src` (puede estar mostrando otra foto).
+  `portadaDe(img)`, no `img.src` (puede estar mostrando otra foto). En las fotos chicas
+  (`.minicar.chica`: Similares, Ranking, Parecidos) las flechas aparecen solo al pasar el mouse
+  y en pantallas táctiles no van, porque tapaban la foto (pedido del 2026-10-09).
 
 Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura de 300×190 en
 `fotos/mini/<slug>.jpg` para el `<th>`; hasta el 2026-10-06 iba embebida en base64 y pesaba

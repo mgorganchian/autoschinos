@@ -847,7 +847,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .mini-nav:hover{background:rgba(10,15,30,.8)}
   .mini-nav:focus-visible{outline:2px solid var(--link);outline-offset:1px}
   @media (hover:none){ .mini-nav{opacity:.85} }
-  .minicar.chica .mini-nav{width:16px;height:16px;font-size:12px;line-height:16px}
+  /* En las fotos chicas (Similares, Ranking, Parecidos) tapaban la foto: ahí aparecen solo al
+     pasar el mouse o con el teclado (pedido del 2026-10-09); en pantallas táctiles no van. */
+  .minicar.chica .mini-nav{width:16px;height:16px;font-size:12px;line-height:16px;opacity:0}
+  .minicar.chica:hover .mini-nav,.minicar.chica:focus-within .mini-nav{opacity:1}
+  @media (hover:none){ .minicar.chica .mini-nav{display:none} }
   .minicar.chica .mini-nav.ant{left:1px} .minicar.chica .mini-nav.sig{right:1px}
   .sim-lista img{width:52px;height:33px;object-fit:contain;border-radius:5px;background:#fff;display:block}
   .sim-lista b{font-size:.76rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

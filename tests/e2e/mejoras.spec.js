@@ -198,11 +198,14 @@ test('las flechitas de las miniaturas cambian la foto en el lugar, y al agrandar
   expect(await tarjeta.locator('input').isChecked()).toBe(tildado);
 
   // En la página del auto, la flecha de un parecido no abre su página.
-  await page.goto('/index.html?auto=tank-300');
-  const parecido = page.locator('.ficha-sim .minicar:has(.mini-nav)').first();
-  await parecido.locator('.mini-nav.sig').click();
-  await expect(parecido.locator('img')).toHaveAttribute('src', /-2\.jpg$/);
-  expect(page.url()).toContain('auto=tank-300');
+  if (page.viewportSize().width >= 768){
+    await page.goto('/index.html?auto=tank-300');
+    const parecido = page.locator('.ficha-sim .minicar:has(.mini-nav)').first();
+    await parecido.hover();
+    await parecido.locator('.mini-nav.sig').click();
+    await expect(parecido.locator('img')).toHaveAttribute('src', /-2\.jpg$/);
+    expect(page.url()).toContain('auto=tank-300');
+  }
 
   // En Ayudame a elegir, el visor arranca en la foto que muestra la miniatura.
   await page.goto('/index.html');
@@ -218,8 +221,17 @@ test('cada lugar con fotos de autos trae sus flechitas', async ({ page }) => {
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   await expect(page.locator('#theadTable .minicar[data-mini-slug="tank-300"] .mini-nav')).toHaveCount(2);
   await page.click('#vistaRanking');
-  await expect(page.locator('#rkLista .rk-item .minicar .mini-nav').first()).toBeVisible();
+  const rk = page.locator('#rkLista .rk-item .minicar:has(.mini-nav)').first();
+  if (!page.viewportSize() || page.viewportSize().width < 768){
+    // En el celular las fotos chicas no llevan flechas: tapaban la foto.
+    await expect(rk.locator('.mini-nav').first()).toBeHidden();
+    return;
+  }
+  // En escritorio, las de las fotos chicas aparecen solo al pasar el mouse.
+  await expect(rk.locator('.mini-nav.sig')).toHaveCSS('opacity', '0');
+  await rk.hover();
+  await expect(rk.locator('.mini-nav.sig')).toHaveCSS('opacity', '1');
   // Una flecha del ranking no abre la página del auto.
-  await page.locator('#rkLista .rk-item .minicar .mini-nav.sig').first().click();
+  await rk.locator('.mini-nav.sig').click();
   await expect(page.locator('#fichaAuto')).toBeHidden();
 });
