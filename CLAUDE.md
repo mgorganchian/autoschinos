@@ -159,7 +159,9 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario). Con 2
   o más autos elegidos, **la misma barra se recalibra** (`recalibrarBarras`, 2026-10-09): arranca
   en su valor general y se desliza a su lugar entre los elegidos (el mejor la llena; el resto,
-  valor/mejor). Al volver a todos, regresa a `data-g`. Va **solo en las 17 filas
+  valor/mejor). Al volver a todos, regresa a `data-g`. La barra se ve sólida solo en el tercio
+  de la escala donde termina (rojo, ámbar o verde) y lo anterior queda al 10% (`barraZona`, máscara
+  `--z`; la parte sólida mide al menos un décimo), pedido del 2026-10-09. Va **solo en las 17 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
   propósito**: poner el indicador ahí afirmaría que un auto más largo es mejor, y
