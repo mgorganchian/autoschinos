@@ -910,7 +910,23 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     width:34px;height:34px;border-radius:50%;font-size:1rem;cursor:pointer}
   .ficha-cabeza{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
   .ficha-foto{position:relative;line-height:0}
-  .ficha-foto img{width:100%;aspect-ratio:900/570;object-fit:contain;background:#fff;border-radius:12px}
+  .ficha-foto img{width:100%;aspect-ratio:900/570;object-fit:contain;background:#fff;border-radius:12px;cursor:zoom-in}
+  .visor{position:fixed;inset:0;z-index:2000;background:rgba(8,12,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 8px 16px}
+  .visor[hidden]{display:none}
+  body.visor-abierto{overflow:hidden}
+  .visor-nombre{margin:0 0 8px;color:#fff;font-family:var(--fuente-titulo);font-size:1.2rem;text-align:center}
+  .visor-marco{margin:0;max-width:min(1200px,100%);display:flex;flex-direction:column;align-items:center}
+  .visor-marco img{max-width:100%;max-height:calc(100vh - 150px);object-fit:contain;background:#fff;border-radius:4px}
+  .visor-pie{margin-top:6px;color:#d8dee6;font-size:.72rem;text-align:center}
+  .visor-cerrar{position:absolute;top:8px;right:10px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-size:1rem;cursor:pointer}
+  .visor-nav{display:none;position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#111;font-size:1.6rem;cursor:pointer}
+  .visor.multi .visor-nav{display:block}
+  .visor-nav.ant{left:10px} .visor-nav.sig{right:10px}
+  .visor-puntos{display:flex;gap:6px;margin-top:8px}
+  .visor-puntos i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer}
+  .visor-puntos i.on{background:#fff}
+  .visor-cerrar:focus-visible,.visor-nav:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  @media (max-width:640px){ .visor-nav{width:36px;height:36px;font-size:1.3rem} .visor-nav.ant{left:4px} .visor-nav.sig{right:4px} }
   .ficha-nav{position:absolute;top:42%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:50%;
     background:rgba(255,255,255,.92);color:#0b1f47;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.28)}
   .ficha-nav.ant{left:8px} .ficha-nav.sig{right:8px}
@@ -1020,10 +1036,13 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .elegir-ops input:focus-visible + span{outline:2px solid var(--link);outline-offset:1px}
   .elegir-res-tit{border-top:2px solid var(--ink);padding-top:8px}
   .elegir-res{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px}
+  @media (min-width:900px){ .elegir-res{grid-template-columns:repeat(5,minmax(0,1fr))} }   /* los 5 en una fila (elegirN) */
   /* Tarjeta: en escritorio, foto arriba y texto abajo; en el celular, nombre arriba y foto
      a la izquierda con "Ver su página" debajo, para que entren las 4 (pedido del 2026-10-09). */
   .elegir-res > li{display:grid;grid-template-areas:"foto" "nombre" "motivos" "ver";gap:6px;align-content:start}
-  .elegir-res > li > b{grid-area:nombre} .elegir-res > li > img{grid-area:foto}
+  .elegir-res > li > b{grid-area:nombre} .elegir-res > li > .elegir-foto{grid-area:foto}
+  .elegir-foto{position:relative;display:block;padding:0;border:0;background:none;cursor:zoom-in;line-height:0}
+  .elegir-nfotos{position:absolute;right:5px;bottom:5px;line-height:1.2;font-family:var(--fuente-tabla);font-size:.62rem;font-weight:700;background:rgba(10,15,30,.75);color:#fff;border-radius:3px;padding:1px 5px}
   .elegir-res > li > ul{grid-area:motivos} .elegir-res > li > button{grid-area:ver;justify-self:start}
   .elegir-res img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:2px}
   .elegir-res b{font-family:var(--fuente-titulo);font-size:1.1rem}
@@ -1049,6 +1068,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       column-gap:10px;row-gap:2px;border-bottom:1px solid var(--line);padding-bottom:6px}
     .elegir-res{gap:8px}
     .elegir-res img{width:96px}
+    .elegir-foto{width:96px}
     .elegir-res b{font-size:1rem}
     .elegir-barra-btns .ficha-btn{padding:4px 7px;font-size:.7rem}
     .elegir-res ul{margin:0;font-size:.72rem;line-height:1.3;padding-left:14px}
@@ -4093,6 +4113,66 @@ function alDeslizar(el, siguiente, anterior){
 }
 alDeslizar(fotoZoom, () => { if (zFotos.length > 1){ mostrar(zIdx + 1); precargar(zIdx + 1); } }, () => { if (zFotos.length > 1) mostrar(zIdx - 1); });
 
+// Visor de fotos a pantalla completa (pedido del 2026-10-09): agrandar la foto de un auto y
+// recorrer las demás, igual en escritorio (flechas, teclado) y en el celular (deslizar). Se
+// abre tocando una foto con data-visor-slug (Ayudame a elegir) o la de la página del auto.
+// Cada foto con su vista y su crédito, como el zoom de la tabla.
+const visor = document.createElement('div');
+visor.id = 'visorFotos'; visor.className = 'visor'; visor.hidden = true;
+visor.setAttribute('role', 'dialog'); visor.setAttribute('aria-modal', 'true'); visor.setAttribute('aria-label', 'Fotos del auto');
+visor.innerHTML = '<button type="button" class="visor-cerrar" aria-label="Cerrar">✕</button>' +
+  '<p class="visor-nombre"></p><figure class="visor-marco"><img alt=""><figcaption class="visor-pie"></figcaption></figure>' +
+  '<button type="button" class="visor-nav ant" aria-label="Foto anterior">\u2039</button>' +
+  '<button type="button" class="visor-nav sig" aria-label="Foto siguiente">\u203a</button><div class="visor-puntos"></div>';
+document.body.appendChild(visor);
+let vSlug = '', vFotos = [], vIdx = 0;
+function visorMostrar(k){
+  vIdx = (k + vFotos.length) % vFotos.length;
+  const img = visor.querySelector('img'), i = SLUG_AUTO.indexOf(vSlug);
+  const th = i >= 0 ? TH_AUTO[i].querySelector('img.car-photo') : null;
+  img.src = vFotos[vIdx];
+  img.onerror = () => { if (th) img.src = th.src; };
+  const cred = creditoDe(vSlug, vIdx) || (vIdx === 0 && th ? th.dataset.credito || '' : '');
+  pieDeFoto(visor.querySelector('.visor-pie'), vSlug, vIdx, cred);
+  visor.querySelectorAll('.visor-puntos i').forEach((d, n) => d.classList.toggle('on', n === vIdx));
+  if (vFotos.length > 1){ const pre = new Image(); pre.src = vFotos[(vIdx + 1) % vFotos.length]; }
+}
+function abrirVisor(slug, k){
+  vSlug = slug; vFotos = listaDeFotos(slug);
+  const i = SLUG_AUTO.indexOf(slug);
+  visor.querySelector('.visor-nombre').textContent = (i >= 0 ? CARS[i].name : '') + (vFotos.length > 1 ? ', ' + vFotos.length + ' fotos' : '');
+  visor.classList.toggle('multi', vFotos.length > 1);
+  visor.querySelector('.visor-puntos').innerHTML = vFotos.length > 1 ? vFotos.map(() => '<i></i>').join('') : '';
+  visor.hidden = false;
+  document.body.classList.add('visor-abierto');
+  visorMostrar(k || 0);
+  visor.querySelector('.visor-cerrar').focus();
+}
+function cerrarVisor(){
+  if (visor.hidden) return;
+  visor.hidden = true;
+  document.body.classList.remove('visor-abierto');
+}
+visor.addEventListener('click', e => {
+  if (e.target.closest('.visor-cerrar') || e.target === visor) return cerrarVisor();
+  if (e.target.closest('.visor-nav.ant')) return visorMostrar(vIdx - 1);
+  if (e.target.closest('.visor-nav.sig')) return visorMostrar(vIdx + 1);
+  const p = [...visor.querySelectorAll('.visor-puntos i')].indexOf(e.target);
+  if (p >= 0) visorMostrar(p);
+});
+alDeslizar(visor, () => { if (vFotos.length > 1) visorMostrar(vIdx + 1); }, () => { if (vFotos.length > 1) visorMostrar(vIdx - 1); });
+document.addEventListener('keydown', e => {
+  if (visor.hidden) return;
+  if (e.key === 'Escape'){ e.stopImmediatePropagation(); cerrarVisor(); }
+  else if (e.key === 'ArrowLeft') visorMostrar(vIdx - 1);
+  else if (e.key === 'ArrowRight') visorMostrar(vIdx + 1);
+}, true);
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('[data-visor-slug]') : null;
+  if (b){ abrirVisor(b.dataset.visorSlug, 0); return; }
+  if (e.target.id === 'fichaImg' && fichaActual !== null) abrirVisor(SLUG_AUTO[fichaActual], fichaFotoIdx);
+});
+
 // ============ Página de cada auto ===========================================
 // Se abre tocando el nombre de un auto (o con ?auto=slug). Todo sale de DATA y de
 // los puestos del ranking: los puntos fuertes y débiles NO son opinión, son las
@@ -4746,8 +4826,11 @@ const ELEGIR_PREG = [
   // de 111. Así cada opción tiene una cantidad pareja (pedido del 2026-10-09).
   { k: 'carro', t: '¿Qué tipo de auto preferís?', ops: [['', 'Me da igual'], ['suv-chico', 'SUV chico o compacto'], ['suv-mediano', 'SUV mediano'], ['suv-grande', 'SUV grande'], ['auto', 'Sedán o hatchback'], ['pickup', 'Pickup']] },
 ];
-// Cuántos sugiere: al menos 4 (pedido del 2026-10-09), o los que haya si cumplen menos.
-const ELEGIR_N = 4;
+// Cuántos sugiere (pedido del 2026-10-09): 5 en escritorio, donde entran en una fila, y 4 en
+// el celular; o los que haya si cumplen menos. Si la ventana cruza el corte, se repinta.
+const ELEGIR_ANCHO = window.matchMedia('(min-width: 900px)');
+const elegirN = () => ELEGIR_ANCHO.matches ? 5 : 4;
+ELEGIR_ANCHO.addEventListener('change', () => { const h = document.getElementById('elegirHoja'); if (h && !h.hidden) pintarElegir(); });
 let elegirResp = { presu: '32001-35500', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
 try { const g = JSON.parse(localStorage.getItem('elegir') || 'null'); if (g) elegirResp = Object.assign(elegirResp, g); } catch (e) {}
 // Respuestas guardadas con opciones que ya no existen (topes o franjas anteriores, "suv"): se reinician.
@@ -4837,7 +4920,7 @@ function elegirCalcular(r){
     if (gAnos != null) motivos.push('Garantía ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]).replace(' años o ', ' años / '));
     return { i, puntos, motivos: motivos.filter(Boolean) };
   }).sort((a, b) => b.puntos - a.puntos);
-  return { top: res.slice(0, ELEGIR_N), todos: res.map(x => x.i), total: res.length, sinPrecio: sinPrecioIdx.length, sinPrecioIdx };
+  return { top: res.slice(0, elegirN()), todos: res.map(x => x.i), total: res.length, sinPrecio: sinPrecioIdx.length, sinPrecioIdx };
 }
 function pintarElegir(cambio){
   const r = elegirResp, out = elegirCalcular(r);
@@ -4847,14 +4930,16 @@ function pintarElegir(cambio){
   // Es una vista de la página, como Tabla y Ranking (2026-10-09): el título del sitio es el de la
   // página, y acá va el de la sección.
   hoja.innerHTML = '<h2 id="elegirTitulo" class="elegir-titulo">Ayudame a elegir</h2>' +
-    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
+    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + elegirN() + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
       '<button type="button" class="mini-btn" id="elegirTabla">Ver la tabla con los ' + CARS.length + ' autos</button></p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
       q.ops.map(([v, t]) => '<label><input type="radio" name="el-' + q.k + '" value="' + v + '"' + (r[q.k] === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></fieldset>').join('') + '</div>' +
     '<h3 class="elegir-res-tit" id="elegirResTit">' + (out.top.length ? 'Te sugerimos' : 'Ningún auto a la venta cumple todo eso') + '</h3>' +
     (out.top.length ? '<ol class="elegir-res">' + out.top.map(x => {
       const im = TH_AUTO[x.i].querySelector('img.car-photo');
-      return '<li><b>' + rkEsc(CARS[x.i].name) + '</b><img src="' + (im ? im.src : '') + '" alt="">' +
+      const n = listaDeFotos(SLUG_AUTO[x.i]).length;
+      return '<li><b>' + rkEsc(CARS[x.i].name) + '</b><button type="button" class="elegir-foto" data-visor-slug="' + SLUG_AUTO[x.i] + '" aria-label="Ver ' + (n > 1 ? 'las ' + n + ' fotos' : 'la foto') + ' del ' + rkEsc(CARS[x.i].name) + '">' +
+        '<img src="' + (im ? im.src : '') + '" alt="">' + (n > 1 ? '<span class="elegir-nfotos">' + n + ' fotos</span>' : '') + '</button>' +
         '<ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
         '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></li>';
     }).join('') + '</ol>' +
