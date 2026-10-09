@@ -281,8 +281,12 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   encima de la tabla: el panel modal confundía (título repetido, tabla oscurecida e inaccesible).
   Sin parámetros en la URL abre esa vista; con `?autos=`, `?auto=` o `?tabla` va directo. **Los tests cargan `/index.html?tabla`**:
   si un test nuevo carga la página sin parámetros, el panel tapa la tabla.
+- **Visor de fotos** (2026-10-09): tocar la foto de un auto en Ayudame a elegir
+  (`data-visor-slug`) o en su página (`#fichaImg`) la abre a pantalla completa (`abrirVisor`),
+  con las demás fotos (flechas, teclado o deslizar), su vista y su crédito por foto. Ayudame a
+  elegir sugiere 5 autos en escritorio y 4 en el celular (`elegirN()`).
 - **Ayudame a elegir** (franjas de precio y tipos de auto elegidos para que cada opción tenga
-  una cantidad pareja de autos: SUV partidos por tamaño; sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina
+  una cantidad pareja de autos: SUV partidos por tamaño; sugiere 5 o 4, `elegirN()`; la barra al pie muestra las sugerencias y se ilumina
   con cada respuesta, porque en el celular la lista queda fuera de la pantalla): filtros duros (franja de precio, plazas, tipo) y puntos por propulsión,
   percentiles y respaldo. El presupuesto es una **franja** ("35.001 a 45.000"), no un tope:
   elegir una más alta dice que querés gastar más, y dentro de la franja el precio no suma. Con
