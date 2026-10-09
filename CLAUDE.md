@@ -276,8 +276,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
 - **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
   historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
-- **La portada abre "Ayudame a elegir"** (2026-10-09): sin parámetros en la URL se abre el panel;
-  con `?autos=`, `?auto=` o `?tabla` se va directo. **Los tests cargan `/index.html?tabla`**:
+- **La portada abre "Ayudame a elegir"** (2026-10-09), que es una **vista de la página** como Tabla
+  y Ranking (pestaña `#vistaElegir`, sección `#elegirHoja`, `mostrarVista('elegir')`), no un panel
+  encima de la tabla: el panel modal confundía (título repetido, tabla oscurecida e inaccesible).
+  Sin parámetros en la URL abre esa vista; con `?autos=`, `?auto=` o `?tabla` va directo. **Los tests cargan `/index.html?tabla`**:
   si un test nuevo carga la página sin parámetros, el panel tapa la tabla.
 - **Ayudame a elegir** (franjas de precio y tipos de auto elegidos para que cada opción tenga
   una cantidad pareja de autos: SUV partidos por tamaño; sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina
@@ -524,6 +526,16 @@ La **Fecha de consulta** del pie (`#fechaConsulta`) es la de la última verifica
 las fichas oficiales, **no la de los precios**, que siguen siendo de las listas de agosto
 2026. La actualiza la rutina sola, y solo si pudo verificar todas las fichas: no
 tocarla a mano.
+
+**Circuito de PR (pedido del usuario, 2026-10-09): de ahora en más, todo cambio va por pull
+request.** Rama nueva desde `main`, se pushea la rama y se abre el PR en GitHub
+(`gh pr create`, en borrador mientras está en curso); los commits siguientes van a esa rama.
+Cuando la suite pasa, se marca listo y se activa **auto-merge when ready** (pedido del
+2026-10-09: el repo tiene "Allow auto-merge" en GitHub); si no hay nada que esperar, se
+mergea directo con `gh pr merge`. Después se verifica el sitio y se borra la rama (local y en
+GitHub).
+Nunca push directo a `main` desde una sesión interactiva. Vercel arma una vista previa de
+cada PR. La rutina semanal sigue con su propia excepción (ver abajo).
 
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo

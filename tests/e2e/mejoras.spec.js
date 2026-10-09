@@ -21,7 +21,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   // Pedido del 2026-10-09: "35.001 a 45.000" no trae autos de 30.000, y con enchufe en casa
   // no sugiere híbridos comunes.
   await abrir(page);
-  await page.locator('#elegirBtn').click();
+  await page.locator('#vistaElegir').click();
   await page.locator('label:has(input[name="el-presu"][value="35501-38500"])').click();
   await page.locator('label:has(input[name="el-enchufe"][value="si"])').click();
   const res = page.locator('.elegir-res > li');
@@ -51,7 +51,7 @@ test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no pub
   // Pedido del 2026-10-09: además de los 4 sugeridos, comparar los N que cumplen y los N + los
   // que cumplen todo menos el precio (no lo publican en dólares).
   await abrir(page);
-  await page.locator('#elegirBtn').click();
+  await page.locator('#vistaElegir').click();
   await page.locator('label:has(input[name="el-presu"][value="32001-35500"])').click();
   const todos = page.locator('[data-elegir-comparar="todos"]');
   const n = Number(/Los (\d+)/.exec(await todos.textContent())[1]);
@@ -68,7 +68,7 @@ test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no pub
 test('ayudame a elegir: en el celular los botones de comparar van en una fila, siempre a la vista', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await abrir(page);
-  await page.locator('#elegirBtn').click();
+  await page.locator('#vistaElegir').click();
   await page.locator('label:has(input[name="el-presu"][value="32001-35500"])').click();
   const btns = page.locator('.elegir-barra-btns .ficha-btn');
   await expect(btns).toHaveCount(3);
@@ -128,12 +128,20 @@ test('novedades: la página y el RSS existen y el RSS es XML válido', () => {
 
 test('la portada empieza en "Ayudame a elegir"; un link con parámetros o ?tabla va directo', async ({ page }) => {
   // Pedido del 2026-10-09.
+  // Desde el 2026-10-09 es una vista de la página (pestaña junto a Tabla y Ranking), no un panel:
+  // nada oscurecido detrás, y las pestañas siguen a mano.
   await page.goto('/index.html');
-  await expect(page.locator('#elegirVista')).toBeVisible();
-  await page.locator('#elegirTabla').click();
-  await expect(page.locator('#elegirVista')).toBeHidden();
+  await expect(page.locator('#elegirHoja')).toBeVisible();
+  await expect(page.locator('#vistaElegir')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.ficha-overlay:visible')).toHaveCount(0);
+  await expect(page.locator('#tbodyWrap')).toBeHidden();
+  await page.locator('#vistaTabla').click();
+  await expect(page.locator('#elegirHoja')).toBeHidden();
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  await page.locator('#vistaElegir').click();
+  await page.locator('#elegirTabla').click();
+  await expect(page.locator('#tbodyWrap')).toBeVisible();
   await page.goto('/index.html?autos=byd-shark,maxus-t60');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
-  await expect(page.locator('#elegirVista')).toBeHidden();
+  await expect(page.locator('#elegirHoja')).toBeHidden();
 });
