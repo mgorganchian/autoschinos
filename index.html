@@ -1022,6 +1022,18 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .elegir-res b{font-family:var(--fuente-titulo);font-size:1.1rem}
   .elegir-res ul{margin:4px 0 6px;padding-left:16px;font-size:.76rem;line-height:1.4}
   .elegir-acc{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+  .elegir-barra{position:sticky;bottom:0;margin:14px 0 0;padding:9px 2px 10px;display:flex;align-items:center;gap:10px;
+    background:var(--paper);border-top:2px solid var(--ink);font-size:.78rem;line-height:1.35;z-index:2}
+  .elegir-barra span{flex:1}
+  @keyframes elegirCambio{from{background:var(--note-bg)}to{background:var(--paper)}}
+  .elegir-barra.cambio{animation:elegirCambio 1.2s ease-out}
+  @media (prefers-reduced-motion:reduce){ .elegir-barra.cambio{animation:none} }
+  @media (max-width:640px){
+    .elegir-res{grid-template-columns:1fr;gap:10px}
+    .elegir-res > li{flex-direction:row;align-items:flex-start;gap:10px;border-bottom:1px solid var(--line);padding-bottom:10px}
+    .elegir-res img{width:120px;flex-shrink:0}
+    .elegir-res ul{margin:2px 0 4px}
+  }
   .ficha-hist-res{margin:2px 0 4px;font-family:var(--fuente-tabla);font-weight:700;font-size:.9rem}
   .ficha-hist-res.baja{color:var(--etq-a)} .ficha-hist-res.sube{color:var(--etq-e)}
   .ficha-hist-svg{display:block;width:100%;max-width:320px;height:auto}
@@ -4616,6 +4628,8 @@ const ELEGIR_PREG = [
   { k: 'enchufe', t: '¿Podés cargarlo en tu casa o en el trabajo?', ops: [['si', 'Sí'], ['no', 'No'], ['nose', 'No sé']] },
   { k: 'carro', t: '¿Qué tipo de auto preferís?', ops: [['', 'Me da igual'], ['suv', 'SUV o crossover'], ['auto', 'Sedán o hatchback'], ['pickup', 'Pickup']] },
 ];
+// Cuántos sugiere: al menos 4 (pedido del 2026-10-09), o los que haya si cumplen menos.
+const ELEGIR_N = 4;
 let elegirResp = { presu: '30001-35000', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
 try { const g = JSON.parse(localStorage.getItem('elegir') || 'null'); if (g) elegirResp = Object.assign(elegirResp, g); } catch (e) {}
 if (elegirResp.presu && !/-/.test(elegirResp.presu)) elegirResp.presu = '30001-35000';   // topes guardados de la versión anterior
@@ -4697,7 +4711,7 @@ function elegirCalcular(r){
     if (gAnos != null) motivos.push('Garantía de ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]));
     return { i, puntos, motivos: motivos.filter(Boolean) };
   }).sort((a, b) => b.puntos - a.puntos);
-  return { top: res.slice(0, 3), total: res.length, sinPrecio };
+  return { top: res.slice(0, ELEGIR_N), total: res.length, sinPrecio };
 }
 let elegirAbierta = false;
 function abrirElegir(){
@@ -4712,18 +4726,24 @@ function pintarElegir(){
   const hoja = document.getElementById('elegirHoja');
   hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="elegirCerrar" aria-label="Cerrar">✕</button>' +
     '<h2 id="elegirTitulo" class="grupos-titulo">Ayudame a elegir</h2>' +
-    '<p class="ficha-nota">Cinco preguntas y te sugerimos tres autos a la venta. Los motivos salen de las cifras de la tabla.</p>' +
+    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla.</p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
       q.ops.map(([v, t]) => '<label><input type="radio" name="el-' + q.k + '" value="' + v + '"' + (r[q.k] === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></fieldset>').join('') + '</div>' +
-    '<h3 class="elegir-res-tit">' + (out.top.length ? 'Te sugerimos' : 'Ningún auto a la venta cumple todo eso') + '</h3>' +
+    '<h3 class="elegir-res-tit" id="elegirResTit">' + (out.top.length ? 'Te sugerimos' : 'Ningún auto a la venta cumple todo eso') + '</h3>' +
     (out.top.length ? '<ol class="elegir-res">' + out.top.map(x => {
       const im = TH_AUTO[x.i].querySelector('img.car-photo');
       return '<li><img src="' + (im ? im.src : '') + '" alt=""><div><b>' + rkEsc(CARS[x.i].name) + '</b><ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
         '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></div></li>';
     }).join('') + '</ol>' +
-      '<p class="elegir-acc"><button type="button" class="ficha-btn primario" id="elegirComparar">Comparar estos ' + out.top.length + '</button>' +
+      '<p class="elegir-acc"><button type="button" class="ficha-btn primario" id="elegirComparar">Comparar ' + (out.top.length === 1 ? 'este' : 'estos ' + out.top.length) + '</button>' +
       '<span class="ficha-nota">' + out.total + ' autos cumplen lo que pediste' + (out.sinPrecio ? '; ' + out.sinPrecio + ' más no publican precio en dólares y quedaron afuera' : '') + '.</span></p>'
       : '<p class="ficha-nota">Probá con otro presupuesto o con otro tipo de auto.' + (out.sinPrecio ? ' Hay ' + out.sinPrecio + ' autos sin precio en dólares que no se pueden filtrar por presupuesto.' : '') + '</p>');
+  // Barra al pie del panel (2026-10-09): en el celular la lista queda debajo de las preguntas,
+  // fuera de la pantalla, y parecía que tocar una opción no cambiaba nada. La barra muestra
+  // siempre las sugerencias y se ilumina en cada cambio.
+  hoja.insertAdjacentHTML('beforeend', '<div class="elegir-barra" role="status" aria-live="polite"><span>' +
+    (out.top.length ? '<b>' + out.total + '</b> cumplen. Te sugerimos ' + out.top.map(x => rkEsc(CARS[x.i].short)).join(', ') : 'Ningún auto cumple todo eso') +
+    '</span>' + (out.top.length ? '<button type="button" class="mini-btn" id="elegirVer">Ver</button>' : '') + '</div>');
   hoja.dataset.top = out.top.map(x => x.i).join(',');
 }
 function cerrarElegir(){
@@ -4739,11 +4759,14 @@ document.getElementById('elegirVista').addEventListener('change', e => {
   elegirResp[m[1]] = e.target.value;
   try { localStorage.setItem('elegir', JSON.stringify(elegirResp)); } catch (er) {}
   const y = document.getElementById('elegirHoja').scrollTop; pintarElegir(); document.getElementById('elegirHoja').scrollTop = y;
+  const barra = document.querySelector('.elegir-barra');
+  if (barra){ barra.classList.remove('cambio'); void barra.offsetWidth; barra.classList.add('cambio'); }
 });
 document.getElementById('elegirVista').addEventListener('click', e => {
   if (e.target.id === 'elegirVista' || e.target.closest('#elegirCerrar')) return cerrarElegir();
   const f = e.target.closest('[data-elegir-ficha]');
   if (f){ const i = +f.dataset.elegirFicha; cerrarElegir(); abrirFicha(i); return; }
+  if (e.target.closest('#elegirVer')){ document.getElementById('elegirResTit').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   if (e.target.closest('#elegirComparar')){
     const top = document.getElementById('elegirHoja').dataset.top.split(',').map(Number);
     location.href = location.pathname + '?autos=' + top.map(i => SLUG_AUTO[i]).join(',');

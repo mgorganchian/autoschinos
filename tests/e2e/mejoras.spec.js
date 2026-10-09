@@ -25,7 +25,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   await page.locator('label:has(input[name="el-presu"][value="35001-45000"])').click();
   await page.locator('label:has(input[name="el-enchufe"][value="si"])').click();
   const res = page.locator('.elegir-res > li');
-  await expect(res).toHaveCount(3);
+  await expect(res).toHaveCount(4);   // al menos 4 (pedido del 2026-10-09)
   for (const t of await res.locator('ul').allTextContents()){
     const m = /USD ([\d.]+)/.exec(t);
     expect(m, t).toBeTruthy();
@@ -34,12 +34,17 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
     expect(usd).toBeLessThanOrEqual(45000);
     expect(t).toMatch(/Enchufable|Eléctrico/);
   }
+  // La barra al pie cambia con cada respuesta (en el celular la lista queda fuera de la pantalla).
+  const barra = page.locator('.elegir-barra');
+  const antes = await barra.textContent();
   await page.locator('label:has(input[name="el-enchufe"][value="no"])').click();
+  await expect(barra).not.toHaveText(antes);
+  await expect(barra).toHaveClass(/cambio/);
   for (const t of await res.locator('ul').allTextContents()) expect(t).not.toMatch(/Eléctrico: /);
   await page.locator('label:has(input[name="el-presu"][value=""])').click();
-  await expect(res).toHaveCount(3);
+  await expect(res).toHaveCount(4);
   await page.locator('#elegirComparar').click();
-  await expect(page).toHaveURL(/\?autos=[^,]+,[^,]+,[^,&]+/);
+  await expect(page).toHaveURL(/\?autos=[^,]+,[^,]+,[^,]+,[^,&]+/);
 });
 
 test('pedir cotización: WhatsApp solo con número internacional y el auto en el mensaje', async ({ page }) => {

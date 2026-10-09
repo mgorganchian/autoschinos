@@ -274,7 +274,8 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
 - **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
   historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
-- **Ayudame a elegir**: filtros duros (franja de precio, plazas, tipo) y puntos por propulsión,
+- **Ayudame a elegir** (sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina
+  con cada respuesta, porque en el celular la lista queda fuera de la pantalla): filtros duros (franja de precio, plazas, tipo) y puntos por propulsión,
   percentiles y respaldo. El presupuesto es una **franja** ("35.001 a 45.000"), no un tope:
   elegir una más alta dice que querés gastar más, y dentro de la franja el precio no suma. Con
   enchufe en casa, los enchufables van primero (`ELEGIR_ENCHUFE`). Un enchufable nunca se
