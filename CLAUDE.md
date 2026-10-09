@@ -159,8 +159,9 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario). Con 2
   o más autos elegidos, **la misma barra se recalibra** (`recalibrarBarras`, 2026-10-09): arranca
   en su valor general y se desliza a su lugar entre los elegidos (el mejor la llena; el resto,
-  valor/mejor). Al volver a todos, regresa a `data-g`. La barra se ve sólida en un tramo de un
-  tercio de la escala que termina en el puntaje, y lo de atrás queda al 20% (`barraZona`, máscara
+  valor/mejor). Al volver a todos, regresa a `data-g`. La barra se marca en un tramo de un
+  cuarto de la escala que termina en el puntaje, con la opacidad subiendo de izquierda a derecha
+  hasta el 100% en la punta, y lo de atrás queda al 20% (`barraZona`, máscara
   `--z`): los tramos miden igual y cambian de lugar y color. Pedido del 2026-10-09. Va **solo en las 17 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
@@ -456,6 +457,14 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 ---
 
 ## Fotos
+
+- **Flechitas en las miniaturas** (2026-10-09, pedido del usuario): toda miniatura de un auto
+  (encabezado de la tabla, selector, Similares, Ranking, Parecidos y Ayudame a elegir) va en
+  un `.minicar` con `‹ ›` que cambian la foto en el lugar (`miniFoto`, `miniFlechas`). Si
+  después se agranda, el zoom y el visor arrancan en esa foto (`miniK`). Las flechas nunca van
+  dentro de otro botón y su clic se toma en la captura de `window`: no abre la página del auto,
+  no tilda el selector ni abre el zoom. Para copiar la portada de un `<th>` se usa
+  `portadaDe(img)`, no `img.src` (puede estar mostrando otra foto).
 
 Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura de 300×190 en
 `fotos/mini/<slug>.jpg` para el `<th>`; hasta el 2026-10-06 iba embebida en base64 y pesaba

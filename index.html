@@ -187,9 +187,10 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      width:100% y no un ancho fijo: la celda mide 92px en escritorio y 34vw en
      retrato, y un valor fijo de 104px desbordaba la columna. El aspect-ratio
      declarado evita que la fila salte mientras cargan las imágenes. */
-  .car-photo{display:block;width:100%;max-width:132px;height:auto;aspect-ratio:300/190;
-    margin:0 auto 3px;border-radius:4px;background:#fff;cursor:zoom-in}
-  @media (orientation:landscape) and (max-height:500px){ .car-photo{display:none} }
+  .car-photo-box{display:block;width:100%;max-width:132px;margin:0 auto 3px}
+  .car-photo{display:block;width:100%;height:auto;aspect-ratio:300/190;object-fit:contain;
+    border-radius:4px;background:#fff;cursor:zoom-in}
+  @media (orientation:landscape) and (max-height:500px){ .car-photo-box{display:none} }
   /* Panel de la foto ampliada. position:fixed a propósito: el encabezado es sticky
      y vive dentro de un contenedor con scroll horizontal, que lo recortaría. */
   #fotoZoom{position:fixed;z-index:60;background:var(--surface);border-radius:10px;padding:8px;
@@ -318,7 +319,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      el script la cambia por la portada de fotos/ (900 px) cuando hace falta. */
   @media (min-width: 768px){
     :root{--ancho-feat:128px;--ancho-col:max(144px, calc((100vw - 128px - 8px) / 6));}
-    .car-photo{max-width:100%}
+    .car-photo-box{max-width:100%}
   }
 
   @media (max-width: 600px) and (orientation: portrait){
@@ -336,7 +337,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     tbody td.feat{font-size:.78rem;line-height:1.3;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
     tbody td.feat .feat-icon{display:none}
     thead th:not(.feat-col){padding-left:2px !important;padding-right:2px !important}
-    .car-photo{max-width:none}
+    .car-photo-box{max-width:none}
     col.col-feat{width:var(--ancho-feat);}
     col.col-data{width:var(--ancho-col);}
   }
@@ -630,7 +631,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .model-grid label.mcard:hover{background:var(--surface-hover)}
   .model-grid label.mcard.on{border-color:var(--byd-blue);box-shadow:inset 0 0 0 1px var(--byd-blue)}
   .mcard input{grid-row:1;grid-column:1;width:16px;height:16px}
-  .mcard img{grid-row:1;grid-column:2;width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:6px}
+  .mcard .minicar{grid-row:1;grid-column:2}
+  .mcard img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:6px}
   .mcard-txt{grid-row:2;grid-column:1 / span 2;min-width:0;line-height:1.2}
   .mcard-txt b{display:block;font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mcard-txt small{display:block;font-size:.62rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -835,6 +837,18 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .sim-crit button:disabled{opacity:.45;cursor:not-allowed}
   .sim-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
   .sim-lista li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:9px;align-items:center}
+  /* Flechitas de las miniaturas (2026-10-09): cambian la foto en el lugar. Con mouse se ven
+     tenues y se marcan al pasar; en pantallas táctiles quedan siempre a la vista. */
+  .minicar{position:relative;display:block;line-height:0}
+  .mini-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:22px;height:22px;padding:0;border:0;border-radius:50%;
+    background:rgba(10,15,30,.55);color:#fff;font:700 15px/22px var(--fuente-tabla);text-align:center;cursor:pointer;opacity:.7;transition:opacity .15s}
+  .mini-nav.ant{left:3px} .mini-nav.sig{right:3px}
+  .minicar:hover .mini-nav,.mini-nav:focus-visible{opacity:1}
+  .mini-nav:hover{background:rgba(10,15,30,.8)}
+  .mini-nav:focus-visible{outline:2px solid var(--link);outline-offset:1px}
+  @media (hover:none){ .mini-nav{opacity:.85} }
+  .minicar.chica .mini-nav{width:16px;height:16px;font-size:12px;line-height:16px}
+  .minicar.chica .mini-nav.ant{left:1px} .minicar.chica .mini-nav.sig{right:1px}
   .sim-lista img{width:52px;height:33px;object-fit:contain;border-radius:5px;background:#fff;display:block}
   .sim-lista b{font-size:.76rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sim-lista small{font-size:.64rem;color:var(--ink-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -956,10 +970,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .ficha-puntos-lista.fuerte b{color:var(--yes)} .ficha-puntos-lista.debil b{color:var(--no)}
   .ficha-nota,.ficha-vacio{font-size:.7rem;color:var(--ink-3);margin:8px 0 14px;line-height:1.4}
   .ficha-sim ul,.ficha-links{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:6px}
-  .ficha-sim li{display:flex;gap:8px;align-items:center}
+  .ficha-sim li{display:flex;gap:8px;align-items:center;position:relative}
+  .ficha-sim li > .minicar{position:absolute;left:9px;top:50%;transform:translateY(-50%);z-index:1;cursor:pointer}
   .ficha-sim-auto{flex:1;min-width:0;display:flex;gap:9px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);
-    border-radius:9px;padding:5px 8px;cursor:pointer;color:var(--ink)}
-  .ficha-sim-auto img{width:58px;height:37px;object-fit:contain;background:#fff;border-radius:5px;flex-shrink:0}
+    border-radius:9px;padding:5px 8px 5px 75px;min-height:49px;cursor:pointer;color:var(--ink)}
+  .ficha-sim img{width:58px;height:37px;object-fit:contain;background:#fff;border-radius:5px;flex-shrink:0}
   .ficha-sim-auto span{min-width:0} .ficha-sim-auto b{display:block;font-size:.78rem}
   .ficha-sim-auto small{display:block;font-size:.64rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ficha-links a{color:var(--link);font-size:.78rem}
@@ -1040,8 +1055,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   /* Tarjeta: en escritorio, foto arriba y texto abajo; en el celular, nombre arriba y foto
      a la izquierda con "Ver su página" debajo, para que entren las 4 (pedido del 2026-10-09). */
   .elegir-res > li{display:grid;grid-template-areas:"foto" "nombre" "motivos" "ver";gap:6px;align-content:start}
-  .elegir-res > li > b{grid-area:nombre} .elegir-res > li > .elegir-foto{grid-area:foto}
-  .elegir-foto{position:relative;display:block;padding:0;border:0;background:none;cursor:zoom-in;line-height:0}
+  .elegir-res > li > b{grid-area:nombre} .elegir-res > li > .minicar{grid-area:foto}
+  .elegir-foto{position:relative;display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;line-height:0}
   .elegir-nfotos{position:absolute;right:5px;bottom:5px;line-height:1.2;font-family:var(--fuente-tabla);font-size:.62rem;font-weight:700;background:rgba(10,15,30,.75);color:#fff;border-radius:3px;padding:1px 5px}
   .elegir-res > li > ul{grid-area:motivos} .elegir-res > li > button{grid-area:ver;justify-self:start}
   .elegir-res img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:2px}
@@ -1068,7 +1083,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       column-gap:10px;row-gap:2px;border-bottom:1px solid var(--line);padding-bottom:6px}
     .elegir-res{gap:8px}
     .elegir-res img{width:96px}
-    .elegir-foto{width:96px}
+    .elegir-res > li > .minicar{width:96px}
     .elegir-res b{font-size:1rem}
     .elegir-barra-btns .ficha-btn{padding:4px 7px;font-size:.7rem}
     .elegir-res ul{margin:0;font-size:.72rem;line-height:1.3;padding-left:14px}
@@ -1142,7 +1157,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   #mainTable tr:has(.pct) > td[data-col]{vertical-align:top;position:relative;padding-bottom:20px}
   .pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
   .pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat;
-    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%));mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),#000 var(--z,0%))}
+    -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),rgba(0,0,0,.45) var(--z,0%),#000);mask-image:linear-gradient(90deg,rgba(0,0,0,.2) var(--z,0%),rgba(0,0,0,.45) var(--z,0%),#000)}
   .pct.leyenda{position:relative;display:inline-block;left:auto;right:auto;bottom:auto;width:56px;vertical-align:middle}
   @media print{ .dif{display:none !important} }
 
@@ -1380,7 +1395,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     .cat-chev{display:none}
     tbody tr{break-inside:avoid}
     .val-ext,.val-note,.pct i,tbody td.col-ref{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-    .car-photo{max-width:72px}
+    .car-photo-box{max-width:72px}
+    .mini-nav{display:none !important}
     footer{font-size:.6rem}
   }
 </style>
@@ -2187,13 +2203,14 @@ function pctlFila(row){
   });
 }
 
-// Tramo sólido (pedido del 2026-10-09): la barra se ve sólida en un tercio de la escala que
-// termina en el puntaje del auto, y lo de atrás queda al 20%. Así las barras sólidas miden lo
+// Tramo marcado (pedido del 2026-10-09): la barra se marca en un cuarto de la escala que
+// termina en el puntaje del auto, y lo de atrás queda al 20%. Dentro del tramo la opacidad sube
+// de izquierda a derecha y llega al 100% en la punta, que es el puntaje. Así los tramos miden lo
 // mismo y lo que cambia es dónde están y de qué color (rojo, ámbar o verde); solo las de los
-// peores, que no llegan a un tercio, quedan más cortas. Devuelve dónde empieza el tramo sólido,
+// peores, que no llegan a un cuarto, quedan más cortas. Devuelve dónde empieza el tramo,
 // en % del largo de la barra (el --z de la máscara del CSS).
 function barraZona(w){
-  var desde = Math.max(0, w - 100 / 3);
+  var desde = Math.max(0, w - 25);
   return (desde / w * 100).toFixed(1);
 }
 function pctlHTML(d){
@@ -2257,7 +2274,7 @@ if ('IntersectionObserver' in window) {
     if (!(FOTOS_POR_AUTO[img.dataset.slug] > 0)) return;   // FOTOS_POR_AUTO se declara más abajo: leerlo recién acá
     if (img.getBoundingClientRect().width * (window.devicePixelRatio || 1) <= 310) return;   // la miniatura alcanza
     const hd = new Image();
-    hd.onload = () => { img.src = hd.src; };
+    hd.onload = () => { if (!(+(img.closest('.minicar') || {dataset:{}}).dataset.k)) { img.src = hd.src; delete img.dataset.src0; } };
     hd.src = 'fotos/' + img.dataset.slug + '-1.jpg';
   }), { rootMargin: '0px 400px' });
   TH_AUTO.forEach(th => { const img = th.querySelector('img.car-photo'); if (img && img.dataset.slug) obs.observe(img); });
@@ -2470,7 +2487,7 @@ function simResumen(i, base){
 function simFoto(i){
   const th = TH_AUTO[i];
   const img = th && th.querySelector('img.car-photo');
-  return img ? img.src : '';
+  return portadaDe(img);
 }
 const simEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 
@@ -2492,7 +2509,7 @@ function simRender(box, base, o){
       ? '<ul class="sim-lista">' + items.map(r => {
           const ya = o.elegido(r.i);
           return '<li data-auto="' + simEsc(CARS[r.i].name) + '" data-idx="' + r.i + '">' +
-            (simFoto(r.i) ? '<img src="' + simFoto(r.i) + '" alt="">' : '<span></span>') +
+            (simFoto(r.i) ? miniFoto(SLUG_AUTO[r.i], simFoto(r.i), '', 'chica') : '<span></span>') +
             '<div><b>' + simEsc(CARS[r.i].name) + '</b><small>' + simEsc(simResumen(r.i, base)) + '</small></div>' +
             '<button type="button" class="sim-sumar" data-idx="' + r.i + '"' + (ya ? ' disabled' : '') + '>' + (ya ? o.ya : o.accion) + '</button></li>';
         }).join('') + '</ul>' +
@@ -2883,7 +2900,7 @@ function renderModelList(){
     const img = TH_AUTO[i] && TH_AUTO[i].querySelector('img.car-photo');
     const p = SIM_PRECIO[i];
     html.push('<label class="mcard' + (modelChecked.get(i) ? ' on' : '') + '"><input type="checkbox" ' + (modelChecked.get(i) ? 'checked' : '') + ' data-idx="' + i + '">' +
-      (img ? '<img src="' + img.src + '" alt="">' : '') + '<span class="mcard-txt"><b>' + simEsc(car.short) + '</b><small>' + simEsc(car.brand) + ', ' +
+      (img ? miniFoto(SLUG_AUTO[i], portadaDe(img)) : '') + '<span class="mcard-txt"><b>' + simEsc(car.short) + '</b><small>' + simEsc(car.brand) + ', ' +
       (p != null ? 'USD ' + p.toLocaleString('es-AR') : 'sin precio') + ', ' + simEsc(SIM_PROP_TXT[car.type] || car.type) + '</small></span></label>');
   });
   modelList.innerHTML = html.join('') || '<p class="mcard-vacio">Ningún modelo coincide con la búsqueda.</p>';
@@ -3105,7 +3122,7 @@ function abrirZoom(img){
   const x = r.left + r.width / 2 - ancho / 2;
   fotoZoom.style.left = Math.max(12, Math.min(x, window.innerWidth - ancho - 12)) + 'px';
   zoomActivo = img;
-  mostrar(0);
+  mostrar(miniK(img));
   // Ubicarlo recién cuando se sabe el alto real. Pegado a la miniatura, encimado
   // 2 px: con un hueco entre las dos se veía la franja de los nombres de los autos
   // y el mouse, al cruzarla, salía de las dos. Con 0 exacto, un redondeo de
@@ -3149,6 +3166,47 @@ document.addEventListener('pointerover', e => {
 });
 window.addEventListener('scroll', cerrarZoom, true);
 window.addEventListener('resize', cerrarZoom);
+
+// Flechitas en las miniaturas (pedido del 2026-10-09): en todos los lugares con fotos de un auto
+// (encabezado de la tabla, selector, Similares, Ranking, Parecidos y Ayudame a elegir) se puede
+// pasar de foto sin abrir nada. Si después se agranda, el zoom o el visor arrancan en la foto que
+// se estaba viendo (miniK). Las flechas son botones hermanos de la foto, nunca dentro de otro
+// botón; el clic se toma en la captura de window para que no abra la página del auto, no tilde
+// el selector ni abra el zoom.
+function miniFlechas(slug){
+  return listaDeFotos(slug).length > 1
+    ? '<button type="button" class="mini-nav ant" aria-label="Foto anterior">\u2039</button>' +
+      '<button type="button" class="mini-nav sig" aria-label="Foto siguiente">\u203a</button>' : '';
+}
+function miniFoto(slug, src, attrs, clase){
+  return '<span class="minicar' + (clase ? ' ' + clase : '') + '" data-mini-slug="' + slug + '" data-k="0"><img src="' + src + '" alt=""' +
+    (attrs || '') + '>' + miniFlechas(slug) + '</span>';
+}
+// La portada de una miniatura aunque se la haya movido con las flechas.
+function portadaDe(img){ return img ? (img.dataset.src0 || img.src) : ''; }
+function miniK(el){ const m = el && el.closest ? el.closest('.minicar') : null; return m ? (+m.dataset.k || 0) : 0; }
+window.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('.mini-nav') : null;
+  if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const m = b.closest('.minicar'), img = m && m.querySelector('img'), fotos = m ? listaDeFotos(m.dataset.miniSlug) : [];
+  if (!img || fotos.length < 2) return;
+  if (!img.dataset.src0) img.dataset.src0 = img.src;
+  const k = ((+m.dataset.k || 0) + (b.classList.contains('sig') ? 1 : -1) + fotos.length) % fotos.length;
+  m.dataset.k = k;
+  img.onerror = () => { img.onerror = null; img.src = img.dataset.src0; };
+  img.src = k === 0 ? img.dataset.src0 : fotos[k];
+  if (zoomActivo === img) mostrar(k);
+}, true);
+// El encabezado de la tabla se arma en el HTML: se le agregan las flechas acá.
+TH_AUTO.forEach(th => {
+  const img = th.querySelector('img.car-photo');
+  if (!img || !img.dataset.slug) return;
+  const caja = document.createElement('span');
+  caja.className = 'minicar car-photo-box'; caja.dataset.miniSlug = img.dataset.slug; caja.dataset.k = '0';
+  img.replaceWith(caja); caja.appendChild(img);
+  caja.insertAdjacentHTML('beforeend', miniFlechas(img.dataset.slug));
+});
 
 // ============ Vista Ranking ============================================
 // Ordena los autos elegidos del mejor al peor en cada una de las 17 filas de
@@ -3211,7 +3269,7 @@ function rkDatosAutos(){
   rkAutos = CARS.map((car, i) => {
     const img = ths[i] && ths[i].querySelector('img.car-photo');
     const iconos = ths[i] ? [...ths[i].querySelectorAll('small svg.prop-icon')].map(s => s.outerHTML).join('') : '';
-    return { nombre: car.name, foto: img ? img.src : '', iconos };
+    return { nombre: car.name, foto: portadaDe(img), iconos };
   });
   return rkAutos;
 }
@@ -3375,7 +3433,7 @@ function rkItemHTML(r, maxN, valorHTML, extraHTML, mios){
   const a = rkDatosAutos()[r.i];
   return '<li class="rk-item' + (mios.includes(r.i) ? ' rk-mio' : '') + '" data-auto="' + rkEsc(a.nombre) + '" data-idx="' + r.i + '" data-valor="' + r.n + '" tabindex="0">' +
     '<span class="rk-pos">' + (r.pos != null ? r.pos : '–') + '</span>' +
-    (a.foto ? '<img class="rk-foto" src="' + a.foto + '" alt="">' : '<span></span>') +
+    (a.foto ? miniFoto(SLUG_AUTO[r.i], a.foto, ' class="rk-foto"', 'chica') : '<span></span>') +
     '<div class="rk-cuerpo"><div class="rk-nombre"><span>' + rkEsc(a.nombre) + '</span>' + a.iconos + rkNoVenta(r.i) + '</div>' +
     (maxN ? '<div class="rk-barra" aria-hidden="true"><i style="width:' + Math.max(2, 100 * r.n / maxN).toFixed(1) + '%"></i></div>' : '') +
     (extraHTML || '') + '</div><div class="rk-valor">' + valorHTML + '</div></li>';
@@ -4171,7 +4229,7 @@ document.addEventListener('keydown', e => {
 }, true);
 document.addEventListener('click', e => {
   const b = e.target.closest ? e.target.closest('[data-visor-slug]') : null;
-  if (b){ abrirVisor(b.dataset.visorSlug, 0); return; }
+  if (b){ abrirVisor(b.dataset.visorSlug, miniK(b)); return; }
   if (e.target.id === 'fichaImg' && fichaActual !== null) abrirVisor(SLUG_AUTO[fichaActual], fichaFotoIdx);
 });
 
@@ -4351,7 +4409,8 @@ async function abrirFicha(i){
       (sinDato.length ? ' Sin dato en: ' + rkEsc(sinDato.join(', ')) + '.' : '') + '</p>' +
     (sim.length ? '<section class="ficha-sim"><h3>Parecidos para comparar</h3><ul>' + sim.map(s => {
       const im = TH_AUTO[s.i].querySelector('img.car-photo');
-      return '<li><button type="button" class="ficha-sim-auto" data-idx="' + s.i + '">' + (im ? '<img src="' + im.src + '" alt="">' : '') +
+      return '<li>' + (im ? miniFoto(SLUG_AUTO[s.i], portadaDe(im), ' data-ficha-idx="' + s.i + '"', 'chica') : '') +
+        '<button type="button" class="ficha-sim-auto" data-idx="' + s.i + '">' +
         '<span><b>' + rkEsc(CARS[s.i].name) + '</b><small>' + rkEsc(simResumen(s.i, i)) + '</small></span></button>' +
         '<button type="button" class="ficha-btn" data-comparar="' + s.i + '">Comparar</button></li>';
     }).join('') + '</ul></section>' : '') +
@@ -4421,8 +4480,8 @@ document.addEventListener('click', e => {
     ver.remove();
     return;
   }
-  const otro = e.target.closest('.ficha-sim-auto');
-  if (otro){ abrirFicha(+otro.dataset.idx); return; }
+  const otro = e.target.closest('.ficha-sim-auto, [data-ficha-idx]');
+  if (otro){ abrirFicha(+(otro.dataset.idx || otro.dataset.fichaIdx)); return; }
   const cmp = e.target.closest('[data-comparar]');
   if (cmp){ const i = fichaActual; simFijar([i, +cmp.dataset.comparar]); simRefrescarSelector(); cerrarFicha(); aplicarSeleccion(); ocultarTitulo(); return; }
   if (e.target.closest('#fichaVerTabla')){ const i = fichaActual; simFijar([i]); simRefrescarSelector(); cerrarFicha(); aplicarSeleccion(); ocultarTitulo(); window.scrollTo({ top: 0 }); return; }
@@ -4947,8 +5006,9 @@ function pintarElegir(cambio){
     (out.top.length ? '<ol class="elegir-res">' + out.top.map(x => {
       const im = TH_AUTO[x.i].querySelector('img.car-photo');
       const n = listaDeFotos(SLUG_AUTO[x.i]).length;
-      return '<li><b>' + rkEsc(CARS[x.i].name) + '</b><button type="button" class="elegir-foto" data-visor-slug="' + SLUG_AUTO[x.i] + '" aria-label="Ver ' + (n > 1 ? 'las ' + n + ' fotos' : 'la foto') + ' del ' + rkEsc(CARS[x.i].name) + '">' +
-        '<img src="' + (im ? im.src : '') + '" alt="">' + (n > 1 ? '<span class="elegir-nfotos">' + n + ' fotos</span>' : '') + '</button>' +
+      return '<li><b>' + rkEsc(CARS[x.i].name) + '</b><span class="minicar" data-mini-slug="' + SLUG_AUTO[x.i] + '" data-k="0">' +
+        '<button type="button" class="elegir-foto" data-visor-slug="' + SLUG_AUTO[x.i] + '" aria-label="Ver ' + (n > 1 ? 'las ' + n + ' fotos' : 'la foto') + ' del ' + rkEsc(CARS[x.i].name) + '">' +
+        '<img src="' + portadaDe(im) + '" alt="">' + (n > 1 ? '<span class="elegir-nfotos">' + n + ' fotos</span>' : '') + '</button>' + miniFlechas(SLUG_AUTO[x.i]) + '</span>' +
         '<ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
         '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></li>';
     }).join('') + '</ol>' +
