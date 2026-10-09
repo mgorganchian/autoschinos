@@ -203,7 +203,15 @@ publica el monto, vigencia, fuente https, consultado). Solo el sitio de la marca
 propio concesionario: nada de clasificados, comparadores, prensa ni redes. Nunca
 conviertas monedas ni estimes un precio. Actualizá marcas[m].promos_consultado con la
 fecha de hoy en cada marca que revisaste. El test concesionarios.spec.js falla si una
-promo no tiene fuente https o si vence antes de la fecha de consulta."
+promo no tiene fuente https o si vence antes de la fecha de consulta.
+
+H) PRUEBAS EN VIDEO (VIDEOS, en el script): revisá los videos nuevos del canal de Matías
+Antico (https://www.youtube.com/@MatiasAnticoTV) desde la fecha del más reciente cargado. Con
+yt-dlp solo se leen metadatos (--flat-playlist, --skip-download, --print), nunca se baja video
+ni audio. Sumá un video solo si es una prueba manejando del MISMO modelo, versión y propulsión
+que la columna (no presentaciones, salones, otra generación, otro mercado ni comparativos de
+varios autos), con id, título tal cual, fecha y duración que da YouTube. Mirá la sección
+"Reseñas en video" del CLAUDE.md antes de decidir."
 
 log "invocando a Claude…"
 PROMPT="Sos el mantenimiento automático semanal del comparativo de autos chinos. Corrés sin
