@@ -22,7 +22,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   // no sugiere híbridos comunes.
   await abrir(page);
   await page.locator('#elegirBtn').click();
-  await page.locator('label:has(input[name="el-presu"][value="35001-45000"])').click();
+  await page.locator('label:has(input[name="el-presu"][value="35501-38500"])').click();
   await page.locator('label:has(input[name="el-enchufe"][value="si"])').click();
   const res = page.locator('.elegir-res > li');
   await expect(res).toHaveCount(4);   // al menos 4 (pedido del 2026-10-09)
@@ -30,8 +30,8 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
     const m = /USD ([\d.]+)/.exec(t);
     expect(m, t).toBeTruthy();
     const usd = Number(m[1].replace(/\./g, ''));
-    expect(usd).toBeGreaterThanOrEqual(35001);
-    expect(usd).toBeLessThanOrEqual(45000);
+    expect(usd).toBeGreaterThanOrEqual(35501);
+    expect(usd).toBeLessThanOrEqual(38500);
     expect(t).toMatch(/enchufable|eléctrico/i);
   }
   // La barra al pie cambia con cada respuesta (en el celular la lista queda fuera de la pantalla).
@@ -52,7 +52,7 @@ test('ayudame a elegir: comparar todos los que cumplen, y sumando los que no pub
   // que cumplen todo menos el precio (no lo publican en dólares).
   await abrir(page);
   await page.locator('#elegirBtn').click();
-  await page.locator('label:has(input[name="el-presu"][value="30001-35000"])').click();
+  await page.locator('label:has(input[name="el-presu"][value="32001-35500"])').click();
   const todos = page.locator('[data-elegir-comparar="todos"]');
   const n = Number(/Los (\d+)/.exec(await todos.textContent())[1]);
   expect(n).toBeGreaterThan(4);
@@ -69,7 +69,7 @@ test('ayudame a elegir: en el celular los botones de comparar van en una fila, s
   await page.setViewportSize({ width: 390, height: 844 });
   await abrir(page);
   await page.locator('#elegirBtn').click();
-  await page.locator('label:has(input[name="el-presu"][value="30001-35000"])').click();
+  await page.locator('label:has(input[name="el-presu"][value="32001-35500"])').click();
   const btns = page.locator('.elegir-barra-btns .ficha-btn');
   await expect(btns).toHaveCount(3);
   const tops = await btns.evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));

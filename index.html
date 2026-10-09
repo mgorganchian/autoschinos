@@ -4633,19 +4633,26 @@ document.addEventListener('click', e => {
 // Cada motivo que se muestra sale de un dato de la tabla. Sin precio en dólares, el auto no
 // entra si hay tope (no se sabe si cabe), y se avisa cuántos quedaron afuera por eso.
 const ELEGIR_PREG = [
-  // Franjas, no topes (pedido del 2026-10-09): elegir "35.001 a 45.000" dice que querés gastar
-  // más que en la franja anterior, así que los de 30.000 no entran.
-  { k: 'presu', t: '¿Cuánto querés gastar?', ops: [['0-25000', 'Hasta USD 25.000'], ['25001-30000', 'USD 25.001 a 30.000'], ['30001-35000', 'USD 30.001 a 35.000'], ['35001-45000', 'USD 35.001 a 45.000'], ['45001-60000', 'USD 45.001 a 60.000'], ['60001-', 'Más de USD 60.000'], ['', 'Me da igual']] },
+  // Franjas, no topes (pedido del 2026-10-09): elegir una más alta dice que querés gastar más
+  // que en la anterior. Cortes elegidos para que cada franja tenga una cantidad pareja de autos
+  // a la venta (16 a 19 de los 104 con precio en dólares, octubre 2026); revisarlos si cambia mucho.
+  { k: 'presu', t: '¿Cuánto querés gastar?', ops: [['0-28500', 'Hasta USD 28.500'], ['28501-32000', 'USD 28.501 a 32.000'], ['32001-35500', 'USD 32.001 a 35.500'], ['35501-38500', 'USD 35.501 a 38.500'], ['38501-48000', 'USD 38.501 a 48.000'], ['48001-', 'Más de USD 48.000'], ['', 'Me da igual']] },
   { k: 'plazas', t: '¿Cuántos viajan seguido?', ops: [['4', 'Hasta 4'], ['5', '5'], ['6', '6 o 7']] },
   { k: 'uso', t: '¿Para qué lo vas a usar más?', ops: [['ciudad', 'Ciudad'], ['mixto', 'Ciudad y ruta'], ['ruta', 'Mucha ruta'], ['tierra', 'Tierra o campo'], ['carga', 'Trabajo o carga']] },
   { k: 'enchufe', t: '¿Podés cargarlo en tu casa o en el trabajo?', ops: [['si', 'Sí'], ['no', 'No'], ['nose', 'No sé']] },
-  { k: 'carro', t: '¿Qué tipo de auto preferís?', ops: [['', 'Me da igual'], ['suv', 'SUV o crossover'], ['auto', 'Sedán o hatchback'], ['pickup', 'Pickup']] },
+  // Los SUV (y los 4 que la tabla llama crossover) se parten por tamaño, con el segmento que sale
+  // del largo: casi todos los SUV chinos son crossovers (carrocería autoportante) y juntos eran 76
+  // de 111. Así cada opción tiene una cantidad pareja (pedido del 2026-10-09).
+  { k: 'carro', t: '¿Qué tipo de auto preferís?', ops: [['', 'Me da igual'], ['suv-chico', 'SUV chico o compacto'], ['suv-mediano', 'SUV mediano'], ['suv-grande', 'SUV grande'], ['auto', 'Sedán o hatchback'], ['pickup', 'Pickup']] },
 ];
 // Cuántos sugiere: al menos 4 (pedido del 2026-10-09), o los que haya si cumplen menos.
 const ELEGIR_N = 4;
-let elegirResp = { presu: '30001-35000', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
+let elegirResp = { presu: '32001-35500', plazas: '5', uso: 'mixto', enchufe: 'nose', carro: '' };
 try { const g = JSON.parse(localStorage.getItem('elegir') || 'null'); if (g) elegirResp = Object.assign(elegirResp, g); } catch (e) {}
-if (elegirResp.presu && !/-/.test(elegirResp.presu)) elegirResp.presu = '30001-35000';   // topes guardados de la versión anterior
+// Respuestas guardadas con opciones que ya no existen (topes o franjas anteriores, "suv"): se reinician.
+const elegirVale = (k, v) => ELEGIR_PREG.find(q => q.k === k).ops.some(o => o[0] === v);
+if (!elegirVale('presu', elegirResp.presu)) elegirResp.presu = '32001-35500';
+if (!elegirVale('carro', elegirResp.carro)) elegirResp.carro = '';
 // Qué tan bien encaja cada propulsión (0 a 1) según el enchufe y el uso. Es el criterio de la
 // herramienta, a la vista en el motivo de cada sugerencia: un eléctrico sin dónde cargarlo
 // casi no suma; en la ruta larga, el híbrido y el naftero no dependen de cargadores.
@@ -4685,7 +4692,10 @@ function elegirCalcular(r){
   const cands = CARS.map((c, i) => i).filter(i => {
     const c = CARS[i];
     if (c.status !== 'venta') return false;
-    if (r.carro === 'suv' && !['SUV', 'Crossover'].includes(c.body)) return false;
+    const esSuv = ['SUV', 'Crossover'].includes(c.body);
+    if (r.carro === 'suv-chico' && !(esSuv && ['mini', 'compact'].includes(c.size))) return false;
+    if (r.carro === 'suv-mediano' && !(esSuv && c.size === 'mid')) return false;
+    if (r.carro === 'suv-grande' && !(esSuv && ['big', 'xl'].includes(c.size))) return false;
     if (r.carro === 'auto' && !['Sedán', 'Hatchback'].includes(c.body)) return false;
     if (r.carro === 'pickup' && c.body !== 'Pickup') return false;
     const as = SIM_ASIENTOS[i];
