@@ -296,12 +296,31 @@ test.describe('selector y comparación', () => {
     await expect(page.locator('#compareCount')).toHaveText(String(CARS.length));
   });
 
-  test('con 2 a 6 autos, cada fila con dirección muestra barras y el mejor en verde', async ({ page }) => {
+  test('con 2 o más autos, cada fila con dirección recalibra su barra y el mejor queda en verde', async ({ page }) => {
     await abrir(page, '?autos=byd-shark,maxus-t60,jac-t8');
     const fila = page.locator('#mainTable tr[data-search^="potencia total"]');
-    await expect(fila.locator('.cmp-barra')).toHaveCount(3);
-    await expect(fila.locator('.cmp-barra.mejor')).toHaveCount(1);
-    await expect(fila.locator(`td[data-col="${indice('BYD Shark')}"] .cmp-barra`)).toHaveClass(/mejor/);
+    await expect(fila.locator('td[data-col]:visible .pct:not(.fuera)')).toHaveCount(3);
+    await expect(fila.locator('.pct.mejor')).toHaveCount(1);
+    await expect(fila.locator(`td[data-col="${indice('BYD Shark')}"] .pct`)).toHaveClass(/mejor/);
+  });
+
+  test('la barra arranca en su lugar contra todos y se desliza a su lugar entre los elegidos', async ({ page }) => {
+    // Pedido del 2026-10-09: primero la barra general, después la animación a la recalibrada;
+    // al volver a todos los autos, cada barra vuelve a su valor general.
+    // El deslizamiento arranca con un setTimeout: el reloj queda quieto y lo avanza el test.
+    await page.clock.install({ time: new Date('2026-10-09T12:00:00') });
+    await page.clock.pauseAt(new Date('2026-10-09T12:00:01'));
+    await page.goto('/index.html?autos=deepal-s05,byd-shark,geely-ex5,chery-tiggo-7-pro-phev');
+    const barra = page.locator(`#mainTable tr[data-nombre="Precio de lista (versión tope de gama de la tabla)"] td[data-col="${indice('Deepal S05')}"] .pct`);
+    await expect(barra).toHaveCount(1);
+    const g = await barra.getAttribute('data-g');
+    expect(parseFloat(await barra.locator('i').evaluate(i => i.style.width))).toBeCloseTo(+g, 0);
+    await page.clock.runFor(1000);
+    await expect.poll(() => barra.locator('i').evaluate(i => parseFloat(i.style.width))).toBe(100);
+    // De vuelta a todos los autos: la barra vuelve a su valor general.
+    await page.evaluate(() => recalibrarBarras(CARS.map((_, i) => i)));
+    await expect.poll(() => barra.locator('i').evaluate(i => parseFloat(i.style.width))).toBeCloseTo(+g, 0);
+    await expect(barra).not.toHaveClass(/mejor/);
   });
 
   test('las barras de una fila quedan a la misma altura y solo la del mejor llena el ancho', async ({ page }) => {
@@ -309,17 +328,17 @@ test.describe('selector y comparación', () => {
     // "menos es mejor" (precio) el más barato es el que llena la barra, no el más caro.
     await abrir(page, '?autos=deepal-s05,byd-shark,geely-ex5,chery-tiggo-7-pro-phev');
     const fila = page.locator('#mainTable tr[data-nombre="Precio de lista (versión tope de gama de la tabla)"]');
-    const tops = await fila.locator('.cmp-barra').evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));
+    const visibles = fila.locator('td[data-col]:visible .pct:not(.fuera)');
+    const tops = await visibles.evaluateAll(bs => bs.map(b => Math.round(b.getBoundingClientRect().top)));
     expect(tops).toHaveLength(4);
     expect(new Set(tops).size).toBe(1);
-    const llenas = await fila.locator('.cmp-barra i').evaluateAll(is => is.filter(i => parseFloat(i.style.width) === 100).length);
-    expect(llenas).toBe(1);
+    await expect.poll(() => visibles.locator('i').evaluateAll(is => is.filter(i => parseFloat(i.style.width) === 100).length)).toBe(1);
     // El texto arranca a la misma altura en todas las celdas, con o sin ★ arriba.
-    const textos = await fila.locator('td[data-col]').evaluateAll(tds => tds.filter(td => td.querySelector('.cmp-barra')).map(td => {
-      const r = document.createRange(); const t = [...td.childNodes].find(n => n.nodeType === 3 || (n.nodeType === 1 && !n.matches('.cmp-barra,.mejor-sel,.pct')));
+    const textos = await fila.locator('td[data-col]:visible').evaluateAll(tds => tds.filter(td => td.querySelector('.pct')).map(td => {
+      const r = document.createRange(); const t = [...td.childNodes].find(n => n.nodeType === 3 || (n.nodeType === 1 && !n.matches('.mejor-sel,.pct')));
       r.selectNodeContents(t); return Math.round(r.getBoundingClientRect().top); }));
     expect(new Set(textos).size).toBe(1);
-    await expect(fila.locator(`td[data-col="${indice('Deepal S05')}"] .cmp-barra`)).toHaveClass(/mejor/);
+    await expect(fila.locator(`td[data-col="${indice('Deepal S05')}"] .pct`)).toHaveClass(/mejor/);
   });
 
   test('con todos los autos, la barra de percentil va al pie de la celda y el mejor la llena casi entera', async ({ page }) => {

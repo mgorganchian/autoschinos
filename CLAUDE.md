@@ -156,8 +156,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **El header grande se oculta** tras el primer "Comparar" (`hasComparedOnce`).
 - **Dropdown de Marca/Modelo en `position:static`**, no `absolute` (quedaba recortado).
 - El **indicador de percentiles** (una barra rojo → amarillo → verde al pie de la celda, cuyo
-  largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario: la
-  misma barra que al comparar de 2 a 6 autos, que ahí se mide contra los elegidos) va **solo en las 15 filas
+  largo es el percentil; reemplazó a los 4 cuadraditos el 2026-10-07, pedido del usuario). Con 2
+  o más autos elegidos, **la misma barra se recalibra** (`recalibrarBarras`, 2026-10-09): arranca
+  en su valor general y se desliza a su lugar entre los elegidos (el mejor la llena; el resto,
+  valor/mejor). Al volver a todos, regresa a `data-g`. Va **solo en las 15 filas
   donde "mejor" tiene una dirección objetiva** (`PCTL_DIR` en el script). Las
   dimensiones (Longitud, Ancho, Altura, Distancia entre ejes) **no lo llevan a
   propósito**: poner el indicador ahí afirmaría que un auto más largo es mejor, y

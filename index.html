@@ -786,7 +786,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      demás EN ESA MISMA FILA (llena y verde = de los mejores; corta y roja = de los peores).
      Reemplazó a los cuatro cuadraditos el 2026-10-07, pedido del usuario: la misma barra
      rojo → amarillo → verde que al comparar. Solo en las filas donde "mejor" tiene una
-     dirección objetiva — ver PCTL_DIR en el script. La forma la comparte con .cmp-barra. */
+     dirección objetiva — ver PCTL_DIR en el script. Al comparar, la misma barra se recalibra. */
   /* ============ Vista Ranking ============================================
      Ordena a los autos del mejor al peor en cada una de las 14 filas de
      PCTL_DIR. Usa la misma paleta y los mismos chips que la tabla. */
@@ -1066,7 +1066,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .dif-margen{font-weight:700;font-variant-numeric:tabular-nums;background:var(--note-bg);color:var(--note-text);border-radius:4px;padding:0 4px}
   .dif-vacio{margin:0;color:var(--ink-2)}
   .mejor-sel{color:#d4a000;font-size:.68rem;margin-left:3px}
-  td:has(.cmp-barra) .pct{display:none}
   /* Barras de comparación (2 a 6 autos elegidos): el largo es qué tan bueno es cada auto
      contra el mejor de la fila (el mejor llena la barra), y el color sale de una escala
      rojo → amarillo → verde fija a todo el ancho, así la punta dice dónde quedó. Van
@@ -1074,11 +1073,16 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
      (pedido del usuario, 2026-10-07). */
   /* En esas filas el texto arranca a la misma altura en todas las celdas: arriba queda un
      lugar fijo para la ★ (el mejor) y abajo, para la barra. */
-  #mainTable tr:has(.cmp-barra) > td[data-col]{vertical-align:top;position:relative;padding-top:18px;padding-bottom:20px}
-  #mainTable tr:has(.cmp-barra) .mejor-sel{position:absolute;top:2px;left:50%;transform:translateX(-50%);margin:0}
+  #mainTable tr.cmp-fila > td[data-col]{vertical-align:top;position:relative;padding-top:18px;padding-bottom:20px}
+  #mainTable tr.cmp-fila .mejor-sel{position:absolute;top:2px;left:50%;transform:translateX(-50%);margin:0}
+  /* Recalibración (2026-10-09, pedido del usuario): con 2 o más autos elegidos, la misma barra
+     arranca en su lugar contra todos los autos y se desliza hasta su lugar entre los elegidos. */
+  .pct i{transition:width .8s cubic-bezier(.3,.7,.2,1),background-size .8s cubic-bezier(.3,.7,.2,1)}
+  .pct.fuera{visibility:hidden}
+  @media (prefers-reduced-motion:reduce){ .pct i{transition:none} }
   #mainTable tr:has(.pct) > td[data-col]{vertical-align:top;position:relative;padding-bottom:20px}
-  .cmp-barra,.pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
-  .cmp-barra i,.pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat}
+  .pct{position:absolute;left:8px;right:8px;bottom:8px;height:6px;margin:0;border-radius:3px;background:var(--pct-off);overflow:hidden}
+  .pct i{display:block;height:100%;border-radius:3px;background-image:linear-gradient(90deg,var(--etq-e),var(--etq-d) 50%,var(--etq-a));background-repeat:no-repeat}
   .pct.leyenda{position:relative;display:inline-block;left:auto;right:auto;bottom:auto;width:56px;vertical-align:middle}
   @media print{ .dif{display:none !important} }
 
@@ -2108,7 +2112,7 @@ function pctlHTML(d){
   // el gradiente mide todo el ancho (background-size inverso), así la punta toma su color.
   // n0..n4 queda como clase: la usan los tests y dice el quintil.
   var w = Math.max(4, d.p), t = 'Mejor que el '+d.p+'% de los '+d.n+' autos con este dato';
-  return '<span class="pct n'+d.c+'" role="img" title="'+t+'" aria-label="'+t+'"><i style="width:'+w+
+  return '<span class="pct n'+d.c+'" role="img" title="'+t+'" aria-label="'+t+'" data-g="'+w+'" data-t="'+t+'"><i style="width:'+w+
          '%;background-size:'+(10000/w).toFixed(1)+'% 100%"></i></span>';
 }
 
@@ -3758,31 +3762,69 @@ function marcarReferencia(){
 // la referencia: autonomía y consumo por su estimado WLTP, sin enchufables en consumo
 // ni combinadas entre ciclos. Para contar victorias, solo filas con cifra en TODOS
 // los autos: si no, gana el que más datos publica, no el mejor auto.
+// Barras recalibradas (2026-10-09): con 2 o más autos elegidos (no todos), cada barra de las
+// filas con dirección pasa de su lugar contra todos los autos a su lugar entre los elegidos: el
+// mejor de ellos la llena (en verde) y el resto se mide contra él. En "más es mejor" (kW, km) es
+// valor/máximo; en "menos es mejor" (precio, consumo, 0-100) es mínimo/valor; mismo
+// valorComparable() que la ★ (estimado WLTP, sin enchufables en consumo). La combinada no se
+// recalibra (mezcla ciclos). Un auto sin cifra comparable en esa fila esconde su barra mientras
+// dura la comparación. Al volver a todos, cada barra vuelve a su valor general (data-g).
+let barrasRecalibradas = false;
+function barraAncho(el, w){
+  const i = el.querySelector('i');
+  i.style.width = w.toFixed(1) + '%'; i.style.backgroundSize = (10000 / w).toFixed(1) + '% 100%';
+}
+function recalibrarBarras(vis){
+  const comparar = vis.length >= 2 && vis.length < CARS.length;
+  const aplicar = () => {
+    document.querySelectorAll('#mainTable tr.cmp-fila').forEach(tr => tr.classList.remove('cmp-fila'));
+    document.querySelectorAll('#mainTable .pct').forEach(el => {
+      if (el.dataset.nueva){ el.remove(); return; }
+      el.classList.remove('fuera', 'mejor');
+      el.title = el.dataset.t; el.setAttribute('aria-label', el.dataset.t);
+    });
+    const volverTodas = () => document.querySelectorAll('#mainTable .pct:not([data-p])').forEach(el => barraAncho(el, +el.dataset.g));
+    if (!comparar){ volverTodas(); barrasRecalibradas = false; return; }
+    RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
+      const tr = document.querySelector('#mainTable tr[data-nombre="' + CSS.escape(nombre) + '"]');
+      if (!tr) return;
+      const vals = vis.map(i => ({ i, n: valorComparable(i, nombre) })).filter(x => x.n != null);
+      const dir = PCTL_DIR[nombre], max = Math.max(...vals.map(x => x.n)), min = Math.min(...vals.map(x => x.n));
+      if (vals.length < 2 || !(max > 0) || !(min > 0)) return;
+      const mejor = dir > 0 ? max : min;
+      tr.classList.add('cmp-fila');
+      vis.forEach(i => {
+        const td = tr.querySelector('td[data-col="' + i + '"]');
+        if (!td) return;
+        let el = td.querySelector('.pct');
+        const x = vals.find(v => v.i === i);
+        if (!x){ if (el) el.classList.add('fuera'); return; }
+        if (!el){   // fila con pocos datos en toda la tabla: no tenía barra general
+          td.insertAdjacentHTML('beforeend', '<span class="pct" role="img" data-nueva="1" data-g="0"><i style="width:0%"></i></span>');
+          el = td.querySelector('.pct');
+        }
+        const p = Math.max(4, 100 * (dir > 0 ? x.n / max : min / x.n));
+        if (x.n === mejor) el.classList.add('mejor');
+        const t = x.n === mejor ? 'El mejor de los ' + vals.length + ' elegidos con este dato' : Math.round(p) + '% del mejor de los ' + vals.length + ' elegidos';
+        el.title = t; el.setAttribute('aria-label', t);
+        el.dataset.p = p.toFixed(1);
+      });
+    });
+    // Que se vea primero la barra general y después se deslice: un instante en la general la
+    // primera vez; si ya estaba recalibrada, pasa directo de una comparación a la otra.
+    volverTodas();   // las que no entran en esta comparación vuelven a su valor general
+    const mover = () => document.querySelectorAll('#mainTable .pct[data-p]').forEach(el => { barraAncho(el, +el.dataset.p); delete el.dataset.p; });
+    if (barrasRecalibradas) requestAnimationFrame(mover); else setTimeout(mover, 450);
+    barrasRecalibradas = true;
+  };
+  aplicar();
+}
 function renderDiferencias(){
   const box = document.getElementById('difBox');
-  document.querySelectorAll('#mainTable .mejor-sel, #mainTable .cmp-barra').forEach(s => s.remove());
+  document.querySelectorAll('#mainTable .mejor-sel').forEach(s => s.remove());
   const vis = CARS.map((_, i) => i).filter(i => colVisible[i]);
+  recalibrarBarras(vis);
   if (vis.length < 2 || vis.length > 6){ box.hidden = true; box.innerHTML = ''; return; }
-  // Barras: en cada fila con dirección, una barra por auto con cifra comparable, el
-  // mejor llena la barra y termina en verde. Alcanza con que la tengan dos autos (la ★ y el conteo de victorias,
-  // en cambio, piden cifra en todos).
-  RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
-    const vals = vis.map(i => ({ i, n: valorComparable(i, nombre) })).filter(x => x.n != null);
-    if (vals.length < 2) return;
-    const dir = PCTL_DIR[nombre], max = Math.max(...vals.map(x => x.n)), min = Math.min(...vals.map(x => x.n));
-    const mejor = dir > 0 ? max : min;
-    if (!(max > 0) || !(min > 0)) return;
-    const tr = document.querySelector('#mainTable tr[data-nombre="' + CSS.escape(nombre) + '"]');
-    vals.forEach(x => {
-      const td = tr && tr.querySelector('td[data-col="' + x.i + '"]');
-      // Puntaje contra el mejor: en "más es mejor" (kW, km) es valor/máximo; en "menos es
-      // mejor" (precio, consumo, 0-100) es mínimo/valor. El gradiente mide todo el ancho
-      // de la barra (background-size inverso al largo), así la punta toma su color real.
-      const p = Math.max(4, 100 * (dir > 0 ? x.n / max : min / x.n));
-      if (td) td.insertAdjacentHTML('beforeend', '<span class="cmp-barra' + (x.n === mejor ? ' mejor' : '') +
-        '" aria-hidden="true"><i style="width:' + p.toFixed(1) + '%;background-size:' + (10000 / p).toFixed(1) + '% 100%"></i></span>');
-    });
-  });
   const filas = [], gana = new Map(vis.map(i => [i, 0]));
   RK_FILAS.map(f => f[0]).filter(n => n !== FILA_COMB).forEach(nombre => {
     const vals = vis.map(i => ({ i, n: valorComparable(i, nombre), r: rkValor(i, nombre) }));
