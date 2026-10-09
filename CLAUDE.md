@@ -525,6 +525,14 @@ las fichas oficiales, **no la de los precios**, que siguen siendo de las listas 
 2026. La actualiza la rutina sola, y solo si pudo verificar todas las fichas: no
 tocarla a mano.
 
+**Circuito de PR (pedido del usuario, 2026-10-09): de ahora en más, todo cambio va por pull
+request.** Rama nueva desde `main`, se pushea la rama y se abre el PR en GitHub
+(`gh pr create`) apenas arranca el trabajo; los commits siguientes van a esa rama. Cuando
+está listo se avisa con el link. Se mergea **solo cuando el usuario lo pide** ("mergealo"),
+con `gh pr merge`, y después se verifica el sitio y se borra la rama (local y en GitHub).
+Nunca push directo a `main` desde una sesión interactiva. Vercel arma una vista previa de
+cada PR. La rutina semanal sigue con su propia excepción (ver abajo).
+
 **Nunca dar por publicado un cambio porque `git push` salió bien** — verificar contra la
 URL con un `grep` de algún marcador del cambio, no por tamaño. Vercel sirve el archivo
 tal cual (a diferencia de Netlify, que inyectaba 536 bytes), así que lo servido y el repo
