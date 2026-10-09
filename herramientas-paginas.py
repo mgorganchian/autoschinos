@@ -12,6 +12,7 @@ Nunca editarlas a mano. tests/e2e/paginas.spec.js falla si quedaron desactualiza
 """
 import html as H
 import json
+from datetime import date, datetime, timezone
 import os
 import re
 import sys
@@ -126,12 +127,80 @@ td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-styl
 '''
 
 
+MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+fecha_larga = lambda f: f'{int(f[8:])} de {MESES[int(f[5:7]) - 1]} de {f[:4]}'
+usd = lambda n: 'USD ' + f'{n:,}'.replace(',', '.')
+
+
+def novedades(cars, slugs):
+    """Novedades (2026-10-08): salen de datos que ya existen, nunca escritas a mano salvo
+    novedades.json (hitos del sitio). Cambios de precio de HISTORIAL_PRECIOS (misma versión),
+    promos vigentes de cada marca (concesionarios.json) y novedades.json."""
+    s = open(os.path.join(RAIZ, 'index.html'), encoding='utf-8').read()
+    hist = json.loads(re.search(r'const HISTORIAL_PRECIOS = (\{.*?\});\n', s).group(1))
+    nombre = dict(zip(slugs, (c['name'] for c in cars)))
+    items = []
+    for sl, h in hist.items():
+        for a, b in zip(h, h[1:]):
+            if a[2] != b[2] or a[1] == b[1]: continue
+            d = b[1] - a[1]
+            items.append({'fecha': b[0], 'titulo': f"{'Bajó' if d < 0 else 'Subió'} el {nombre.get(sl, sl)}: {usd(a[1])} → {usd(b[1])}",
+                          'texto': f"Precio de lista oficial de la versión {b[2]}, {'menos' if d < 0 else 'más'} {usd(abs(d))} que en la lista anterior.",
+                          'link': f'/autos/{sl}'})
+    hoy = date.today().isoformat()
+    red = json.load(open(os.path.join(RAIZ, 'concesionarios.json'), encoding='utf-8'))
+    por_slug = {sl: i for i, sl in enumerate(slugs)}
+    for marca, m in sorted(red['marcas'].items()):
+        ps = [p for p in m.get('promos', []) if p['tipo'] != 'precio' and (not p.get('vigencia') or p['vigencia'] >= hoy)]
+        if not ps: continue
+        autos = sorted({nombre[a] for p in ps for a in p['autos'] if a in por_slug}) or ['toda la gama']
+        items.append({'fecha': m.get('promos_consultado', hoy), 'titulo': f'Promociones de {marca}: {len(ps)} vigente' + ('s' if len(ps) > 1 else ''),
+                      'texto': 'Para ' + ', '.join(autos[:6]) + (' y más' if len(autos) > 6 else '') + '. ' + ' '.join(p['texto'] for p in ps[:2])[:300],
+                      'link': next((f'/autos/{a}' for p in ps for a in p['autos'] if a in por_slug), '/')})
+    items += json.load(open(os.path.join(RAIZ, 'novedades.json'), encoding='utf-8'))
+    items.sort(key=lambda x: x['fecha'], reverse=True)
+    e = H.escape
+    pagina_html = f'''<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Novedades: precios, promociones y autos chinos nuevos en Argentina</title>
+<meta name="description" content="Bajas y subas de precio de lista, promociones vigentes de cada marca y autos nuevos en el comparativo de autos chinos en Argentina.">
+<link rel="canonical" href="{SITIO}/novedades">
+<link rel="alternate" type="application/rss+xml" title="Novedades" href="/novedades.xml">
+<style>
+:root{{--paper:#EEF1EE;--ink:#17211D;--ink2:#4B5A53;--line:#C9D4CE;--accent:#00843D}}
+@media (prefers-color-scheme:dark){{:root{{--paper:#141B18;--ink:#E4EAE6;--ink2:#9DB3A8;--line:#2E3A35;--accent:#3FB57A}}}}
+body{{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
+main{{max-width:760px;margin:0 auto;padding:16px}} a{{color:var(--accent)}} h1{{font-size:2rem;line-height:1.1;margin:8px 0;text-wrap:balance}}
+.sub{{color:var(--ink2);margin:0 0 16px}} ol{{list-style:none;margin:0;padding:0}}
+li{{border-bottom:1px solid var(--line);padding:10px 0}} time{{font-size:.8rem;color:var(--ink2)}}
+h2{{font-size:1.05rem;margin:2px 0}} p{{margin:2px 0}}
+</style></head><body><main>
+<p class="sub"><a href="/">Autos chinos en Argentina</a> / Novedades</p>
+<h1>Novedades</h1>
+<p class="sub">Cambios de precio de lista, promociones vigentes y lo nuevo del comparativo. También por <a href="/novedades.xml">RSS</a>.</p>
+<ol>{''.join(f'<li><time datetime="{x["fecha"]}">{fecha_larga(x["fecha"])}</time><h2><a href="{e(x["link"])}">{e(x["titulo"])}</a></h2><p>{e(x["texto"])}</p></li>' for x in items)}</ol>
+</main></body></html>
+'''
+    rfc = lambda f: datetime(int(f[:4]), int(f[5:7]), int(f[8:]), 12, tzinfo=timezone.utc).strftime('%a, %d %b %Y %H:%M:%S +0000')
+    rss = ('<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>\n'
+           f'<title>Autos chinos en Argentina: novedades</title><link>{SITIO}/novedades</link>'
+           '<description>Cambios de precio de lista, promociones vigentes y autos nuevos.</description><language>es-ar</language>\n' +
+           ''.join(f'<item><title>{e(x["titulo"])}</title><link>{SITIO}{e(x["link"])}</link>'
+                   f'<guid isPermaLink="false">{e(x["fecha"] + " " + x["titulo"])}</guid><pubDate>{rfc(x["fecha"])}</pubDate>'
+                   f'<description>{e(x["texto"])}</description></item>\n' for x in items[:60]) +
+           '</channel></rss>\n')
+    return pagina_html, rss
+
+
 def generar():
     data, cars, slugs, creditos, colores = leer()
     salida = {}
     for i, (car, slug, cred) in enumerate(zip(cars, slugs, creditos)):
         salida[os.path.join(DIR, slug + '.html')] = pagina(i, data, car, slug, cred, colores)
-    urls = [SITIO + '/'] + [f'{SITIO}/autos/{s}' for s in slugs]
+    pag_nov, rss = novedades(cars, slugs)
+    salida[os.path.join(RAIZ, 'novedades.html')] = pag_nov
+    salida[os.path.join(RAIZ, 'novedades.xml')] = rss
+    urls = [SITIO + '/', SITIO + '/novedades'] + [f'{SITIO}/autos/{s}' for s in slugs]
     salida[os.path.join(RAIZ, 'sitemap.xml')] = ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                                  ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
     salida[os.path.join(RAIZ, 'robots.txt')] = f'User-agent: *\nAllow: /\nSitemap: {SITIO}/sitemap.xml\n'

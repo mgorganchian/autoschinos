@@ -171,6 +171,13 @@ gama de la tabla)\" solo si el precio oficial cambió o si hoy sale de la prensa
 ya lo publica. Formato: USD 36.500 (versión, tope de gama). Si la marca publica solo en
 pesos, va NOTE:ARS … con la explicación, NUNCA convertido a dólares. Prensa solo como
 EXT: con medio y fecha, y solo si no hay fuente oficial.
+Cada vez que cambies un precio en dólares de la MISMA versión, agregá al final de su lista en
+HISTORIAL_PRECIOS (en el script) [fecha de la lista o de hoy, monto en USD como número,
+versión tal como figura en la última entrada, URL https de la lista]. Si cambió la versión, la
+entrada nueva lleva la versión nueva (no cuenta como baja ni suba). Una corrección de un precio
+mal cargado no es historia: reemplazá la última entrada en vez de sumar una. Si hubo bajas o
+subas, sumá también una línea a novedades.json solo si es un hito que no sale solo (los cambios
+de precio y las promos ya se arman solos en la página de novedades).
 
 E) COLORES (COLORES_AR, en el script): si una ficha o página oficial AR nueva publica los
 colores de un auto que hoy no los tiene, cargalos tal como los escribe la marca, con la

@@ -38,7 +38,7 @@ Con `N = CARS.length`:
 2. **`<th>`** en el `<thead>`, en el mismo índice — con su silueta de carrocería y su
    ícono de propulsión.
 3. **`<col class="col-data">`** en los **DOS** `<colgroup>` (`#theadTable` y `#mainTable`).
-4. **Cada una de las 98 filas de `DATA`**, en la posición correcta.
+4. **Cada una de las 100 filas de `DATA`**, en la posición correcta.
 5. **`colspan="N+1"`** de las filas de categoría — está hardcodeado.
 
 Además hay 3 conteos en texto: `#headerSubtitle`, `#summaryText` y el comentario arriba
@@ -85,7 +85,7 @@ se coló dos veces.
 **Trampas al medir:** `grep '<th'` también matchea `<thead>`; `grep 'col-data'` también
 cuenta las 2 definiciones del `<style>`.
 
-**Verificación cruzada:** renderizar de verdad y contar 98 filas en 14 categorías, con
+**Verificación cruzada:** renderizar de verdad y contar 100 filas en 14 categorías, con
 cero errores de consola. Con el script roto la tabla queda en **0 filas** y el archivo
 igual "parece" bien.
 
@@ -257,6 +257,24 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **Página de cada auto** (`?auto=slug`): lee `fichas-fuentes.tsv` del propio sitio para
   los links a fuentes oficiales. **No renombrar ni mover ese archivo** (lo sirve Vercel).
 - `og.jpg` (vista previa al compartir) se genera con fotos oficiales sin créditos de Commons.
+
+## Patentamientos, choques, historial y novedades (2026-10-08)
+
+- **Patentamientos 2026 (unidades)** (fila de Precio): inscripciones iniciales del registro
+  oficial (DNRPA, datos.jus.gob.ar), contrastadas con ACARA en el detalle. Si el registro junta
+  dos autos de la tabla, los dos llevan la misma cifra en NOTE; nunca se reparte. No es ranking.
+- **Seguridad en choques (NCAP)** (primera de Seguridad pasiva): Latin NCAP va en texto plano;
+  Euro NCAP, ANCAP, C-NCAP o ASEAN como EXT con año. Solo si el ensayo es del mismo modelo,
+  generación y versión vendida acá (o se aclara la variante): ensayos de una versión anterior o
+  de otro modelo (Pro Max, protocolo viejo) van NR con lo que existe en la explicación. No es
+  ranking: las estrellas de programas distintos no se comparan.
+- **Historial del precio** (`HISTORIAL_PRECIOS`, por slug): solo cambios de una lista oficial de
+  la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
+- **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
+  historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
+- **Ayudame a elegir**: filtros duros (presupuesto, plazas, tipo) y puntos por propulsión y
+  percentiles. Un enchufable nunca se presenta como de bajo consumo (`RK_APARTE`).
+- **Pedir cotización**: WhatsApp solo con número internacional; elige el contacto de la marca.
 
 ## Concesionarios (2026-10-05)
 

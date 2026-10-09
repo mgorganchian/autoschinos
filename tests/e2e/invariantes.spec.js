@@ -10,9 +10,9 @@ const N = CARS.length;
 test.describe('invariantes del index.html', () => {
   test.beforeEach(({ }, info) => test.skip(info.project.name !== 'escritorio', 'no dependen del viewport'));
 
-  test('DATA parsea y tiene 98 filas en 14 categorías', () => {
+  test('DATA parsea y tiene 100 filas en 14 categorías', () => {
     expect(DATA).toHaveLength(14);
-    expect(filas).toHaveLength(98);   // 92 hasta el 2026-10-04: + potencia total, garantías, origen, grupo e importador
+    expect(filas).toHaveLength(100);   // 92 hasta el 2026-10-04: + potencia total, garantías, origen, grupo e importador; 98 hasta el 2026-10-08: + patentamientos y NCAP
   });
 
   test('CARS: cada auto tiene los 7 campos con valores válidos', () => {
