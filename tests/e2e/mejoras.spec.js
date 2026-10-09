@@ -171,3 +171,55 @@ test('el visor agranda la foto y recorre las demás, desde Ayudame a elegir y de
   await expect(visor).toBeHidden();
   await expect(page.locator('#fichaAuto')).toBeVisible();   // cerrar el visor no cierra la página del auto
 });
+
+test('las flechitas de las miniaturas cambian la foto en el lugar, y al agrandarla arranca en esa', async ({ page }) => {
+  // Pedido del 2026-10-09: en todos los lugares con fotos, sin abrir nada al tocar la flecha.
+  const segunda = /tank-300-2\.jpg$/;
+  await page.goto('/index.html?autos=tank-300,byd-shark');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  const caja = page.locator('#theadTable .minicar[data-mini-slug="tank-300"]');
+  await caja.locator('.mini-nav.sig').click();
+  await expect(caja.locator('img')).toHaveAttribute('src', segunda);
+  await expect(page.locator('#fotoZoom')).toBeHidden();
+  await expect(page.locator('#fichaAuto')).toBeHidden();
+  await caja.locator('img').click();
+  await expect(page.locator('#fotoZoom .puntos i').nth(1)).toHaveClass(/on/);
+  await caja.locator('.mini-nav.ant').click();
+  await expect(caja.locator('img')).not.toHaveAttribute('src', segunda);
+
+  // En el selector, la flecha no tilda ni destilda el auto.
+  await page.click('#openModalBtn');
+  await page.click('#modelDropdownBtn');
+  await page.fill('#modelBuscar', 'tank 300');
+  const tarjeta = page.locator('#modelList .mcard').filter({ has: page.locator('[data-mini-slug="tank-300"]') });
+  const tildado = await tarjeta.locator('input').isChecked();
+  await tarjeta.locator('.mini-nav.sig').click();
+  await expect(tarjeta.locator('img')).toHaveAttribute('src', segunda);
+  expect(await tarjeta.locator('input').isChecked()).toBe(tildado);
+
+  // En la página del auto, la flecha de un parecido no abre su página.
+  await page.goto('/index.html?auto=tank-300');
+  const parecido = page.locator('.ficha-sim .minicar:has(.mini-nav)').first();
+  await parecido.locator('.mini-nav.sig').click();
+  await expect(parecido.locator('img')).toHaveAttribute('src', /-2\.jpg$/);
+  expect(page.url()).toContain('auto=tank-300');
+
+  // En Ayudame a elegir, el visor arranca en la foto que muestra la miniatura.
+  await page.goto('/index.html');
+  const sugerido = page.locator('.elegir-res .minicar:has(.mini-nav)').first();
+  await sugerido.locator('.mini-nav.sig').click();
+  await expect(page.locator('#visorFotos')).toBeHidden();
+  await sugerido.locator('.elegir-foto').click();
+  await expect(page.locator('#visorFotos .visor-puntos i').nth(1)).toHaveClass(/on/);
+});
+
+test('cada lugar con fotos de autos trae sus flechitas', async ({ page }) => {
+  await page.goto('/index.html?tabla');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  await expect(page.locator('#theadTable .minicar[data-mini-slug="tank-300"] .mini-nav')).toHaveCount(2);
+  await page.click('#vistaRanking');
+  await expect(page.locator('#rkLista .rk-item .minicar .mini-nav').first()).toBeVisible();
+  // Una flecha del ranking no abre la página del auto.
+  await page.locator('#rkLista .rk-item .minicar .mini-nav.sig').first().click();
+  await expect(page.locator('#fichaAuto')).toBeHidden();
+});

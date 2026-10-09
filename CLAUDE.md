@@ -458,6 +458,14 @@ un `assert` falla a mitad, el archivo queda intacto en vez de a medio editar.
 
 ## Fotos
 
+- **Flechitas en las miniaturas** (2026-10-09, pedido del usuario): toda miniatura de un auto
+  (encabezado de la tabla, selector, Similares, Ranking, Parecidos y Ayudame a elegir) va en
+  un `.minicar` con `‹ ›` que cambian la foto en el lugar (`miniFoto`, `miniFlechas`). Si
+  después se agranda, el zoom y el visor arrancan en esa foto (`miniK`). Las flechas nunca van
+  dentro de otro botón y su clic se toma en la captura de `window`: no abre la página del auto,
+  no tilda el selector ni abre el zoom. Para copiar la portada de un `<th>` se usa
+  `portadaDe(img)`, no `img.src` (puede estar mostrando otra foto).
+
 Cada auto tiene una foto de portada (`fotos/<slug>-1.jpg`, más una miniatura de 300×190 en
 `fotos/mini/<slug>.jpg` para el `<th>`; hasta el 2026-10-06 iba embebida en base64 y pesaba
 1,3 MB de los 2,7 del archivo) y, si hay material, más fotos en un carrusel: **a lo sumo una por
