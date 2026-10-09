@@ -88,10 +88,14 @@ def pagina(i, data, car, slug, credito, colores, videos):
     videos_html = ''
     if videos.get(slug):
         fecha = lambda f: '/'.join(str(int(x)) for x in list(reversed(f.split('-')))[:2]) + '/' + f[:4]
+        tipo_txt = {'prueba': 'Prueba', 'adelanto': 'Adelanto, sin prueba a fondo', 'presentación': 'Presentación, sin manejo',
+                    'informe': 'Informe con varios autos', 'otra versión': 'Contacto con otra versión'}
+        orden = sorted(videos[slug], key=lambda v: (v.get('tipo', 'prueba') != 'prueba', [-ord(c) for c in v['f']]))
         videos_html = ('<section><h2>Reseñas en video</h2><ul class="videos">' +
                        ''.join(f'<li><a href="https://www.youtube.com/watch?v={e(v["id"])}" rel="nofollow">{e(v["t"])}</a> '
-                               f'<small>{e(v["canal"])}, {fecha(v["f"])}, {v["s"] // 60}:{v["s"] % 60:02d} min</small></li>' for v in videos[slug]) +
-                       '</ul><p class="nota">Pruebas de periodistas, del mismo modelo y versión: son opiniones de terceros, no datos de la ficha.</p></section>')
+                               f'<small>{e(tipo_txt[v.get("tipo", "prueba")])}. {e(v["canal"])}, {fecha(v["f"])}, {v["s"] // 60}:{v["s"] % 60:02d} min'
+                               f'{". " + e(v["n"]) if v.get("n") else ""}</small></li>' for v in orden) +
+                       '</ul><p class="nota">Videos de periodistas: las pruebas son del mismo modelo y versión; lo demás va marcado. Son opiniones de terceros, no datos de la ficha.</p></section>')
     ld = {'@context': 'https://schema.org', '@type': 'Car', 'name': nombre, 'url': url, 'image': foto,
           'brand': {'@type': 'Brand', 'name': car['brand']}, 'bodyType': car.get('body', ''),
           'vehicleConfiguration': tipo}

@@ -14,12 +14,16 @@ test('cada video es de un auto de la tabla y trae id, título, canal, fecha y du
     expect(SLUGS, slug).toContain(slug);
     for (const v of vs) {
       expect(v.id, slug).toMatch(/^[\w-]{11}$/);
-      expect(ids.has(v.id), `${v.id} repetido`).toBe(false);
-      ids.add(v.id);
+      // Una prueba es de un solo auto; un informe o una presentación de marca puede repetirse en varios.
+      const tipo = v.tipo || 'prueba';
+      expect(['prueba', 'adelanto', 'presentación', 'informe', 'otra versión'], slug).toContain(tipo);
+      if (tipo === 'prueba'){ expect(ids.has(v.id), `${v.id} repetido`).toBe(false); ids.add(v.id); }
+      expect(vs.filter(x => x.id === v.id).length, `${slug}: ${v.id} dos veces`).toBe(1);
       expect(v.t.trim().length, slug).toBeGreaterThan(5);
       expect(v.canal.trim().length, slug).toBeGreaterThan(2);
       expect(v.f, slug).toMatch(/^20\d\d-\d\d-\d\d$/);
-      expect(Number.isInteger(v.s) && v.s > 60, slug).toBe(true);
+      expect(Number.isInteger(v.s) && v.s > (tipo === 'prueba' ? 60 : 10), slug).toBe(true);
+      if (tipo === 'otra versión') expect(v.n, `${slug}: falta decir qué versión`).toBeTruthy();
     }
   }
 });
@@ -57,7 +61,7 @@ test('el encabezado de cada auto con video lleva el botón "Video" a su prueba m
   await page.goto('/index.html?tabla');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   for (const [slug, vs] of Object.entries(VIDEOS)) {
-    const ult = vs.slice().sort((a, b) => b.f.localeCompare(a.f))[0];
+    const ult = vs.slice().sort((a, b) => ((a.tipo || 'prueba') !== 'prueba') - ((b.tipo || 'prueba') !== 'prueba') || b.f.localeCompare(a.f))[0];
     const i = SLUGS.indexOf(slug);
     const a = page.locator(`#theadTable th[data-idx="${i}"] .th-video`);
     await expect(a, slug).toHaveCount(1);
