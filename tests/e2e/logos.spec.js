@@ -53,7 +53,7 @@ const rotos = page => page.evaluate(async () => {
 });
 
 test('la vista Grupos y el filtro de Marca muestran los logos, ninguno roto', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html?tabla');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
   const marcas = await rotos(page);
   expect(marcas.rotos).toEqual([]);

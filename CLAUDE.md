@@ -274,7 +274,11 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   la misma versión; una corrección reemplaza la última entrada. Lo escribe la rutina (tarea D).
 - **Novedades** (`/novedades` y `/novedades.xml`): las arma `herramientas-paginas.py` con el
   historial, las promos vigentes y `novedades.json` (solo hitos del sitio). No editar a mano.
-- **Ayudame a elegir** (sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina
+- **La portada abre "Ayudame a elegir"** (2026-10-09): sin parámetros en la URL se abre el panel;
+  con `?autos=`, `?auto=` o `?tabla` se va directo. **Los tests cargan `/index.html?tabla`**:
+  si un test nuevo carga la página sin parámetros, el panel tapa la tabla.
+- **Ayudame a elegir** (franjas de precio y tipos de auto elegidos para que cada opción tenga
+  una cantidad pareja de autos: SUV partidos por tamaño; sugiere 4, `ELEGIR_N`; la barra al pie muestra las sugerencias y se ilumina
   con cada respuesta, porque en el celular la lista queda fuera de la pantalla): filtros duros (franja de precio, plazas, tipo) y puntos por propulsión,
   percentiles y respaldo. El presupuesto es una **franja** ("35.001 a 45.000"), no un tope:
   elegir una más alta dice que querés gastar más, y dentro de la franja el precio no suma. Con

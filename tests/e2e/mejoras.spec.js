@@ -13,7 +13,7 @@ let errores;
 test.beforeEach(async ({ page }) => { errores = vigilarErrores(page); });
 test.afterEach(() => expect(errores).toEqual([]));
 async function abrir(page, query = ''){
-  await page.goto('/index.html' + query);
+  await page.goto('/index.html' + (query || '?tabla'));
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 }
 
@@ -124,4 +124,16 @@ test('novedades: la página y el RSS existen y el RSS es XML válido', () => {
   expect(rss).toMatch(/^<\?xml/);
   expect((rss.match(/<item>/g) || []).length).toBeGreaterThan(5);
   expect(fs.readFileSync(path.join(RAIZ, 'novedades.html'), 'utf8')).toContain('<h1>Novedades</h1>');
+});
+
+test('la portada empieza en "Ayudame a elegir"; un link con parámetros o ?tabla va directo', async ({ page }) => {
+  // Pedido del 2026-10-09.
+  await page.goto('/index.html');
+  await expect(page.locator('#elegirVista')).toBeVisible();
+  await page.locator('#elegirTabla').click();
+  await expect(page.locator('#elegirVista')).toBeHidden();
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  await page.goto('/index.html?autos=byd-shark,maxus-t60');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  await expect(page.locator('#elegirVista')).toBeHidden();
 });

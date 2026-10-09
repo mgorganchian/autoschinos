@@ -4753,7 +4753,8 @@ function pintarElegir(cambio){
   const igual = cambio && hoja.dataset.top === out.top.map(x => x.i).join(',');
   hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="elegirCerrar" aria-label="Cerrar">✕</button>' +
     '<h2 id="elegirTitulo" class="grupos-titulo">Ayudame a elegir</h2>' +
-    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla.</p>' +
+    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + ELEGIR_N + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
+      '<button type="button" class="mini-btn" id="elegirTabla">Ver la tabla con los ' + CARS.length + ' autos</button></p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
       q.ops.map(([v, t]) => '<label><input type="radio" name="el-' + q.k + '" value="' + v + '"' + (r[q.k] === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></fieldset>').join('') + '</div>' +
     '<h3 class="elegir-res-tit" id="elegirResTit">' + (out.top.length ? 'Te sugerimos' : 'Ningún auto a la venta cumple todo eso') + '</h3>' +
@@ -4803,7 +4804,7 @@ document.getElementById('elegirVista').addEventListener('change', e => {
   if (barra){ barra.classList.remove('cambio'); void barra.offsetWidth; barra.classList.add('cambio'); }
 });
 document.getElementById('elegirVista').addEventListener('click', e => {
-  if (e.target.id === 'elegirVista' || e.target.closest('#elegirCerrar')) return cerrarElegir();
+  if (e.target.id === 'elegirVista' || e.target.closest('#elegirCerrar') || e.target.closest('#elegirTabla')) return cerrarElegir();
   const f = e.target.closest('[data-elegir-ficha]');
   if (f){ const i = +f.dataset.elegirFicha; cerrarElegir(); abrirFicha(i); return; }
   if (e.target.closest('#elegirVer')){ document.getElementById('elegirResTit').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
@@ -4821,6 +4822,9 @@ ordenarColumnas();          // el orden por dimensiones, desde la carga
 urlCargar();
 actualizarResumen();
 renderDiferencias();
+// La portada empieza en "Ayudame a elegir" (pedido del 2026-10-09). Un link con parámetros
+// (?autos=, ?auto=, ?ref=…) abre lo que pide, y ?tabla abre la tabla directo (lo usan los tests).
+if (!location.search && !location.hash) abrirElegir();
 
 // Tooltip propio: instantáneo, sin el delay nativo del navegador. Funciona con mouse y con tap en mobile.
 const tooltipBox = document.getElementById('tooltipBox');

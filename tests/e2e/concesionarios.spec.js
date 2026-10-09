@@ -90,7 +90,7 @@ test.beforeEach(async ({ page }) => { errores = vigilarErrores(page); });
 test.afterEach(() => expect(errores).toEqual([]));
 
 async function abrir(page, query = ''){
-  await page.goto('/index.html' + query);
+  await page.goto('/index.html' + (query || '?tabla'));
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 }
 const tarjetas = page => page.locator('#concesVista .cc');

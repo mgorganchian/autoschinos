@@ -11,7 +11,7 @@ const FILAS_RANKING = filas.map(f => f[0]).filter(n => PCTL_DIR[n]);
 let errores;
 test.beforeEach(async ({ page }) => {
   errores = vigilarErrores(page);
-  await page.goto('/index.html');
+  await page.goto('/index.html?tabla');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 });
 test.afterEach(() => expect(errores).toEqual([]));

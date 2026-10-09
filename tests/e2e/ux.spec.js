@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(() => expect(errores).toEqual([]));
 
 async function abrir(page, query = ''){
-  await page.goto('/index.html' + query);
+  await page.goto('/index.html' + (query || '?tabla'));
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 }
 
@@ -55,7 +55,7 @@ test.describe('link compartible', () => {
 
   test('sin selección no hay nada en la URL ni botón de compartir', async ({ page }) => {
     await abrir(page);
-    expect(new URL(page.url()).search).toBe('');
+    expect(new URL(page.url()).search).not.toMatch(/autos|ref=|orden=/);   // ?tabla solo salta la portada
     await expect(page.locator('#shareBtn')).toBeHidden();
   });
 });

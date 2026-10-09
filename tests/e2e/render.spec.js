@@ -10,7 +10,7 @@ test.describe('render de la tabla', () => {
   let errores;
   test.beforeEach(async ({ page }) => {
     errores = vigilarErrores(page);
-    await page.goto('/index.html');
+    await page.goto('/index.html?tabla');
     await expect(page.locator(FILAS_DATOS).first()).toBeVisible();
   });
 
@@ -65,7 +65,7 @@ test.describe('render de la tabla', () => {
 
 test('en celular portrait se ven 3 columnas: característica + 2 autos', async ({ page }, info) => {
   test.skip(info.project.name !== 'celular', 'solo en portrait');
-  await page.goto('/index.html');
+  await page.goto('/index.html?tabla');
   const anchos = await page.locator('#theadTable thead th').evaluateAll(ths => ths.slice(0, 3).map(t => t.getBoundingClientRect().width));
   const vw = page.viewportSize().width;
   expect(anchos[0] / vw).toBeCloseTo(0.20, 1);   // col-feat 20vw

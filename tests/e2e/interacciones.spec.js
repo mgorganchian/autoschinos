@@ -10,7 +10,7 @@ const columnasVisibles = page => page.locator('#theadTable thead th:not(.feat-co
 let errores;
 test.beforeEach(async ({ page }) => {
   errores = vigilarErrores(page);
-  await page.goto('/index.html');
+  await page.goto('/index.html?tabla');
   await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
 });
 test.afterEach(() => expect(errores).toEqual([]));
