@@ -221,6 +221,13 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **Letra en el celular** (2026-10-10, pedido del usuario: con presbicia no se leía): hasta
   640 px de ancho la base es `html{font-size:130%}` (con 115% los datos quedaban en 15 px y no
   alcanzó; con 130% van en 17 px y casi nada baja de 15). El título grande del encabezado no sube.
+  **Lo que no entra se resume, no se corta** (pedido del 2026-10-10): en el celular vertical la
+  columna de características deja 66 px, así que los nombres de fila que se partían usan
+  `ETIQUETA_CEL` (mismas cosas en palabras cortas, `etiquetasCel()`; el encabezado dice "Dato") con
+  la letra de la tabla y sin guiones automáticos; el corte (`\u00ad`) solo en palabras compuestas.
+  Nada de "…" en nombres de autos ni resúmenes: si no entra, va en dos renglones. Los textos de
+  ayuda se acortaron para que haya menos para leer. `mejoras.spec.js` falla si un nombre de fila
+  se parte en cualquier sílaba en el celular.
   Las páginas de `autos/` y `novedades` (las arma `herramientas-paginas.py`) usan 115% con el
   cuerpo en `1rem` (18 px; su texto es más grande de base). Solo en pantalla: al imprimir no cambia. Todos los tamaños de letra van en `rem`
   para que suban juntos: **no escribir tamaños de letra en px**. El ancho de las columnas va

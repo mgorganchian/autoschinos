@@ -341,7 +341,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       max-width:38vw !important;
     }
     :root{--ancho-feat:20vw;--ancho-col:38vw;}
-    tbody td.feat{font-size:.72rem;line-height:1.3;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+    tbody td.feat{font-size:.72rem;line-height:1.3;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
+    #mainTable tbody td.feat{font-family:var(--fuente-tabla)}
     tbody td.feat .feat-icon{display:none}
     thead th.feat-col{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
     thead th:not(.feat-col){padding-left:2px !important;padding-right:2px !important}
@@ -646,7 +647,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .mcard img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:6px}
   .mcard-txt{grid-row:2;grid-column:1 / span 2;min-width:0;line-height:1.2}
   .mcard-txt b{display:block;font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .mcard-txt small{display:block;font-size:.62rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mcard-txt small{display:block;font-size:.62rem;color:var(--ink-2)}
   .mcard-vacio{grid-column:1 / -1;font-size:.8rem;color:var(--ink-2);margin:8px}
 
   .advanced-toggle{
@@ -818,11 +819,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .rk-foto{width:64px;height:40px;object-fit:contain;background:#fff;border-radius:6px;display:block}
   .rk-cuerpo{min-width:0}
   .rk-nombre{font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:4px;min-width:0}
-  .rk-nombre span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-nombre span{min-width:0}
   .rk-nombre .prop-icon{flex-shrink:0}
   .rk-barra{height:6px;background:var(--paper);border-radius:3px;margin-top:5px;overflow:hidden}
   .rk-barra i{display:block;height:100%;background:var(--bar);border-radius:3px}
-  .rk-orig{font-size:.66rem;color:var(--ink-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-orig{font-size:.66rem;color:var(--ink-3);margin-top:3px}
   .rk-valor{font-size:.9rem;font-weight:700;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
   .rk-valor small{font-weight:500;font-size:.7rem;color:var(--ink-2);margin-left:2px}
   .rk-marca{cursor:help;margin-left:3px;font-size:.8rem}
@@ -866,7 +867,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .minicar.chica .mini-nav.ant{left:1px} .minicar.chica .mini-nav.sig{right:1px}
   .sim-lista img{width:52px;height:33px;object-fit:contain;border-radius:5px;background:#fff;display:block}
   .sim-lista b{font-size:.76rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sim-lista small{font-size:.64rem;color:var(--ink-2);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sim-lista small{font-size:.64rem;color:var(--ink-2);display:block}
   .sim-sumar{background:var(--byd-blue);color:#fff;border:0;border-radius:7px;padding:5px 10px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap}
   .sim-sumar:disabled{background:var(--yes-bg);color:var(--yes);cursor:default}
   .sim-todos{margin-top:9px;width:100%;background:var(--surface);color:var(--link);border:1px solid var(--link);border-radius:8px;padding:6px;font-size:.74rem;font-weight:600;cursor:pointer}
@@ -991,7 +992,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     border-radius:9px;padding:5px 8px 5px 75px;min-height:49px;cursor:pointer;color:var(--ink)}
   .ficha-sim img{width:58px;height:37px;object-fit:contain;background:#fff;border-radius:5px;flex-shrink:0}
   .ficha-sim-auto span{min-width:0} .ficha-sim-auto b{display:block;font-size:.78rem}
-  .ficha-sim-auto small{display:block;font-size:.64rem;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ficha-sim-auto small{display:block;font-size:.64rem;color:var(--ink-2)}
   .ficha-links a{color:var(--link);font-size:.78rem}
   @media (max-width:640px){ .ficha-cabeza,.ficha-cols{grid-template-columns:1fr} .ficha-hoja{padding:14px 12px 24px} }
   @media print{ .ficha-overlay{display:none !important} .th-nombre{text-decoration:none;color:#000} }
@@ -1045,6 +1046,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .cc-marcas span{font-family:var(--fuente-tabla);font-size:.66rem;background:var(--chip-bg);border-radius:3px;padding:0 6px}
   .cc-linea{margin:2px 0;font-size:.76rem;line-height:1.4;color:var(--ink)}
   .cc-linea a,.cc-links a{color:var(--link)}
+  a[href^="tel:"],a[href^="https://wa.me"]{white-space:nowrap}   /* un teléfono no se parte en dos renglones */
   .cc-links{display:flex;flex-wrap:wrap;gap:4px 12px;margin:3px 0 0;font-size:.74rem}
   .cc-links .cc-fuente-n{margin-left:-8px}
   .cc-fuente{color:var(--ink-3) !important}
@@ -1421,7 +1423,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
 
 <header id="mainHeader">
   <h1 id="mainTitle">Autos chinos en Argentina</h1>
-  <p id="headerSubtitle">124 autos comparados con sus fichas técnicas oficiales: precio, potencia, autonomía, equipamiento y garantía.</p>
+  <p id="headerSubtitle">124 autos comparados con sus fichas técnicas oficiales.</p>
   <div class="cota" aria-hidden="true"><span>124 autos</span></div>
 
   <!-- Barra compacta: siempre visible, es la única forma de reabrir el selector -->
@@ -1973,6 +1975,11 @@ const FEAT_ICONS = {"Patentamientos 2026 (unidades)":"f-precio", "Seguridad en c
 // El nombre completo de DATA sigue siendo la clave de todo (PCTL_DIR, GLOSSARY, ranking,
 // tests, rutina) y aparece en el tooltip junto con la explicación. Nunca renombrar DATA.
 const ETIQUETA_CORTA = {"Patentamientos 2026 (unidades)":"Patentados 2026", "Seguridad en choques (NCAP)":"Choques (NCAP)", "Longitud (mm)": "Largo (mm)", "Altura (mm)": "Alto (mm)", "Peso en vacío (kg)": "Peso vacío (kg)", "Precio de lista (versión tope de gama de la tabla)": "Precio de lista", "Garantía general": "Garantía", "Garantía de la batería de alto voltaje": "Garantía de batería", "Grupo automotriz": "Grupo", "Importador en Argentina": "Importador", "Distancia entre ejes (mm)": "Entre ejes (mm)", "Volumen de baúl/carga (L)": "Baúl (L)", "Número de asientos": "Asientos", "Radio de giro mínimo (m)": "Radio de giro (m)", "Medida de neumáticos": "Neumáticos", "Tipo de propulsión": "Propulsión", "Potencia total del sistema (kW)": "Potencia total (kW)", "Motor a combustión — potencia (kW)": "Motor a nafta/diésel (kW)", "Motor a combustión — par (N·m)": "Par a nafta/diésel (N·m)", "Motor eléctrico — potencia máx. (kW)": "Motor eléctrico (kW)", "Motor eléctrico — par máx. (N·m)": "Par eléctrico (N·m)", "Aceleración 0-100 km/h (s)": "0 a 100 km/h (s)", "Velocidad máxima (km/h)": "Vel. máxima (km/h)", "Consumo de combustible (L/100km)": "Consumo (L/100km)", "Capacidad de batería (kWh)": "Batería (kWh)", "Batería Blade / tecnología de batería": "Tipo de batería", "Puerto de carga AC": "Carga AC", "Puerto de carga DC (rápida)": "Carga rápida DC", "Cargador integrado (OBC)": "Cargador a bordo", "Carga portátil 3 a 7A": "Cargador portátil", "Función descarga V2L (VTOL)": "Descarga V2L", "Sistema de calefacción/enfriamiento de batería": "Climatización de batería", "Techo solar/corredizo panorámico": "Techo panorámico", "Antena tipo aleta de tiburón": "Antena tiburón", "Apertura eléctrica del baúl/portón": "Portón eléctrico", "Barras de techo integradas": "Barras de techo", "Material del volante": "Volante", "Panel de instrumentos digital": "Tablero digital", "Pantalla central multimedia": "Pantalla central", "Cargador de celular inalámbrico": "Carga inalámbrica", "Estuche para lentes en techo": "Portaanteojos", "Apoyabrazos central trasero con portavasos": "Apoyabrazos trasero", "Entrada y arranque sin llave": "Arranque sin llave", "Estacionamiento electrónico (EPB)": "Freno de mano eléctrico", "Modos de conducción seleccionables": "Modos de manejo", "Airbags frontales (conductor + pasajero)": "Airbags frontales", "Airbags laterales delanteros": "Airbags laterales", "ABS (frenos antibloqueo)": "ABS", "Control electrónico de estabilidad (ESC)": "Estabilidad (ESC)", "Control de tracción (TCS)": "Tracción (TCS)", "Cámara 360°/panorámica": "Cámara 360°", "Control crucero adaptativo (ACC)": "Crucero adaptativo", "Frenado automático de emergencia (AEB)": "Frenado autónomo", "Alerta de colisión frontal (FCW)": "Alerta de choque frontal", "Alerta de colisión trasera (RCW)": "Alerta de choque trasero", "Detección de punto ciego (BSD)": "Punto ciego", "Asistente de mantenimiento de carril (LKA)": "Asistente de carril", "Reconocimiento de señales de tránsito (TSR)": "Lectura de señales", "Alerta de tráfico cruzado (RCTA/FCTA)": "Tráfico cruzado", "Head-Up Display (HUD)": "Head-Up Display", "Ajuste asiento conductor": "Asiento del conductor", "Ajuste asiento pasajero delantero": "Asiento del acompañante", "Ventilación de asientos": "Asientos ventilados", "Asientos traseros plegables": "Traseros rebatibles", "Sistema de cabina inteligente / multimedia propio": "Sistema multimedia", "Ecosistema Google integrado (Maps y apps)": "Google integrado", "WiFi en el vehículo": "WiFi", "Actualización remota OTA": "Actualización remota", "Servicio de nube / telemetría propia": "App y telemetría", "Cantidad de parlantes": "Parlantes", "Luces diurnas LED (DRL)": "Luces diurnas LED", "Encendido automático de faros": "Faros automáticos", "Función \"Follow me home\"": "Follow me home", "Luz de bienvenida dinámica": "Luz de bienvenida", "Limpiaparabrisas trasero": "Limpialuneta", "Espejos exteriores plegables eléctricos": "Espejos rebatibles", "Espejo retrovisor antideslumbrante": "Espejo antideslumbrante", "Aire acondicionado automático": "Aire automático", "Climatización de doble zona": "Climatizador bizona", "Filtro de aire de alta eficiencia (PM2.5/CN95)": "Filtro PM2.5", "Calefacción por bomba de calor": "Bomba de calor"};
+// Nombre de la fila en el celular vertical (pedido del 2026-10-10): con la letra al 130% la
+// columna de características deja 66 px, y estos nombres se partían en cualquier sílaba. Dicen
+// lo mismo con palabras cortas; el corte (\u00ad) solo donde la palabra es compuesta o no hay
+// otra. El tooltip sigue mostrando el nombre completo. Lo aplica etiquetasCel().
+const ETIQUETA_CEL = {"Importador en Argentina": "Quién lo importa", "Patentamientos 2026 (unidades)": "Ventas 2026", "Medida de neumáticos": "Cubiertas", "Motor a combustión — potencia (kW)": "Motor a nafta o diésel (kW)", "Motor a combustión — par (N·m)": "Par a nafta o diésel (N·m)", "Autonomía combinada (km)": "Autonomía total (km)", "Carga programada": "Carga con horario", "Sistema de calefacción/enfriamiento de batería": "Control térmico de batería", "Techo solar/corredizo panorámico": "Techo solar", "Cargador de celular inalámbrico": "Cargador sin cable", "Estuche para lentes en techo": "Porta lentes", "Apoyabrazos central trasero con portavasos": "Apoya­brazos trasero", "Suspensión delantera": "Susp. delantera", "Suspensión trasera": "Susp. trasera", "Control electrónico de estabilidad (ESC)": "Estabi­lidad (ESC)", "Sensores de estacionamiento": "Sensores para estacionar", "Ajuste asiento pasajero delantero": "Asiento del pasajero", "Sistema de cabina inteligente / multimedia propio": "Sistema multi­media", "Navegación GPS": "GPS", "Actualización remota OTA": "Actualiza por internet", "Encendido automático de faros": "Faros con sensor", "Limpiaparabrisas trasero": "Limpia­luneta", "Espejo retrovisor antideslumbrante": "Espejo que no encandila", "Aire acondicionado automático": "Aire auto­mático", "Climatización de doble zona": "Aire de 2 zonas"};
 const GLOSSARY = {"Patentamientos 2026 (unidades)":"Cuántos se patentaron 0 km en Argentina en 2026, según el registro oficial (DNRPA, inscripciones iniciales). Muestra cuánto se vende: no es una medida de calidad.", "Seguridad en choques (NCAP)":"Resultado de los choques de prueba de Latin NCAP (el que corresponde a Argentina) o, si no hay, de otro programa (Euro NCAP, C-NCAP, ANCAP), con el año. Las estrellas de programas distintos no se comparan entre sí.", 
   "Precio de lista (versión tope de gama de la tabla)": "El precio sugerido al público (0km) de la versión específica representada en esta tabla para ese modelo — la más cara/completa de su gama, indicada entre paréntesis (por ejemplo, GS en el caso del Song Pro). No incluye patentamiento, flete ni accesorios. Todas las marcas de la tabla cotizan en dólares estadounidenses.",
   "Longitud (mm)": "Medida del auto de adelante hacia atrás (parachoques a parachoques).",
@@ -2262,12 +2269,13 @@ DATA.forEach((cat,ci)=>{
     tr.dataset.cat=ci;
     const corta = ETIQUETA_CORTA[row[0]];
     tr.dataset.nombre=row[0];
-    tr.dataset.search=(row[0] + (corta ? ' ' + corta : '')).toLowerCase();
+    const cel = ETIQUETA_CEL[row[0]];
+    tr.dataset.search=(row[0] + (corta ? ' ' + corta : '') + (cel ? ' ' + cel.replace(/\u00ad/g, '') : '')).toLowerCase();
     const featIco = FEAT_ICONS[row[0]]
       ? '<svg class="feat-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#'+FEAT_ICONS[row[0]]+'"/></svg>'
       : '';
     tr.dataset.vals=JSON.stringify(row.slice(1));
-    tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+((corta ? row[0] + '. ' : '') + (GLOSSARY[row[0]]||'')).replace(/"/g,'&quot;')+'">'+(corta||row[0])+'</span></td>' +
+    tr.innerHTML = '<td class="feat">'+featIco+'<span class="feat-label" data-tip="'+((corta ? row[0] + '. ' : '') + (GLOSSARY[row[0]]||'')).replace(/"/g,'&quot;')+'"'+(cel ? ' data-cel="'+cel+'" data-largo="'+(corta||row[0]).replace(/"/g,'&quot;')+'"' : '')+'>'+(corta||row[0])+'</span></td>' +
       row.slice(1).map((v,i)=>'<td data-col="'+i+'">'+renderVal(v)+(pctl?pctlHTML(pctl[i]):'')+'</td>').join('');
     tbody.appendChild(tr);
     allRows.push(tr);
@@ -2278,6 +2286,16 @@ DATA.forEach((cat,ci)=>{
 // ordenar las columnas o fijar un auto de referencia mueve los <th> en el DOM,
 // así que buscarlos por posición ya no dice de qué auto es cada uno.
 const TH_AUTO = [...document.querySelectorAll('#theadTable thead th:not(.feat-col)')];
+// En el celular vertical, los nombres cortos de ETIQUETA_CEL y "Dato" en vez de "Característica".
+const MQ_CEL = window.matchMedia('(max-width: 600px) and (orientation: portrait)');
+function etiquetasCel(){
+  const cel = MQ_CEL.matches;
+  document.querySelectorAll('#mainTable .feat-label[data-cel]').forEach(sp => { sp.textContent = cel ? sp.dataset.cel : sp.dataset.largo; });
+  const th = document.querySelector('#theadTable th.feat-col');
+  if (th) th.textContent = cel ? 'Dato' : 'Característica';
+}
+etiquetasCel();
+if (MQ_CEL.addEventListener) MQ_CEL.addEventListener('change', etiquetasCel);
 TH_AUTO.forEach((th, i) => { th.dataset.idx = i; });
 const SLUG_AUTO = TH_AUTO.map(th => { const img = th.querySelector('img.car-photo'); return img ? img.dataset.slug : ''; });
 // La miniatura embebida mide 300 px. Si la foto se dibuja con más píxeles que eso (columnas
@@ -3481,7 +3499,7 @@ function rkRestoHTML(resto, k){
     ['ciclo', 'Sin ciclo o sin factor', 'Tienen cifra, pero la fuente no dice en qué ciclo se midió (o no hay un factor publicado para ese ciclo), así que no se puede estimar a WLTP ni ordenar junto a las demás.'],
     ['nc', 'No comparable', 'Tienen cifra, pero medida de otra forma (otra unidad, con los asientos rebatidos, o una "combinada" que es la suma de los motores), así que no se pueden ordenar junto a las demás.'],
     ['na', 'No aplica', 'Esta característica no corresponde a estos autos (por ejemplo, el consumo de nafta en un eléctrico).'],
-    ['sd', 'Sin dato', 'No hay cifra en la ficha ni en otra fuente confiable. No quiere decir que estén abajo de todo: no se sabe dónde caen.'],
+    ['sd', 'Sin dato', 'No publican la cifra: no se sabe dónde caen.'],
   ];
   return GRUPOS.filter(([g]) => resto[g].length).map(([g, titulo, texto, clave]) =>
     '<section data-grupo="' + (clave || g) + '"><h3>' + titulo + ' (' + resto[g].length + ')</h3><p>' + texto + '</p><ul>' +
@@ -3528,7 +3546,7 @@ function rkCoberturaHTML(nPublican, nAplica, nRanking){
   const pct = Math.round(100 * nPublican / nAplica);
   const fuera = nPublican - nRanking;
   return '<div class="rk-cobertura' + (pct < 50 ? ' baja' : '') + '"><div class="rk-cob-barra" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
-    '<span>Publican esta cifra ' + nPublican + ' de los ' + nAplica + ' autos a los que corresponde' +
+    '<span>La publican ' + nPublican + ' de ' + nAplica + ' autos' +
     (fuera > 0 ? ' (' + fuera + ' no se pueden ordenar: ver abajo)' : '') +
     (pct < 50 ? '. El 1º es el mejor <b>de los que la publican</b>, no necesariamente de todos.' : '.') + '</span></div>';
 }
@@ -3545,8 +3563,9 @@ function renderRanking(){
   const { ok, resto } = rkClasificarFila(k, cand.lista);
   document.getElementById('rkTitulo').textContent = rkTitulo(k) + (rkUnidadDe(k) && !rkEsDerivada(k) ? ' (' + rkUnidadDe(k) + ')' : '');
   const marcados = ok.filter(r => /^(NOTE|EXT):/.test(r.v || '')).length;
-  document.getElementById('rkSub').innerHTML = rkEsc((dir > 0 ? 'Mayor es mejor. ' : 'Menor es mejor. ') + ok.length + ' de ' + cand.lista.length +
-    ' autos con cifra para comparar' + (marcados ? '; ' + marcados + ' con cifra de otro mercado o con una aclaración (la franja de color: tocala para ver de dónde sale)' : '')) +
+  // Cuántos tienen la cifra lo dice la línea de cobertura de abajo: acá no se repite (2026-10-10).
+  document.getElementById('rkSub').innerHTML = rkEsc((dir > 0 ? 'Mayor es mejor.' : 'Menor es mejor.') +
+    (marcados ? ' ' + marcados + ' cifras con aclaración u otra fuente (tocá la franja de color).' : '')) +
     (rkEsDerivada(k) ? '<br>' + rkEsc(RK_DERIVADAS[k].sub) : '') +
     (WLTP_TEXTO[k] ? '<details class="rk-como"><summary>' + (k === FILA_COMB ? '¿Por qué una lista por ciclo?' : '¿Cómo se estima?') + '</summary>' + rkEsc(WLTP_TEXTO[k]) + '</details>' : '');
   document.getElementById('rkCobertura').innerHTML = rkCoberturaHTML(ok.length + resto.aparte.length + resto.ciclo.length + resto.nc.length, cand.lista.length - resto.na.length, ok.length);
@@ -4328,7 +4347,7 @@ function videosHTML(slug){
       '<b>' + rkEsc(v.t) + '</b><small>' + rkEsc(v.canal) + ', ' + fecha(v.f) + ', ' + dur(v.s) + ' min' + (v.n ? '. ' + rkEsc(v.n) : '') + '</small></div>' +
     '<div class="video-acciones"><button type="button" class="ficha-btn video-ver" data-video-id="' + rkEsc(v.id) + '" data-video-titulo="' + rkEsc(v.t) + '">Ver acá</button>' +
     '<a href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">Abrir en YouTube</a></div></li>').join('') +
-    '</ul><p class="ficha-nota">Videos de periodistas: las pruebas son del mismo modelo y versión que está en la tabla; lo demás (presentaciones, informes, adelantos, otra versión) va marcado. Son opiniones de terceros, no datos de la ficha. El video se carga recién al tocar «Ver acá».</p></section>';
+    '</ul><p class="ficha-nota">Pruebas del mismo modelo y versión de la tabla; lo demás va marcado. Son opiniones de periodistas, no datos de la ficha.</p></section>';
 }
 function coloresHTML(slug){
   const e = COLORES_AR[slug];
@@ -4421,7 +4440,7 @@ async function abrirFicha(i){
     '<section class="ficha-donde" id="fichaDondeSec"><h3>Dónde comprarlo</h3><div id="fichaDonde"><p class="ficha-vacio">Cargando la red de concesionarios…</p></div></section>' +
     '<div class="ficha-cols"><section><h3>Dónde se destaca</h3>' + lista(fuertes, 'fuerte') + '</section>' +
       '<section><h3>Dónde queda abajo</h3>' + lista(debiles, 'debil') + '</section></div>' +
-    '<p class="ficha-nota">Puestos contra los autos a la venta, en las filas donde "mejor" tiene una dirección clara (cuarto mejor y cuarto peor). No es una opinión: sale de las cifras de la tabla.' +
+    '<p class="ficha-nota">Contra los autos a la venta, según las cifras de la tabla (cuarto mejor y cuarto peor).' +
       (sinDato.length ? ' Sin dato en: ' + rkEsc(sinDato.join(', ')) + '.' : '') + '</p>' +
     (sim.length ? '<section class="ficha-sim"><h3>Parecidos para comparar</h3><ul>' + sim.map(s => {
       const im = TH_AUTO[s.i].querySelector('img.car-photo');
@@ -4537,8 +4556,8 @@ function abrirGrupos(enfocar){
     '<button type="button" class="ficha-cerrar" id="gruposCerrar" aria-label="Cerrar">✕</button>' +
     '<h2 id="gruposTitulo" class="grupos-titulo">Grupos automotrices</h2>' +
     '<p class="ficha-nota">Detrás de las ' + new Set(CARS.map((_, i) => submarcaDe(i))).size + ' marcas de la tabla hay ' + grupos.length +
-    ' grupos. Muchas marcas chinas son submarcas de un grupo más grande (Jetour es de Chery, Deepal de Changan) y otras tienen socios extranjeros. ' +
-    'En Argentina las trae un importador, que es el que responde por la garantía y la red. Datos de octubre de 2026, con sus fuentes.</p>' +
+    ' grupos: muchas son submarcas (Jetour es de Chery, Deepal de Changan). ' +
+    'Acá las trae un importador, que responde por la garantía y la red. Datos de octubre de 2026.</p>' +
     grupos.map(g => {
       const marcas = [...porGrupo.get(g).entries()];
       const idx = marcas.flatMap(([, a]) => a);
@@ -4699,7 +4718,7 @@ function pintarConces(){
   const sinRed = Object.entries(d.marcas || {}).filter(([, m]) => !m.total).map(([k, m]) => k + (m.aviso ? ' (' + m.aviso + ')' : ''));
   hoja.innerHTML = '<button type="button" class="ficha-cerrar" id="concesCerrar" aria-label="Cerrar">✕</button>' +
     '<h2 id="concesTitulo" class="grupos-titulo">Concesionarios</h2>' +
-    '<p class="ficha-nota">La red oficial que publica cada marca o su importador en su sitio, consultada el ' + concesEsc(d.fecha || '') + '. Antes de ir, conviene llamar: las redes cambian seguido.</p>' +
+    '<p class="ficha-nota">La red oficial que publica cada marca, consultada el ' + concesEsc(d.fecha || '') + '. Llamá antes de ir: las redes cambian seguido.</p>' +
     '<div class="cc-filtros">' + sel('ccProv', 'Provincia', provincias, f.provincia) + sel('ccMarca', 'Marca', marcas, f.marca) + sel('ccGrupo', 'Grupo', grupos, f.grupo) +
       '<label class="rk-sel"><span>Buscar</span><input type="search" id="ccQ" placeholder="Ciudad o nombre" value="' + concesEsc(f.q) + '"></label></div>' +
     ubicacionHTML(d) +
@@ -4799,7 +4818,7 @@ function ubicacionHTML(d){
     (miUbic ? '' : '<div class="cc-filtros"><button type="button" class="ficha-btn primario" id="dondeGps">Usar mi ubicación</button>' +
       '<label class="rk-sel"><span>Provincia</span><select id="dondeProv"><option value="">Elegí</option>' + provs.map(p => '<option' + (p === prov ? ' selected' : '') + '>' + concesEsc(p) + '</option>').join('') + '</select></label>' +
       (prov ? '<label class="rk-sel"><span>Partido o departamento</span><select id="dondeLoc"><option value="">Elegí</option>' + opts.map(l => '<option>' + concesEsc(l.localidad) + '</option>').join('') + '</select></label>' : '') +
-      '</div><p class="ficha-nota" id="dondeAviso">Tu ubicación se usa solo en tu navegador para medir distancias: no se envía a ningún lado.</p>') +
+      '</div><p class="ficha-nota" id="dondeAviso">Tu ubicación no sale de tu navegador.</p>') +
     '</div>';
 }
 async function pintarDondeVerlo(i){
@@ -5014,7 +5033,7 @@ function pintarElegir(cambio){
   // Es una vista de la página, como Tabla y Ranking (2026-10-09): el título del sitio es el de la
   // página, y acá va el de la sección.
   hoja.innerHTML = '<h2 id="elegirTitulo" class="elegir-titulo">Ayudame a elegir</h2>' +
-    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + elegirN() + ' autos a la venta. Los motivos salen de las cifras de la tabla. ' +
+    '<p class="ficha-nota">Cinco preguntas y te sugerimos ' + elegirN() + ' autos a la venta. ' +
       '<button type="button" class="mini-btn" id="elegirTabla">Ver la tabla con los ' + CARS.length + ' autos</button></p>' +
     '<div class="elegir-preg">' + ELEGIR_PREG.map(q => '<fieldset><legend>' + q.t + '</legend><div class="elegir-ops">' +
       q.ops.map(([v, t]) => '<label><input type="radio" name="el-' + q.k + '" value="' + v + '"' + (r[q.k] === v ? ' checked' : '') + '><span>' + t + '</span></label>').join('') + '</div></fieldset>').join('') + '</div>' +

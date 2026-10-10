@@ -235,3 +235,29 @@ test('cada lugar con fotos de autos trae sus flechitas', async ({ page }) => {
   await rk.locator('.mini-nav.sig').click();
   await expect(page.locator('#fichaAuto')).toBeHidden();
 });
+
+test('en el celular los nombres de fila no se parten en cualquier sílaba ni hay textos cortados con "…"', async ({ page }) => {
+  // Pedido del 2026-10-10: con la letra al 130%, lo que no entra se resume (ETIQUETA_CEL), no se corta.
+  await page.goto('/index.html?tabla');
+  await expect(page.locator(FILAS_DATOS)).toHaveCount(N_FILAS);
+  const huerfanas = await page.evaluate(() => { const n = new Set(DATA.flatMap(([, f]) => f.map(r => r[0]))); return Object.keys(ETIQUETA_CEL).filter(k => !n.has(k)); });
+  expect(huerfanas).toEqual([]);
+  if (page.viewportSize().width > 600) return;
+  await expect(page.locator('#theadTable th.feat-col')).toHaveText('Dato');
+  const partidas = await page.evaluate(() => {
+    const malas = [];
+    document.querySelectorAll('#mainTable span.feat-label').forEach(sp => {
+      const t = sp.firstChild; const re = /\S+/g; let m;
+      while ((m = re.exec(t.textContent))) {
+        if (m[0].includes('­')) continue;   // corte elegido a mano
+        const r = document.createRange(); r.setStart(t, m.index); r.setEnd(t, m.index + m[0].length);
+        if (new Set([...r.getClientRects()].filter(x => x.width).map(x => Math.round(x.top))).size > 1) malas.push(m[0]);
+      }
+    });
+    return malas;
+  });
+  expect(partidas).toEqual([]);
+  await page.click('#vistaRanking');
+  const cortados = await page.locator('#rkLista .rk-nombre span, #rkLista .rk-orig').evaluateAll(els => els.filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent));
+  expect(cortados).toEqual([]);
+});
