@@ -219,7 +219,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
 - **Presupuesto** en el selector: rango en USD sobre `SIM_PRECIO`. Los autos sin precio
   en dólares entran por defecto (tilde aparte): no esconder un auto porque falte el dato.
 - **Letra en el celular** (2026-10-10, pedido del usuario: con presbicia no se leía): hasta
-  640 px de ancho la base es `html{font-size:115%}`. Todos los tamaños de letra van en `rem`
+  640 px de ancho la base es `html{font-size:130%}` (con 115% los datos quedaban en 15 px y no
+  alcanzó; con 130% van en 17 px y casi nada baja de 15). El título grande del encabezado no sube.
+  Las páginas de `autos/` y `novedades` (las arma `herramientas-paginas.py`) usan 115% con el
+  cuerpo en `1rem` (18 px; su texto es más grande de base). Solo en pantalla: al imprimir no cambia. Todos los tamaños de letra van en `rem`
   para que suban juntos: **no escribir tamaños de letra en px**. El ancho de las columnas va
   en `vw` y no cambia.
 - **Modo oscuro**: todo color sale de las variables de `:root`; el oscuro solo cambia sus

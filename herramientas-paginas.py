@@ -115,13 +115,14 @@ def pagina(i, data, car, slug, credito, colores, videos):
 <style>
 :root{{--paper:#EEF1EE;--ink:#17211D;--ink2:#4B5A53;--line:#C9D4CE;--accent:#00843D}}
 @media (prefers-color-scheme:dark){{:root{{--paper:#141B18;--ink:#E4EAE6;--ink2:#9DB3A8;--line:#2E3A35;--accent:#3FB57A}}}}
-body{{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
+html{{-webkit-text-size-adjust:100%;text-size-adjust:100%}} @media screen and (max-width:640px){{html{{font-size:115%}}}}
+body{{margin:0;background:var(--paper);color:var(--ink);font:1rem/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
 main{{max-width:880px;margin:0 auto;padding:16px}}
 a{{color:var(--accent)}} h1{{font-size:2rem;line-height:1.1;margin:8px 0 4px;text-wrap:balance}}
 .sub{{color:var(--ink2);margin:0 0 12px}} figure{{margin:0}} figure img{{width:100%;height:auto;background:#fff;border-radius:2px}}
 figcaption{{font-size:.75rem;color:var(--ink2)}} .cta{{display:inline-block;margin:12px 0;padding:8px 14px;border-radius:4px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}}
-h2{{font-size:1.15rem;margin:24px 0 6px;border-bottom:2px solid var(--ink)}} table{{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}}
-th,td{{text-align:left;vertical-align:top;padding:5px 6px;border-bottom:1px solid var(--line)}} th{{font-weight:500;width:42%;color:var(--ink2)}}
+h2{{font-size:1.15rem;margin:24px 0 6px;border-bottom:2px solid var(--ink)}} table{{width:100%;table-layout:fixed;border-collapse:collapse;font-variant-numeric:tabular-nums}}
+th,td{{text-align:left;vertical-align:top;padding:5px 6px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}} th{{font-weight:500;width:42%;color:var(--ink2)}}
 td small{{display:block;font-size:.75rem;color:var(--ink2)}} .colores{{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px}}
 .colores li{{border:1px solid var(--line);border-radius:3px;padding:2px 8px}}
 .videos{{padding-left:18px}} .videos li{{margin:4px 0}} .videos small{{display:block;color:var(--ink2)}} .nota,footer{{font-size:.8rem;color:var(--ink2)}}
@@ -183,7 +184,8 @@ def novedades(cars, slugs):
 <style>
 :root{{--paper:#EEF1EE;--ink:#17211D;--ink2:#4B5A53;--line:#C9D4CE;--accent:#00843D}}
 @media (prefers-color-scheme:dark){{:root{{--paper:#141B18;--ink:#E4EAE6;--ink2:#9DB3A8;--line:#2E3A35;--accent:#3FB57A}}}}
-body{{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
+html{{-webkit-text-size-adjust:100%;text-size-adjust:100%}} @media screen and (max-width:640px){{html{{font-size:115%}}}}
+body{{margin:0;background:var(--paper);color:var(--ink);font:1rem/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
 main{{max-width:760px;margin:0 auto;padding:16px}} a{{color:var(--accent)}} h1{{font-size:2rem;line-height:1.1;margin:8px 0;text-wrap:balance}}
 .sub{{color:var(--ink2);margin:0 0 16px}} ol{{list-style:none;margin:0;padding:0}}
 li{{border-bottom:1px solid var(--line);padding:10px 0}} time{{font-size:.8rem;color:var(--ink2)}}

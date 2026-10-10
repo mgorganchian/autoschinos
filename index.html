@@ -82,9 +82,11 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   *{box-sizing:border-box;}
   /* Letra más grande en el celular (pedido del 2026-10-10: con presbicia no se leía). Todos los
      tamaños de letra están en rem, así que subir la base agranda todo en la misma proporción y
-     no cambia el formato; el ancho de las columnas va en vw y no se mueve. */
+     no cambia el formato; el ancho de las columnas va en vw y no se mueve. Con 115% los datos
+     quedaban en 15 px y no alcanzó: 130% los lleva a 17 px. El título grande no sube (ya era
+     grande y partía en dos líneas). */
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-  @media (max-width:640px){ html{font-size:115%} }
+  @media screen and (max-width:640px){ html{font-size:130%} }
   body{
     margin:0;
     font-family:var(--fuente);
@@ -339,7 +341,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
       max-width:38vw !important;
     }
     :root{--ancho-feat:20vw;--ancho-col:38vw;}
-    tbody td.feat{font-size:.78rem;line-height:1.3;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+    tbody td.feat{font-size:.72rem;line-height:1.3;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
     tbody td.feat .feat-icon{display:none}
     thead th.feat-col{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
     thead th:not(.feat-col){padding-left:2px !important;padding-right:2px !important}
@@ -1263,6 +1265,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   header{background:var(--byd-blue-dark);padding:22px 16px 14px}
   header h1{font-family:var(--fuente-titulo);font-weight:700;font-size:clamp(2rem,6vw,3rem);line-height:.95;
     letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance}
+  @media screen and (max-width:640px){ header h1{font-size:1.8rem} }
   #headerSubtitle{font-size:.92rem;line-height:1.45;max-width:62ch;opacity:1;color:rgba(255,255,255,.78)}
   /* Cota de plano: la línea de medida con sus topes, como en el dibujo acotado de una ficha. */
   .cota{display:flex;align-items:flex-end;gap:10px;max-width:440px;margin:14px 0 4px;color:rgba(255,255,255,.62);
