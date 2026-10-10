@@ -342,7 +342,7 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     }
     :root{--ancho-feat:20vw;--ancho-col:38vw;}
     tbody td.feat{font-size:.72rem;line-height:1.3;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}
-    #mainTable tbody td.feat{font-family:var(--fuente-tabla)}
+    #mainTable tbody td.feat{font-family:var(--fuente-tabla);padding-left:6px !important;padding-right:2px !important}
     tbody td.feat .feat-icon{display:none}
     thead th.feat-col{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
     thead th:not(.feat-col){padding-left:2px !important;padding-right:2px !important}
@@ -1024,6 +1024,8 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   .grupo-det,.grupo-imp{font-size:.74rem;line-height:1.45;color:var(--ink)}
   .grupo-det small,.grupo-imp small{display:block;color:var(--ink-3);font-size:.66rem}
   .grupo-imp span{color:var(--ink-2)}
+  .grupo-imp .grupo-imp-nom{color:var(--ink);font-weight:700}
+  .grupo-marca-cab b[data-tip],.grupo-imp-nom[data-tip]{text-decoration:underline dotted var(--ink-3);text-underline-offset:3px;cursor:help}
   .grupo-marca a{color:var(--link)}
   .grupo-autos{display:flex;flex-wrap:wrap;gap:5px}
   .grupo-auto{background:var(--chip-bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:2px 9px;font-size:.7rem;cursor:pointer}
@@ -1267,7 +1269,6 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
   header{background:var(--byd-blue-dark);padding:22px 16px 14px}
   header h1{font-family:var(--fuente-titulo);font-weight:700;font-size:clamp(2rem,6vw,3rem);line-height:.95;
     letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance}
-  @media screen and (max-width:640px){ header h1{font-size:1.8rem} }
   #headerSubtitle{font-size:.92rem;line-height:1.45;max-width:62ch;opacity:1;color:rgba(255,255,255,.78)}
   /* Cota de plano: la línea de medida con sus topes, como en el dibujo acotado de una ficha. */
   .cota{display:flex;align-items:flex-end;gap:10px;max-width:440px;margin:14px 0 4px;color:rgba(255,255,255,.62);
@@ -1416,6 +1417,17 @@ try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.docum
     .car-photo-box{max-width:72px}
     .mini-nav{display:none !important}
     footer{font-size:.6rem}
+  }
+  /* Títulos en el celular (pedido del 2026-10-10): ya eran grandes, así que no siguen el 130% de
+     la letra; quedan apenas más grandes que antes. Lo que sube es el texto de los detalles. */
+  @media screen and (max-width:640px){
+    header h1{font-size:1.6rem}
+    .grupos-titulo{font-size:1.6rem}
+    .ficha-titulo h2{font-size:1.5rem}
+    .elegir-titulo,.rk-head h2,.donde-mejor-monto{font-size:1.35rem}
+    .ficha-hoja h3,.grupo-cabeza h3,.cc-prov h3,.todos-autos h2,.elegir-res-tit{font-size:.95rem}
+    .rk-pos{font-size:1.1rem}
+    tr.cat-row td{font-size:.9rem}
   }
 </style>
 </head>
@@ -1979,7 +1991,7 @@ const ETIQUETA_CORTA = {"Patentamientos 2026 (unidades)":"Patentados 2026", "Seg
 // columna de características deja 66 px, y estos nombres se partían en cualquier sílaba. Dicen
 // lo mismo con palabras cortas; el corte (\u00ad) solo donde la palabra es compuesta o no hay
 // otra. El tooltip sigue mostrando el nombre completo. Lo aplica etiquetasCel().
-const ETIQUETA_CEL = {"Importador en Argentina": "Quién lo importa", "Patentamientos 2026 (unidades)": "Ventas 2026", "Medida de neumáticos": "Cubiertas", "Motor a combustión — potencia (kW)": "Motor a nafta o diésel (kW)", "Motor a combustión — par (N·m)": "Par a nafta o diésel (N·m)", "Autonomía combinada (km)": "Autonomía total (km)", "Carga programada": "Carga con horario", "Sistema de calefacción/enfriamiento de batería": "Control térmico de batería", "Techo solar/corredizo panorámico": "Techo solar", "Cargador de celular inalámbrico": "Cargador sin cable", "Estuche para lentes en techo": "Porta lentes", "Apoyabrazos central trasero con portavasos": "Apoya­brazos trasero", "Suspensión delantera": "Susp. delantera", "Suspensión trasera": "Susp. trasera", "Control electrónico de estabilidad (ESC)": "Estabi­lidad (ESC)", "Sensores de estacionamiento": "Sensores para estacionar", "Ajuste asiento pasajero delantero": "Asiento del pasajero", "Sistema de cabina inteligente / multimedia propio": "Sistema multi­media", "Navegación GPS": "GPS", "Actualización remota OTA": "Actualiza por internet", "Encendido automático de faros": "Faros con sensor", "Limpiaparabrisas trasero": "Limpia­luneta", "Espejo retrovisor antideslumbrante": "Espejo que no encandila", "Aire acondicionado automático": "Aire auto­mático", "Climatización de doble zona": "Aire de 2 zonas"};
+const ETIQUETA_CEL = {"Patentamientos 2026 (unidades)": "Ventas 2026", "Medida de neumáticos": "Cubiertas", "Motor a combustión — potencia (kW)": "Motor a nafta o diésel (kW)", "Motor a combustión — par (N·m)": "Par a nafta o diésel (N·m)", "Autonomía combinada (km)": "Autonomía total (km)", "Carga programada": "Carga con horario", "Sistema de calefacción/enfriamiento de batería": "Control térmico de batería", "Techo solar/corredizo panorámico": "Techo solar", "Cargador de celular inalámbrico": "Cargador sin cable", "Estuche para lentes en techo": "Porta lentes", "Apoyabrazos central trasero con portavasos": "Apoya­brazos trasero", "Suspensión delantera": "Susp. delantera", "Suspensión trasera": "Susp. trasera", "Control electrónico de estabilidad (ESC)": "Estabi­lidad (ESC)", "Sensores de estacionamiento": "Sensores para estacionar", "Ajuste asiento pasajero delantero": "Asiento del pasajero", "Sistema de cabina inteligente / multimedia propio": "Sistema multi­media", "Navegación GPS": "GPS", "Actualización remota OTA": "Actualiza por internet", "Encendido automático de faros": "Faros con sensor", "Limpiaparabrisas trasero": "Limpia­luneta", "Espejo retrovisor antideslumbrante": "Espejo que no encandila", "Aire acondicionado automático": "Aire auto­mático", "Climatización de doble zona": "Aire de 2 zonas"};
 const GLOSSARY = {"Patentamientos 2026 (unidades)":"Cuántos se patentaron 0 km en Argentina en 2026, según el registro oficial (DNRPA, inscripciones iniciales). Muestra cuánto se vende: no es una medida de calidad.", "Seguridad en choques (NCAP)":"Resultado de los choques de prueba de Latin NCAP (el que corresponde a Argentina) o, si no hay, de otro programa (Euro NCAP, C-NCAP, ANCAP), con el año. Las estrellas de programas distintos no se comparan entre sí.", 
   "Precio de lista (versión tope de gama de la tabla)": "El precio sugerido al público (0km) de la versión específica representada en esta tabla para ese modelo — la más cara/completa de su gama, indicada entre paréntesis (por ejemplo, GS en el caso del Song Pro). No incluye patentamiento, flete ni accesorios. Todas las marcas de la tabla cotizan en dólares estadounidenses.",
   "Longitud (mm)": "Medida del auto de adelante hacia atrás (parachoques a parachoques).",
@@ -4550,14 +4562,15 @@ function abrirGrupos(enfocar){
   });
   const total = g => [...porGrupo.get(g).values()].reduce((n, a) => n + a.length, 0);
   const grupos = [...porGrupo.keys()].sort((a, b) => total(b) - total(a) || a.localeCompare(b, 'es'));
-  const links = urls => (urls || []).slice(0, 4).map(u => { let h = u; try { h = new URL(u).hostname.replace(/^www\./, ''); } catch (e) {}
-    return '<a href="' + rkEsc(u) + '" target="_blank" rel="noopener">' + rkEsc(h) + '</a>'; }).join(', ');
+  // Una línea por marca (pedido del 2026-10-10: mucho texto): la historia, el detalle del
+  // importador y las fuentes van en el tooltip (data-tip), que se abre con el mouse o tocando.
+  const hosts = urls => (urls || []).slice(0, 4).map(u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } }).join(', ');
+  const tip = (txt, urls) => txt ? ' data-tip="' + rkEsc(txt + (urls && urls.length ? ' Fuentes: ' + hosts(urls) + '.' : '')) + '"' : '';
   document.getElementById('gruposHoja').innerHTML =
     '<button type="button" class="ficha-cerrar" id="gruposCerrar" aria-label="Cerrar">✕</button>' +
     '<h2 id="gruposTitulo" class="grupos-titulo">Grupos automotrices</h2>' +
-    '<p class="ficha-nota">Detrás de las ' + new Set(CARS.map((_, i) => submarcaDe(i))).size + ' marcas de la tabla hay ' + grupos.length +
-    ' grupos: muchas son submarcas (Jetour es de Chery, Deepal de Changan). ' +
-    'Acá las trae un importador, que responde por la garantía y la red. Datos de octubre de 2026.</p>' +
+    '<p class="ficha-nota">' + new Set(CARS.map((_, i) => submarcaDe(i))).size + ' marcas, ' + grupos.length +
+    ' grupos. Tocá una marca o un importador para ver su historia. Datos de octubre de 2026.</p>' +
     grupos.map(g => {
       const marcas = [...porGrupo.get(g).entries()];
       const idx = marcas.flatMap(([, a]) => a);
@@ -4565,10 +4578,9 @@ function abrirGrupos(enfocar){
         '<button type="button" class="ficha-btn" data-comparar-grupo="' + rkEsc(g) + '">Comparar ' + (idx.length === 1 ? 'su auto' : (idx.length <= 6 ? 'sus ' + idx.length + ' autos' : 'sus autos')) + '</button></div>' +
         marcas.map(([s, autos]) => {
           const m = MARCAS_INFO[s] || {};
-          return '<div class="grupo-marca"><p class="grupo-marca-cab">' + (LOGO_MARCA[s] !== LOGO_GRUPO[g] ? logoHTML(LOGO_MARCA[s], 'logo-marca', 'Logo de ' + s) : '') + '<b>' + rkEsc(s) + '</b> <span class="grupo-rel">' + rkEsc(m.relacion || 's/d') + '</span></p>' +
-            (m.detalle ? '<p class="grupo-det">' + rkEsc(m.detalle) + (m.fuentes_grupo ? ' <small>Fuentes: ' + links(m.fuentes_grupo) + '</small>' : '') + '</p>' : '') +
-            '<p class="grupo-imp"><span>Importador en Argentina:</span> <b>' + rkEsc(m.importador_ar || 'sin dato') + '</b>' +
-              (m.detalle_importador ? ' <small>' + rkEsc(m.detalle_importador) + (m.fuentes_importador ? ' Fuentes: ' + links(m.fuentes_importador) : '') + '</small>' : '') + '</p>' +
+          return '<div class="grupo-marca"><p class="grupo-marca-cab">' + (LOGO_MARCA[s] !== LOGO_GRUPO[g] ? logoHTML(LOGO_MARCA[s], 'logo-marca', 'Logo de ' + s) : '') +
+              '<b' + tip(m.detalle, m.fuentes_grupo) + '>' + rkEsc(s) + '</b> <span class="grupo-rel">' + rkEsc(m.relacion || 's/d') + '</span></p>' +
+            '<p class="grupo-imp"><span>Importador:</span> <span class="grupo-imp-nom"' + tip(m.detalle_importador, m.fuentes_importador) + '>' + rkEsc(m.importador_ar || 'sin dato') + '</span></p>' +
             '<p class="grupo-autos">' + autos.map(i => '<button type="button" class="grupo-auto" data-idx="' + i + '">' + rkEsc(CARS[i].name) + '</button>').join('') + '</p></div>';
         }).join('') + '</section>';
     }).join('');
@@ -4972,6 +4984,13 @@ function elegirPctl(nombre){
   const a = ELEGIR_PCTL[nombre]; return a || [];
 }
 const esTodoterreno = i => !!TH_AUTO[i].querySelector('use[href="#b-offroad"]');
+// "Top 20% en …" de Ayudame a elegir, con pocas palabras (2026-10-10).
+const MOTIVO_CORTO = {"Potencia total del sistema (kW)":"potencia","Volumen de baúl/carga (L)":"baúl","Número de asientos":"asientos",
+  "Motor a combustión — potencia (kW)":"potencia a nafta o diésel","Motor a combustión — par (N·m)":"par a nafta o diésel",
+  "Motor eléctrico — potencia máx. (kW)":"motor eléctrico","Motor eléctrico — par máx. (N·m)":"par eléctrico",
+  "Aceleración 0-100 km/h (s)":"aceleración","Velocidad máxima (km/h)":"velocidad máxima","Consumo de combustible (L/100km)":"consumo",
+  "Autonomía eléctrica (km)":"autonomía eléctrica","Autonomía combinada (km)":"autonomía total","Capacidad de batería (kWh)":"batería",
+  "Cantidad de parlantes":"parlantes","Garantía general":"garantía","Garantía de la batería de alto voltaje":"garantía de batería"};
 function elegirCalcular(r){
   const [pMin, pMax] = r.presu ? r.presu.split('-').map(x => x === '' ? null : +x) : [null, null];
   const tope = r.presu ? true : null, plazas = +r.plazas;
@@ -5014,13 +5033,14 @@ function elegirCalcular(r){
     // Motivos cortos (2026-10-09: que entren las 4 tarjetas): precio y propulsión en una línea, y
     // nada que repita lo que ya se respondió (la franja, o las plazas si son las pedidas).
     const motivos = [];
-    const prop = { ev: r.enchufe === 'si' ? 'eléctrico, lo cargás en casa' : 'eléctrico, necesita dónde cargar', phev: 'enchufable, eléctrico a diario', hev: 'híbrido, sin enchufe', mhev: 'mild-hybrid, sin enchufe', ice: 'naftero o diésel' }[c.type] || '';
+    // Más cortos todavía el 2026-10-10 (pedido del usuario: mucho texto con la letra más grande).
+    const prop = { ev: r.enchufe === 'si' ? 'eléctrico' : 'eléctrico (precisa cargador)', phev: 'enchufable', hev: 'híbrido', mhev: 'mild-hybrid', ice: 'nafta o diésel' }[c.type] || '';
     motivos.push(SIM_PRECIO[i] != null ? 'USD ' + SIM_PRECIO[i].toLocaleString('es-AR') + (prop ? ', ' + prop : '') : prop.charAt(0).toUpperCase() + prop.slice(1));
     if (SIM_ASIENTOS[i] != null && SIM_ASIENTOS[i] !== plazas && !(plazas >= 6 && SIM_ASIENTOS[i] === 7)) motivos.push(SIM_ASIENTOS[i] + ' asientos');
-    ps.filter(x => x[1].c >= 4).forEach(x => motivos.push('Top 20% en ' + rkTitulo(x[0]).toLowerCase()));
+    ps.filter(x => x[1].c >= 4).forEach(x => motivos.push('Top 20% en ' + (MOTIVO_CORTO[x[0]] || rkTitulo(x[0]).toLowerCase())));
     if (bonus && esTodoterreno(i)) motivos.push('Todoterreno');
-    if (fab) motivos.push('Lo importa la propia marca');
-    if (gAnos != null) motivos.push('Garantía ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]).replace(' años o ', ' años / '));
+    if (fab) motivos.push('Lo trae la marca');
+    if (gAnos != null) motivos.push('Garantía ' + cleanVal(FILA_POR_NOMBRE['Garantía general'][i + 1]).replace(' años o ', ' años, ').replace(/(\d+)\.000 km/, '$1 mil km'));
     return { i, puntos, motivos: motivos.filter(Boolean) };
   }).sort((a, b) => b.puntos - a.puntos);
   return { top: res.slice(0, elegirN()), todos: res.map(x => x.i), total: res.length, sinPrecio: sinPrecioIdx.length, sinPrecioIdx };
@@ -5045,7 +5065,7 @@ function pintarElegir(cambio){
         '<button type="button" class="elegir-foto" data-visor-slug="' + SLUG_AUTO[x.i] + '" aria-label="Ver ' + (n > 1 ? 'las ' + n + ' fotos' : 'la foto') + ' del ' + rkEsc(CARS[x.i].name) + '">' +
         '<img src="' + portadaDe(im) + '" alt="">' + (n > 1 ? '<span class="elegir-nfotos">' + n + ' fotos</span>' : '') + '</button>' + miniFlechas(SLUG_AUTO[x.i]) + '</span>' +
         '<ul>' + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') + '</ul>' +
-        '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver su página</button></li>';
+        '<button type="button" class="mini-btn" data-elegir-ficha="' + x.i + '">Ver ficha</button></li>';
     }).join('') + '</ol>' +
       // Cuántos cumplen ya lo dice la barra: acá solo los que quedaron afuera por no tener precio.
       (out.sinPrecio ? '<p class="elegir-acc"><span class="ficha-nota">' + out.sinPrecio + ' auto' + (out.sinPrecio === 1 ? '' : 's') + ' más cumple' + (out.sinPrecio === 1 ? '' : 'n') + ' lo demás pero no publica' + (out.sinPrecio === 1 ? '' : 'n') + ' precio en dólares.</span></p>' : '')
@@ -5063,11 +5083,11 @@ function pintarElegir(cambio){
     out.sinPrecio ? btn('sinprecio', out.total ? 'Los ' + (out.total + out.sinPrecio) + ' (+' + out.sinPrecio + ' sin precio)' : 'Los ' + out.sinPrecio + ' sin precio') : '',
   ].join('');
   hoja.insertAdjacentHTML('beforeend', '<div class="elegir-barra" role="status" aria-live="polite"><p class="elegir-barra-txt">' +
-    (igual ? '<em>Recalculado: siguen siendo los mismos.</em> ' : '') +
-    (out.top.length ? '<b>' + out.total + '</b> cumplen. Te sugerimos ' + out.top.map(x => rkEsc(CARS[x.i].short)).join(', ') : 'Ningún auto con precio cumple todo eso') +
+    (igual ? '<em>Sin cambios.</em> ' : cambio && out.top.length ? '<em>Nuevas sugerencias.</em> ' : '') +
+    (out.top.length ? '<b>' + out.total + '</b> autos cumplen.' : 'Ningún auto con precio cumple todo eso') +
     '</p>' +
     (botones ? '<p class="elegir-barra-btns"><span>Comparar</span>' + botones +
-      (out.top.length ? '<button type="button" class="mini-btn" id="elegirVer">Ver la lista</button>' : '') + '</p>' : '') + '</div>');
+      (out.top.length ? '<button type="button" class="mini-btn" id="elegirVer">Ver lista</button>' : '') + '</p>' : '') + '</div>');
   hoja.dataset.top = out.top.map(x => x.i).join(',');
   hoja.dataset.todos = out.todos.join(',');
   hoja.dataset.sinprecio = out.sinPrecioIdx.join(',');
@@ -5118,7 +5138,9 @@ function showTooltip(target){
   let top = rect.bottom + 8;
   if(left + boxWidth > window.innerWidth - 10) left = window.innerWidth - boxWidth - 10;
   if(left < 10) left = 10;
-  if(top + 80 > window.innerHeight){ top = rect.top - 90; }
+  // Con su alto real: los de Grupos traen varios renglones (2026-10-10).
+  const alto = tooltipBox.offsetHeight;
+  if(top + alto > window.innerHeight - 10) top = Math.max(10, rect.top - alto - 8);
   tooltipBox.style.left = left + 'px';
   tooltipBox.style.top = top + 'px';
 }

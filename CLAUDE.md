@@ -225,6 +225,10 @@ sí quedan en inglés, porque no muestran la palabra. Se coló con `YES` dos vec
   columna de características deja 66 px, así que los nombres de fila que se partían usan
   `ETIQUETA_CEL` (mismas cosas en palabras cortas, `etiquetasCel()`; el encabezado dice "Dato") con
   la letra de la tabla y sin guiones automáticos; el corte (`\u00ad`) solo en palabras compuestas.
+  "Importador" entra porque esa columna tiene menos margen en el celular. Los títulos no siguen el
+  130% (ya eran grandes: bloque "Títulos en el celular" al final del `<style>`). En Grupos, una línea
+  por marca: la historia, el detalle del importador y las fuentes van en el tooltip. Los motivos
+  de Ayudame a elegir son cortos (`MOTIVO_CORTO`).
   Nada de "…" en nombres de autos ni resúmenes: si no entra, va en dos renglones. Los textos de
   ayuda se acortaron para que haya menos para leer. `mejoras.spec.js` falla si un nombre de fila
   se parte en cualquier sílaba en el celular.
