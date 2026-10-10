@@ -138,7 +138,7 @@ test.describe('vista ranking', () => {
     await abrirRanking(page);
     const todos = [...await enLista(page), ...await page.locator('#rkResto li').evaluateAll(ls => ls.map(l => l.dataset.auto))];
     expect(todos.sort()).toEqual([...esperados].sort());
-    await expect(page.locator('#rkSub')).toContainText(`de ${esperados.length} auto`);
+    await expect(page.locator('#rkCobertura')).toContainText(`de ${esperados.length} auto`);
   });
 
   test('volver a la tabla conserva el scroll horizontal', async ({ page }, info) => {
