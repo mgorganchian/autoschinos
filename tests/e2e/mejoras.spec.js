@@ -32,7 +32,7 @@ test('ayudame a elegir: la franja de precio es piso y techo, y con enchufe en ca
   const precios = await page.evaluate(() => PRECIO_CMP);
   for (const li of await res.all()){
     const t = await li.locator('ul').textContent();
-    const usd = precios[+(await li.locator('[data-elegir-ficha]').getAttribute('data-elegir-ficha'))];
+    const usd = precios[+(await li.locator('> [data-elegir-ficha]').getAttribute('data-elegir-ficha'))];
     expect(usd, t).toBeGreaterThanOrEqual(35501);
     expect(usd, t).toBeLessThanOrEqual(39800);
     expect(t).toMatch(/enchufable|eléctrico/i);
@@ -268,11 +268,28 @@ test('ayudame a elegir: "Ver ficha" va en el renglón del nombre y el botón de 
   // Pedido del 2026-10-10: tarjetas más bajas y que se note cuál es el botón a apretar.
   await page.goto('/index.html');
   const li = page.locator('.elegir-res > li').first();
-  const [nombre, ver] = await Promise.all([li.locator('> b').boundingBox(), li.locator('[data-elegir-ficha]').boundingBox()]);
+  const [nombre, ver] = await Promise.all([li.locator('> b').boundingBox(), li.locator('> [data-elegir-ficha]').boundingBox()]);
   expect(Math.abs((nombre.y + nombre.height / 2) - (ver.y + ver.height / 2))).toBeLessThan(nombre.height);
   expect(ver.x).toBeGreaterThan(nombre.x + nombre.width);
   const anim = await page.locator('.elegir-barra-btns .ficha-btn.primario').evaluate(b => getComputedStyle(b).animationName);
   expect(anim).toBe('destelloComparar');
+});
+
+test('ayudame a elegir: el nombre del auto abre su ficha, y la foto la agranda', async ({ page }) => {
+  // Issue #87 (2026-10-31): «Ver ficha» se veía poco y se tocaba la foto, que solo la agranda.
+  await page.goto('/index.html');
+  const li = page.locator('.elegir-res > li').first();
+  const nombre = li.locator('.elegir-nombre');
+  const auto = await nombre.textContent();
+  await nombre.click();
+  await expect(page.locator('#fichaHoja')).toBeVisible();
+  await expect(page.locator('#fichaHoja')).toContainText(auto);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#fichaHoja')).toBeHidden();
+  // El cartel de por qué lo sugerimos sigue al lado del nombre, fuera del botón.
+  await expect(li.locator('> b > .elegir-porque')).toHaveCount(1);
+  await li.locator('.elegir-foto').click();
+  await expect(page.locator('#visorFotos')).toBeVisible();
 });
 
 test('respaldo de fábrica: la fábrica en el Mercosur tiene fuente, se ve en la tabla y pesa en A tu medida', async ({ page }) => {
