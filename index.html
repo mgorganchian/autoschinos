@@ -1162,6 +1162,8 @@ if(!location.search&&!location.hash)document.documentElement.classList.add('arra
   .elegir-res > li > ul{grid-area:motivos} .elegir-res > li > button{grid-area:ver;justify-self:end;align-self:center;white-space:nowrap}
   .elegir-res img{width:100%;aspect-ratio:300/190;object-fit:contain;background:#fff;border-radius:2px}
   .elegir-res b{font-family:var(--fuente-titulo);font-size:1.1rem}
+  .elegir-nombre{font:inherit;color:inherit;background:none;border:0;padding:0;min-height:24px;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:rgb(var(--h-rgb) / .3);text-underline-offset:3px}
+  .elegir-nombre:hover,.elegir-nombre:focus-visible{text-decoration-color:currentColor}
   .elegir-res ul{margin:4px 0 6px;padding-left:16px;font-size:.76rem;line-height:1.4}
   .elegir-acc{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
   /* Barra al pie, compacta (2026-10-09): una línea de texto y una de botones, pegada al borde
@@ -6809,7 +6811,10 @@ function pintarElegir(cambio){
       '<ol class="elegir-res">' + out.top.map(x => {
       const im = TH_AUTO[x.i].querySelector('img.car-photo');
       const n = listaDeFotos(SLUG_AUTO[x.i]).length;
-      return '<li' + (x.casi ? ' class="casi"' : '') + '><b>' + rkEsc(CARS[x.i].name) + elegirPorqueHTML(x) + '</b><span class="minicar" data-mini-slug="' + SLUG_AUTO[x.i] + '" data-k="0">' +
+      // El nombre también abre la ficha (issue #87, 2026-10-31): «Ver ficha» se veía poco y se tocaba la
+      // foto, que solo la agranda.
+      return '<li' + (x.casi ? ' class="casi"' : '') + '><b><button type="button" class="elegir-nombre" data-elegir-ficha="' + x.i + '">' + rkEsc(CARS[x.i].name) + '</button>' +
+        elegirPorqueHTML(x) + '</b><span class="minicar" data-mini-slug="' + SLUG_AUTO[x.i] + '" data-k="0">' +
         '<button type="button" class="elegir-foto" data-visor-slug="' + SLUG_AUTO[x.i] + '" aria-label="Ver ' + (n > 1 ? 'las ' + n + ' fotos' : 'la foto') + ' del ' + rkEsc(CARS[x.i].name) + '">' +
         '<img src="' + portadaDe(im) + '" alt="">' + (n > 1 ? '<span class="elegir-nfotos">' + n + ' fotos</span>' : '') + '</button>' + miniFlechas(SLUG_AUTO[x.i]) + '</span>' +
         '<ul>' + (x.casi ? '<li class="elegir-casi">' + rkEsc(x.casi) + '</li>' : '') + x.motivos.map(m => '<li>' + rkEsc(m) + '</li>').join('') +
